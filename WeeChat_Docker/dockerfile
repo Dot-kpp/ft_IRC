@@ -1,0 +1,15 @@
+FROM alpine:latest
+
+ENV HOME /weechat
+ENV TERM xterm-256color
+
+RUN apk add --no-cache weechat
+
+RUN adduser -D -h $HOME -s /sbin/nologin weechat \
+    && chown -R weechat:weechat $HOME
+
+USER weechat
+
+WORKDIR $HOME
+
+CMD ["weechat"]
