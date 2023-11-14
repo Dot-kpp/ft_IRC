@@ -27,7 +27,15 @@ void Server::start()
     this->running = true;
     while (this->running)
     {
-        std::cout << "Server running" << std::endl;
+        
+        std::cout << "Server running, waiting for connections..." << std::endl;
+        
+        int clientSocket = this->serverSocket.accept();
+        if (clientSocket == -1)
+        {
+            std::cerr << "Failed to accept client" << std::endl;
+            continue;
+        };
         sleep(1);
     };
 };

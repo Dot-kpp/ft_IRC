@@ -14,6 +14,7 @@ To connect to server:
 	-Once inside the container, you'll be at the WeeChat prompt. You can start WeeChat by typing:  /weechat
 	
 	-Connect to an IRC server:
+		weechat ip: "IPAddress": "172.17.0.2",
 		WeeChat uses the /server command to connect to IRC servers. For example, to connect to the freenode IRC server, you can type:  /server add freenode chat.freenode.net/6667
 	
 	-Connect to the server:

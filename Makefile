@@ -2,6 +2,8 @@ G = \033[0;32m
 R = \033[0;31m
 RT = \033[0m
 
+ARGS=6667
+
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 OBJDIR = bin
