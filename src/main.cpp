@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "../headers/irc.hpp"
 
 int main(int ac, char **av)
 {
