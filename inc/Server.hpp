@@ -1,25 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/14 14:41:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/14 16:44:05 by acouture         ###   ########.fr       */
+/*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
+/*   Updated: 2023/11/14 16:41:47 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
-int main(int ac, char **av)
-{
-    if (ac != 2)
-    {
-        std::cout << "Usage: ./irc [config_file]" << std::endl;
-        return (1);
-    }
-    Server server(atoi(av[1]));
-    server.start();
-    return (0);
-}
+#include "Socket.hpp"
+
+class Server {
+public:
+    Server(int port);
+    ~Server();
+
+    void start();
+    void stop();
+
+private:
+    Server();
+    Socket serverSocket;
+    int port;
+    bool running;
+
+};
+
+#endif 
