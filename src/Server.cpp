@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 17:55:00 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:01:39 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ void Server::start()
 {
     this->running = true;
 
-    // Initialize kqueue
     int kq = kqueue();
     if (kq == -1)
     {
