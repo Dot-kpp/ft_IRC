@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 18:01:39 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:10:51 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int Server::askPassword(int clientSocket)
     std::string greeting = "Hello, client!";
     size_t bytesSent = 0;
     size_t totalSent = 0;
-    std::string passwordPrompt = "Please enter the server password:";
+    std::string passwordPrompt = "Please enter the server password: ";
     totalSent = 0;
     while (totalSent < passwordPrompt.size())
     {
@@ -74,7 +74,7 @@ void Server::start()
 
     while (this->running)
     {
-        int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 32, NULL);
+        int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 1024, NULL);
         for (int i = 0; i < nev; i++)
         {
             int clientFd = kqueue.getEventList()[i].ident;
