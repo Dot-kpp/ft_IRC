@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 15:52:26 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:50:33 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,28 +15,49 @@
 
 #include "Socket.hpp"
 #include "KQueue.hpp"
+#include "Client.hpp"
 #include <iostream>
 #include <string.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include <signal.h>
+#include <unistd.h>
+#include <map>
 
-class Server {
+class Client;
+class Socket;
+
+class Server
+{
 public:
-    Server(int port, char* password);
+    static Server *instance;
+
+    Server(int port, std::string password);
     ~Server();
 
+    std::map<int, Client> clients;
     void start();
     void stop();
+    std::string getPassword();
+    int askPassword(int clientSocket);
+    static void handleSignal(int signal)
+    {
+        if (signal == SIGINT || signal == SIGTERM)
+        {
+            std::cout << "Received signal " << signal << ", closing server..." << std::endl;
+            instance->stop();
+            exit(0);
+        }
+    }
 
 private:
     Server();
     Socket serverSocket;
     int port;
-    char* password;
+    std::string password;
     bool running;
-
 };
 
-#endif 
+#endif

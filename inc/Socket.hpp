@@ -21,6 +21,7 @@ public:
     bool bind(const int port);
     bool listen() const;
     int accept() const;
+    void closeSocket() const;
 
     int getSocketFd() const;
 

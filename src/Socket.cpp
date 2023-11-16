@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:06 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 14:51:10 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:00:18 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 Socket::Socket(int port) : sockfd(0)
 {
-    std::cout << "Socket created" << std::endl;
     this->create();
     this->bind(port);
     this->listen();
@@ -24,13 +23,12 @@ Socket::~Socket()
 {
     if (this->sockfd)
         close(this->sockfd);
-    std::cout << "Socket destroyed" << std::endl;
 }
 
 /**
  * Create a socket
  * @return true if the socket was created, false otherwise
-*/
+ */
 bool Socket::create()
 {
     // Create socket
@@ -43,7 +41,12 @@ bool Socket::create()
         std::cerr << "Could not create socket" << std::endl;
         return (false);
     }
-    std::cout << "Socket created" << std::endl;
+    int optval = 1;
+    if (setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    {
+        std::cerr << "Could not set socket options" << std::endl;
+        return (false);
+    }
     return (true);
 }
 
@@ -51,7 +54,7 @@ bool Socket::create()
  * Bind the socket to a port
  * @param port the port to bind to
  * @return true if the socket was bound, false otherwise
-*/
+ */
 bool Socket::bind(const int port)
 {
     // Bind socket to port
@@ -72,7 +75,7 @@ bool Socket::bind(const int port)
 /**
  * Listen for incoming connections
  * @return true if the socket is listening, false otherwise
-*/
+ */
 bool Socket::listen() const
 {
     // Listen for connections
@@ -88,7 +91,7 @@ bool Socket::listen() const
 /**
  * Accept an incoming connection
  * @return the socket file descriptor of the new connection
-*/
+ */
 int Socket::accept() const
 {
     // Accept incoming connection
@@ -104,11 +107,16 @@ int Socket::accept() const
     return (new_socket);
 }
 
-/** 
+/**
  * Get the socket file descriptor
  * @return the socket file descriptor
-*/
+ */
 int Socket::getSocketFd() const
 {
     return (this->sockfd);
-}
+};
+
+void Socket::closeSocket() const
+{
+    close(this->sockfd);
+};

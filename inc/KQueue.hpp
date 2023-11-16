@@ -18,9 +18,6 @@ public:
     KQueue(int kq) : _kq(kq) {};
     ~KQueue() {};
 
-    void start();
-    void stop();
-
     struct kevent *getEventList();
     struct kevent *getChangeEvent();
     void setKq(int kq);

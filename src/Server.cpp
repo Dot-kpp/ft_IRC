@@ -6,21 +6,53 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 15:53:27 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:55:00 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 
-Server::Server(int port, char* password) : serverSocket(port), port(port), password(password), running(false)
+Server *Server::instance = nullptr;
+
+Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false)
 {
+    instance = this;
     std::cout << "Server created" << std::endl;
+    std::cout << "Port: " << this->port << std::endl;
+    std::cout << "Password: " << this->password << std::endl;
 };
 
 Server::~Server()
 {
+    instance = nullptr;
     std::cout << "Server destroyed" << std::endl;
 };
+
+std::string Server::getPassword()
+{
+    return (this->password);
+};
+
+int Server::askPassword(int clientSocket)
+{
+    std::string greeting = "Hello, client!";
+    size_t bytesSent = 0;
+    size_t totalSent = 0;
+    std::string passwordPrompt = "Please enter the server password:";
+    totalSent = 0;
+    while (totalSent < passwordPrompt.size())
+    {
+        bytesSent = send(clientSocket, passwordPrompt.c_str() + totalSent, passwordPrompt.size() - totalSent, 0);
+        if (bytesSent == ((size_t)-1))
+        {
+            std::cerr << "Could not send password prompt to client" << std::endl;
+            close(clientSocket);
+            return -1;
+        }
+        totalSent += bytesSent;
+    }
+    return (0);
+}
 
 void Server::start()
 {
@@ -34,12 +66,7 @@ void Server::start()
         return;
     }
     KQueue kqueue(kq);
-
-    // Add server socket to kqueue with the kevent
-    // Initialize the change_event
     EV_SET(kqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-
-    // Add the change_event to the kqueue
     if (kevent(kqueue.getKq(), kqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
     {
         std::cerr << "Could not add event to kqueue" << std::endl;
@@ -48,74 +75,68 @@ void Server::start()
 
     while (this->running)
     {
-        std::cout << "In while loop" << std::endl;
         int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 32, NULL);
         for (int i = 0; i < nev; i++)
         {
             int clientFd = kqueue.getEventList()[i].ident;
             if (clientFd == serverSocket.getSocketFd())
             {
-                std::cout << "New connection from " << clientFd << std::endl;
-                if (kqueue.getEventList()[i].flags & EV_ERROR)
-                {
-                    std::cerr << "Error on server socket" << std::endl;
-                    continue;
-                }
-
-                // Accept new connection
                 int clientSocket = serverSocket.accept();
-                std::string string = "allo";
-
-                send(clientFd, string.c_str(), string.size(), 0);
-
-                // Read password from client
-                char passwordBuffer[256];
-                ssize_t bytesRead = read(clientSocket, passwordBuffer, sizeof(passwordBuffer) - 1);
-                std::cout << bytesRead << std::endl;
-                if (bytesRead > 0)
+                clients[clientSocket] = Client(clientSocket, false);
+                if (!clients[clientSocket].getHasGoodPassword())
                 {
-                    passwordBuffer[bytesRead] = '\0';
-                    if (strcmp(passwordBuffer, this->password) == 0)
-                    {
-                        // Correct password, add client socket to kqueue with the kevent
-                        EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                        kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
-                    }
-                    else
-                    {
-                        close(clientSocket);
-                    }
+                    askPassword(clientSocket);
                 }
-                else
-                {
-                    close(clientSocket);
-                }
+                EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 char buffer[1024];
-                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer));
+                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
 
                 if (bytesRead > 0)
                 {
-                    // Process incoming data
-                    std::cout << "Received " << bytesRead << " bytes from " << clientFd << std::endl;
+                    buffer[bytesRead] = '\0';
+                    if (!clients[clientFd].getHasGoodPassword())
+                    {
+                        if (strncmp(buffer, this->password.c_str(), this->password.size()) == 0)
+                        {
+                            std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
+                            clients[clientFd].setHasGoodPassword(true);
+                            std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "Client " << clientFd << " provided an incorrect password." << std::endl;
+                            close(clientFd);
+                            clients.erase(clientFd);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "Received data from authenticated client " << clientFd << ": " << buffer << std::endl;
+                        // Process the data as required
+                    }
                 }
-                else if (bytesRead == 0)
+                else if (bytesRead <= 0)
                 {
+                    std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
                     close(clientFd);
-                }
-                else
-                {
-                    std::cerr << "Read error on client socket " << clientFd << std::endl;
+                    clients.erase(clientFd);
                 }
             }
         }
     }
+
     close(kq);
 }
 
 void Server::stop()
 {
     this->running = false;
+    this->serverSocket.closeSocket();
+    this->port = 0;
+    std::cout << "Server stopped" << std::endl;
 };

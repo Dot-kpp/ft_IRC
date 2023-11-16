@@ -2,7 +2,8 @@ G = \033[0;32m
 R = \033[0;31m
 RT = \033[0m
 
-ARGS=6667 "1234"
+ARG1=6667
+ARG2=password
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
@@ -40,7 +41,7 @@ re: fclean all
 
 run: re
 	@echo "\n$(G) ║ RUN PROGRAM ║$(RT)"
-	@./$(NAME) $(ARGS)
+	@./$(NAME) $(ARG1) $(ARG2)
 
 leaks: 
 	@leaks --atExit -- ./$(NAME)
