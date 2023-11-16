@@ -48,6 +48,7 @@ void Server::start()
 
     while (this->running)
     {
+        std::cout << "In while loop" << std::endl;
         int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 32, NULL);
         for (int i = 0; i < nev; i++)
         {
@@ -63,11 +64,14 @@ void Server::start()
 
                 // Accept new connection
                 int clientSocket = serverSocket.accept();
+                std::string string = "allo";
+
+                send(clientFd, string.c_str(), string.size(), 0);
 
                 // Read password from client
                 char passwordBuffer[256];
                 ssize_t bytesRead = read(clientSocket, passwordBuffer, sizeof(passwordBuffer) - 1);
-
+                std::cout << bytesRead << std::endl;
                 if (bytesRead > 0)
                 {
                     passwordBuffer[bytesRead] = '\0';
@@ -79,13 +83,11 @@ void Server::start()
                     }
                     else
                     {
-                        // Incorrect password, close the socket
                         close(clientSocket);
                     }
                 }
                 else
                 {
-                    // Error reading password or no data, close the socket
                     close(clientSocket);
                 }
             }
