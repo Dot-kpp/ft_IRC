@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:06 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/14 16:41:52 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/16 14:51:10 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,4 +102,13 @@ int Socket::accept() const
     }
     std::cout << "Connection accepted" << std::endl;
     return (new_socket);
+}
+
+/** 
+ * Get the socket file descriptor
+ * @return the socket file descriptor
+*/
+int Socket::getSocketFd() const
+{
+    return (this->sockfd);
 }

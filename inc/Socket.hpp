@@ -22,6 +22,8 @@ public:
     bool listen() const;
     int accept() const;
 
+    int getSocketFd() const;
+
 private:
     int sockfd;
     sockaddr_in server_addr;
