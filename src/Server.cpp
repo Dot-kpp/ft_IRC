@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 18:10:51 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/18 16:15:12 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,76 @@ int Server::askPassword(int clientSocket)
     return (0);
 }
 
+int Server::treatIncomingBuffer(std::string strBuffer, int clientFd)
+{
+    if (strBuffer.substr(0, 4) == "NICK")
+    {
+        std::cout << "Received NICK from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "PART")
+    {
+        std::cout << "Received PART from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "JOIN")
+    {
+        std::cout << "Received JOIN from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 7) == "PRIVMSG")
+    {
+        std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "USER")
+    {
+        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "LIST")
+    {
+        std::cout << "Received LIST from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "QUIT")
+    {
+        std::cout << "Received QUIT from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "PING")
+    {
+        std::cout << "Received PING from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "PONG")
+    {
+        std::cout << "Received PONG from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "KICK")
+    {
+        std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "MODE")
+    {
+        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 5) == "TOPIC")
+    {
+        std::cout << "Received TOPIC from client " << clientFd << ": " << strBuffer << std::endl;
+        return 0;
+    }
+    else
+    {
+        std::cout << "Received unknown command from client " << clientFd << ": " << strBuffer << std::endl;
+        return -1;
+    }
+    return 0;
+}
+
 void Server::start()
 {
     this->running = true;
@@ -82,43 +152,45 @@ void Server::start()
             {
                 int clientSocket = serverSocket.accept();
                 clients[clientSocket] = Client(clientSocket, false);
-                if (!clients[clientSocket].getHasGoodPassword())
-                {
-                    askPassword(clientSocket);
-                }
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
-                char buffer[1024];
+                char buffer[512];
                 ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+                buffer[bytesRead] = '\0';
 
+                std::string strBuffer(buffer);
                 if (bytesRead > 0)
                 {
-                    buffer[bytesRead] = '\0';
-                    if (!clients[clientFd].getHasGoodPassword())
+                    if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
                     {
-                        if (strncmp(buffer, this->password.c_str(), this->password.size()) == 0)
+                        strBuffer.erase(0, 5);
+                        if (strBuffer == this->password)
                         {
                             std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
                             clients[clientFd].setHasGoodPassword(true);
                             std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
                         }
-                        else
-                        {
-                            std::cout << "Client " << clientFd << " buffer" << buffer << std::endl;
-                            std::cout << "Client " << clientFd << " provided an incorrect password." << std::endl;
-                            close(clientFd);
-                            clients.erase(clientFd);
-                            continue;
+                        else {
+                            std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+                            send(clientFd, "Wrong password.\n", 16, 0);
                         }
                     }
                     else
                     {
-                        std::cout << "Received data from authenticated client " << clientFd << ": " << buffer << std::endl;
-                        // Process the data as required
+                        if (treatIncomingBuffer(strBuffer, clientFd) == -1)
+                        {
+                            continue;
+                        };
                     }
+                }
+                else if (bytesRead > 512)
+                {
+                    std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
+                    close(clientFd);
+                    clients.erase(clientFd);
                 }
                 else if (bytesRead <= 0)
                 {
@@ -129,7 +201,6 @@ void Server::start()
             }
         }
     }
-
     close(kq);
 }
 
