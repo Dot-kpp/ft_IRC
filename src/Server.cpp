@@ -81,11 +81,7 @@ void Server::start()
             if (clientFd == serverSocket.getSocketFd())
             {
                 int clientSocket = serverSocket.accept();
-                clients[clientSocket] = Client(clientSocket, false);
-                if (!clients[clientSocket].getHasGoodPassword())
-                {
-                    askPassword(clientSocket);
-                }
+                clients[clientFd] = Client(clientFd, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
@@ -93,32 +89,38 @@ void Server::start()
             {
                 char buffer[1024];
                 ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
-
                 if (bytesRead > 0)
                 {
                     buffer[bytesRead] = '\0';
-                    if (!clients[clientFd].getHasGoodPassword())
-                    {
-                        if (strncmp(buffer, this->password.c_str(), this->password.size()) == 0)
-                        {
-                            std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
+
+                    if (!clients[clientFd].getHasGoodPassword() && strncmp(buffer, "PASS", 4) == 0) {
+                        std::cout << "Password" << buffer << std::endl;
+
+                        if (strncmp(buffer, password.c_str(), password.size()) == 0 ) {
                             clients[clientFd].setHasGoodPassword(true);
+                            std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
+                            std::cout << "Has password" << clients[clientFd].getHasGoodPassword() << std::endl;
                             std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
                         }
-                        else
-                        {
-                            std::cout << "Client " << clientFd << " buffer" << buffer << std::endl;
-                            std::cout << "Client " << clientFd << " provided an incorrect password." << std::endl;
-                            close(clientFd);
-                            clients.erase(clientFd);
-                            continue;
-                        }
                     }
-                    else
-                    {
-                        std::cout << "Received data from authenticated client " << clientFd << ": " << buffer << std::endl;
-                        // Process the data as required
-                    }
+//                    if ()
+//                    {
+//                        if (strncmp(buffer, this->password.c_str(), this->password.size()) == 0)
+//                        {
+//
+//                        }
+//                        else
+//                        {
+//                            std::cout << "Client " << clientFd << " buffer" << buffer << std::endl;
+//                            std::cout << "Client " << clientFd << " provided an incorrect password." << std::endl;
+//                            continue;
+//                        }
+//                    }
+//                    else
+//                    {
+//                        std::cout << "Received data from authenticated client " << clientFd << ": " << buffer << std::endl;
+//                        // Process the data as required
+//                    }
                 }
                 else if (bytesRead <= 0)
                 {

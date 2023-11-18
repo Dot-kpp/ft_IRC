@@ -28,6 +28,8 @@ public:
     Socket getClientSocket();
     std::string getPassword();
     bool getHasGoodPassword();
+
+    friend std::ostream &operator<<(std::ostream &os, const Client &client);
 };
 
 #endif

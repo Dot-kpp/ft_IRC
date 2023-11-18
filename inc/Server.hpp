@@ -17,7 +17,7 @@
 #include "KQueue.hpp"
 #include "Client.hpp"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <sys/types.h>
 #include <sys/event.h>

@@ -1,7 +1,7 @@
 
 #include "../inc/Client.hpp"
 
-Client::Client(Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword){};
+Client::Client(Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword){ std::cout << "Client constructor called " << std::endl; };
 
 Client::~Client() {};
 
