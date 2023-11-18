@@ -13,7 +13,7 @@ class Client
 {
 private:
     Socket clientSocket;
-    std::string username;
+    std::string nickname;
     std::string password;
     bool hasGoodPassword;
 
@@ -28,6 +28,8 @@ public:
     Socket getClientSocket();
     std::string getPassword();
     bool getHasGoodPassword();
+    std::string getNickName();
+    void setNickName(std::string nick);
 };
 
 #endif

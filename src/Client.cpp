@@ -34,3 +34,13 @@ bool Client::getHasGoodPassword()
 {
     return (this->hasGoodPassword);
 };
+
+std::string Client::getNickName()
+{
+    return (this->nickname);
+};
+
+void Client::setNickName(std::string nick)
+{
+    this->nickname = nick;
+};

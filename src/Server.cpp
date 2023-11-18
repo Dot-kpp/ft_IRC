@@ -54,10 +54,13 @@ int Server::askPassword(int clientSocket)
     return (0);
 }
 
-int Server::treatIncomingBuffer(std::string strBuffer, int clientFd)
+int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client)
 {
     if (strBuffer.substr(0, 4) == "NICK")
     {
+        // TODO: Add nickname verification and handling
+        client->setNickName(strBuffer.substr(5));
+        std::cout << "New Nick for client: " << client->getNickName() << std::endl;
         std::cout << "Received NICK from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
@@ -158,7 +161,7 @@ void Server::start()
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 char buffer[512];
-                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 2);
+                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
                 buffer[bytesRead] = '\0';
 
                 std::string strBuffer(buffer);
@@ -167,24 +170,23 @@ void Server::start()
                     if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
                     {
                         strBuffer.erase(0, 5);
-                        std::cout << "Erased string:" << strBuffer << std::endl;
                         if (strBuffer.compare(0, this->password.size(), this->password) == 0)
                         {
-                            std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
                             clients[clientFd].setHasGoodPassword(true);
-                            std::string welcomeMessage = ":YourServerName 001 :Welcome to the IRC network. \r\n";
+                            std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
                             send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
                             std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
                         }
                         else
                         {
                             std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                            send(clientFd, "Wrong password.\n", 16, 0);
+                            std::string wrongPassword = ":YourServerName 464 * :Password incorrect\r\n";
+                            send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
                         }
                     }
                     else if (clients[clientFd].getHasGoodPassword())
                     {
-                        if (treatIncomingBuffer(strBuffer, clientFd) == -1)
+                        if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd]) == -1)
                         {
                             continue;
                         };

@@ -42,7 +42,7 @@ public:
     void stop();
     std::string getPassword();
     int askPassword(int clientSocket);
-    int treatIncomingBuffer(std::string strBuffer, int clientFd);
+    int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client);
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
