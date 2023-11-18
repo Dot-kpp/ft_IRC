@@ -8,6 +8,8 @@ To use:
 
 
 To connect to server:
+
+host.docker.internal
 	
 	-Launch Weechat container
 	

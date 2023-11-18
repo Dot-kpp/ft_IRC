@@ -107,6 +107,7 @@ void Server::start()
                         }
                         else
                         {
+                            std::cout << "Client " << clientFd << " buffer" << buffer << std::endl;
                             std::cout << "Client " << clientFd << " provided an incorrect password." << std::endl;
                             close(clientFd);
                             clients.erase(clientFd);
