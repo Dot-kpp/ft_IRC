@@ -158,7 +158,7 @@ void Server::start()
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 char buffer[512];
-                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 2);
                 buffer[bytesRead] = '\0';
 
                 std::string strBuffer(buffer);
@@ -167,18 +167,22 @@ void Server::start()
                     if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
                     {
                         strBuffer.erase(0, 5);
-                        if (strBuffer == this->password)
+                        std::cout << "Erased string:" << strBuffer << std::endl;
+                        if (strBuffer.compare(0, this->password.size(), this->password) == 0)
                         {
                             std::cout << "Client " << clientFd << " provided the correct password." << std::endl;
                             clients[clientFd].setHasGoodPassword(true);
+                            std::string welcomeMessage = ":YourServerName 001 :Welcome to the IRC network. \r\n";
+                            send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
                             std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
                         }
-                        else {
+                        else
+                        {
                             std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
                             send(clientFd, "Wrong password.\n", 16, 0);
                         }
                     }
-                    else
+                    else if (clients[clientFd].getHasGoodPassword())
                     {
                         if (treatIncomingBuffer(strBuffer, clientFd) == -1)
                         {

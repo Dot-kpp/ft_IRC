@@ -68,7 +68,6 @@ bool Socket::bind(const int port)
         std::cerr << "Could not bind to port " << port << std::endl;
         return (false);
     }
-    std::cout << "Binded to port " << port << std::endl;
     return (true);
 }
 
@@ -84,7 +83,6 @@ bool Socket::listen() const
         std::cerr << "Could not listen" << std::endl;
         return (false);
     }
-    std::cout << "Waiting for connections..." << std::endl;
     return (true);
 }
 
