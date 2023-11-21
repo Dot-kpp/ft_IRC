@@ -3,7 +3,7 @@ R = \033[0;31m
 RT = \033[0m
 
 ARG1=6667
-ARG2=password
+ARG2=password1
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98

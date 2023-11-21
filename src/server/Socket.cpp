@@ -6,11 +6,11 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:06 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/16 18:00:18 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/21 16:19:43 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Socket.hpp"
+#include "../../inc/server/Socket.hpp"
 
 Socket::Socket(int port) : sockfd(0)
 {
