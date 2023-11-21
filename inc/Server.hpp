@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/18 16:07:47 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/21 13:59:24 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ public:
     std::string getPassword();
     int askPassword(int clientSocket);
     int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client);
+    int parseIncomingBuffer(std::string buffer);
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/18 16:15:12 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/21 14:59:22 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,12 @@ int Server::askPassword(int clientSocket)
         }
         totalSent += bytesSent;
     }
+    return (0);
+}
+
+int Server::parseIncomingBuffer(std::string buffer)
+{
+    (void)buffer;
     return (0);
 }
 
@@ -180,7 +186,7 @@ void Server::start()
                         else
                         {
                             std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                            std::string wrongPassword = ":YourServerName 464 * :Password incorrect\r\n";
+                            std::string wrongPassword = ":YourServerName 464 :Password incorrect\r\n";
                             send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
                         }
                     }
