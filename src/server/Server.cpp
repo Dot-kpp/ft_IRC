@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/22 16:10:35 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 16:44:04 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,12 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
 {
     if (strBuffer.substr(0, 4) == "NICK")
     {
-        std::cout << "Received NICK from client " << clientFd << ": " << strBuffer << std::endl;
-        // TODO: Add nickname verification and handling
+        if (strBuffer.empty()) {
+            std::string noNickError = "431 " + std::to_string(clientFd) + " :No nickname given";
+            send(clientFd, noNickError.c_str(), noNickError.size(), 0);
+            return -1;
+        }
+        std::string nickname = strBuffer.substr(5);
         client->setNickName(strBuffer);
         std::cout << clients[clientFd] << std::endl;
         return 0;
@@ -181,28 +185,7 @@ void Server::start()
                         if (strBuffer.compare(0, this->password.size(), this->password) == 0)
                         {
                             clients[clientFd].setHasGoodPassword(true);
-
-                            // RPL_WELCOME
-                            std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
-                            send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
-
-                            // RPL_YOURHOST
-                            std::string yourHostMessage = ":YourServerName 002 :Your host is badass ft_IRC, running version 0.0.1 \r\n";
-                            send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
-
-                            // RPL_CREATED
-                            std::string createdMessage = ":YourServerName 003 :This server was created Nov 8 2023. \r\n";
-                            send(clientFd, createdMessage.c_str(), createdMessage.size(), 0);
-
-                            // RPL_MYINFO
-                            std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 (NB OF USER) (NB OF CHANNELS). \r\n";
-                            send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
-
-                            // RPL_ISUPPORT
-                            std::string isupportMessage = ":YourServerName 005 <client> <1-13 tokens> :are supported by this server\r\n";
-                            send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
-
-                            std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
+                            clients[clientFd].welcomeClient(clientFd);
                         }
                         else
                         {

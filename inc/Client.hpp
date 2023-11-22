@@ -43,6 +43,7 @@ public:
 
 
     // methods
+    void welcomeClient(int clientFd);
     void subscribeToChannel(Channels* channel);
 };
 
