@@ -11,7 +11,7 @@ class Server;
 class Socket;
 class Channels;
 
-class Client : public Channels
+class Client
 {
 private:
     Socket clientSocket;
@@ -19,11 +19,12 @@ private:
     std::string password;
     bool hasGoodPassword;
     std::string mode;
-    int channelId;
+    Channels* channel;
+
 
 public:
-    Client() : clientSocket(0), password(""), hasGoodPassword(false) { this->channelId = 0; };
-    Client(Socket clientSocket, bool hasGoodPassword);
+    Client() : clientSocket(0), password(""), hasGoodPassword(false) {};
+    Client(Channels &channel, Socket clientSocket, bool hasGoodPassword); 
     ~Client();
 
     void setPassword(std::string password);
@@ -34,6 +35,7 @@ public:
     bool getHasGoodPassword();
     std::string getNickName();
     void setNickName(std::string nick);
+    void subscribeToChannel(Channels* channel);
 };
 
 #endif

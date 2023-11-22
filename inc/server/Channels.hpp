@@ -3,12 +3,15 @@
 
 #include "../Client.hpp"
 #include <iostream>
+#include <vector>
+
+class Client;
 
 class Channels
 {
 private:
     int channelId;
-    Client *clients[1024];
+    std::vector<Client *> clients;
 
 public:
     Channels();
@@ -17,7 +20,8 @@ public:
     Channels &operator=(Channels const &rhs);
     ~Channels();
 
-
+    void addClient(Client *client) { clients.push_back(client); }
+    void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
 };
 
 #endif

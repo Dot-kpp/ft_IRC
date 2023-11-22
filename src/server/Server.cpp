@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/21 16:19:57 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 15:44:21 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,8 +159,9 @@ void Server::start()
             int clientFd = kqueue.getEventList()[i].ident;
             if (clientFd == serverSocket.getSocketFd())
             {
+                Channels channel(0);
                 int clientSocket = serverSocket.accept();
-                clients[clientSocket] = Client(clientSocket, false);
+                clients[clientSocket] = Client(channel, clientSocket, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }

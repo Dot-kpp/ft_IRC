@@ -1,22 +1,18 @@
-#include "Nick.hpp"
-using std::cout;
-using std::cin;
-using std::endl;
-Nick::Nick()
-{
-std::cout << "Nick constructor is called" << std::endl;
-};
+
+#include "../../inc/commands/Nick.hpp"
+
+Nick::Nick(){};
 
 Nick::Nick(Nick const *copy)
 {
-std::cout << "Nick copy constructor is called" << std::endl;
-*this = copy;
+      *this = copy;
 };
 Nick &Nick::operator=(Nick const &rhs)
 {
+      if (this != &rhs)
+      {
+      }
+      return (*this);
 };
 
-Nick::~Nick()
-{
-      std::cout << "Nick destructor is called" << std::endl;
-};
+Nick::~Nick(){};

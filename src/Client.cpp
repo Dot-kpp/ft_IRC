@@ -1,7 +1,7 @@
 
 #include "../inc/Client.hpp"
 
-Client::Client(Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword){};
+Client::Client(Channels &channel, Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), channel(&channel) {};
 
 Client::~Client() {};
 
@@ -43,4 +43,9 @@ std::string Client::getNickName()
 void Client::setNickName(std::string nick)
 {
     this->nickname = nick;
+};
+
+void Client::subscribeToChannel(Channels* channel)
+{
+    this->channel = channel;
 };

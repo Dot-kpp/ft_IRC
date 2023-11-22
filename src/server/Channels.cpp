@@ -1,22 +1,20 @@
 #include "../../inc/server/Channels.hpp"
-using std::cout;
 using std::cin;
+using std::cout;
 using std::endl;
-Channels::Channels()
-{
-std::cout << "Channels constructor is called" << std::endl;
-};
+
+Channels::Channels(){};
 
 Channels::Channels(Channels const *copy)
 {
-std::cout << "Channels copy constructor is called" << std::endl;
-*this = copy;
+      *this = copy;
 };
 Channels &Channels::operator=(Channels const &rhs)
 {
+      if (this != &rhs)
+      {
+      }
+      return (*this);
 };
 
-Channels::~Channels()
-{
-      std::cout << "Channels destructor is called" << std::endl;
-};
+Channels::~Channels(){};
