@@ -1,5 +1,6 @@
 #include "../../inc/server/Server.hpp"
 
+<<<<<<< HEAD
 // Numeric Replies:
 
 // ERR_NONICKNAMEGIVEN (431)
@@ -20,6 +21,8 @@
 //   CHANTYPES=&#
 
 //   CHANTYPES=#&
+=======
+>>>>>>> acouture
 bool parseNickname(std::string nickname, int clientFd)
 {
     Server *server = Server::instance;

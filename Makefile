@@ -3,14 +3,14 @@ R = \033[0;31m
 RT = \033[0m
 
 ARG1=6667
-ARG2=password
+ARG2=password1
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 OBJDIR = bin
 SRCDIR = src
 SRCS = $(shell find $(SRCDIR) -type f -name '*.cpp')
-OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.cpp=.o)))
+OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 NAME=ft_IRC
 PDF=https://cdn.intra.42.fr/pdf/pdf/94731/en.subject.pdf
 
@@ -19,7 +19,8 @@ all: mk_bin $(NAME)
 mk_bin:
 	@mkdir -p $(OBJDIR)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | mk_bin
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)

@@ -6,11 +6,11 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/21 14:59:22 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 16:44:04 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+#include "../../inc/server/Server.hpp"
 
 Server *Server::instance = nullptr;
 
@@ -64,10 +64,26 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
 {
     if (strBuffer.substr(0, 4) == "NICK")
     {
-        // TODO: Add nickname verification and handling
-        client->setNickName(strBuffer.substr(5));
-        std::cout << "New Nick for client: " << client->getNickName() << std::endl;
-        std::cout << "Received NICK from client " << clientFd << ": " << strBuffer << std::endl;
+        if (strBuffer.empty()) {
+            std::string noNickError = "431 " + std::to_string(clientFd) + " :No nickname given";
+            send(clientFd, noNickError.c_str(), noNickError.size(), 0);
+            return -1;
+        }
+        std::string nickname = strBuffer.substr(5);
+        client->setNickName(strBuffer);
+        std::cout << clients[clientFd] << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "USER")
+    {
+        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
+        std::cout << clients[clientFd] << std::endl;
+        client->setUserName(strBuffer);
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "MODE")
+    {
+        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 4) == "PART")
@@ -83,11 +99,6 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     else if (strBuffer.substr(0, 7) == "PRIVMSG")
     {
         std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (strBuffer.substr(0, 4) == "USER")
-    {
-        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 4) == "LIST")
@@ -113,11 +124,6 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     else if (strBuffer.substr(0, 4) == "KICK")
     {
         std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (strBuffer.substr(0, 4) == "MODE")
-    {
-        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 5) == "TOPIC")
@@ -179,19 +185,19 @@ void Server::start()
                         if (strBuffer.compare(0, this->password.size(), this->password) == 0)
                         {
                             clients[clientFd].setHasGoodPassword(true);
-                            std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
-                            send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
-                            std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
+                            clients[clientFd].welcomeClient(clientFd);
                         }
                         else
                         {
                             std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                            std::string wrongPassword = ":YourServerName 464 :Password incorrect\r\n";
+                            std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
                             send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
                         }
                     }
                     else if (clients[clientFd].getHasGoodPassword())
                     {
+                        Channels channel(0);
+                        clients[clientFd].subscribeToChannel(&channel);
                         if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd]) == -1)
                         {
                             continue;

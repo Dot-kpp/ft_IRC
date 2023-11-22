@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/21 13:59:24 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 17:10:02 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 #include "Socket.hpp"
 #include "KQueue.hpp"
-#include "Client.hpp"
+#include "Channels.hpp"
+#include "../Client.hpp"
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -31,6 +32,14 @@ class Socket;
 
 class Server
 {
+
+private:
+    Server();
+    Socket serverSocket;
+    int port;
+    std::string password;
+    bool running;
+
 public:
     static Server *instance;
 
@@ -53,13 +62,8 @@ public:
             exit(0);
         }
     }
-
-private:
-    Server();
-    Socket serverSocket;
-    int port;
-    std::string password;
-    bool running;
 };
+
+
 
 #endif

@@ -1,6 +1,6 @@
 // File: main.cpp
 
-#include "../inc/Server.hpp"
+#include "../inc/server/Server.hpp"
 
 void handleSignal(int signal, Server &server)
 {

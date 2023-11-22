@@ -19,6 +19,7 @@ To connect to server:
 		weechat ip: "IPAddress": "172.17.0.2",
 		WeeChat uses the /server command to connect to IRC servers. For example, to connect to the freenode IRC server, you can type:  /server add freenode host.docker.internal/6667
 		Running on acouture: /server add freenode 10.18.255.255/6667
+		/server add irc host.docker.internal/6667
 	
 	- Setup password
 		/set irc.server.irc.password password
