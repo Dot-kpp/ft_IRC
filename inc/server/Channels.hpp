@@ -20,6 +20,7 @@ public:
     Channels &operator=(Channels const &rhs);
     ~Channels();
 
+    int getChannelId() const { return channelId; }
     void addClient(Client *client) { clients.push_back(client); }
     void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
 };

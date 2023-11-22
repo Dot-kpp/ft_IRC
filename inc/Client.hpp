@@ -15,6 +15,7 @@ class Client
 {
 private:
     Socket clientSocket;
+    std::string username;
     std::string nickname;
     std::string password;
     bool hasGoodPassword;
@@ -24,18 +25,27 @@ private:
 
 public:
     Client() : clientSocket(0), password(""), hasGoodPassword(false) {};
-    Client(Channels &channel, Socket clientSocket, bool hasGoodPassword); 
+    Client(Socket clientSocket, bool hasGoodPassword); 
     ~Client();
 
+    // setters and getters
     void setPassword(std::string password);
     void setHasGoodPassword(bool hasGoodPassword);
     void setClientSocket(Socket clientSocket);
-    Socket getClientSocket();
-    std::string getPassword();
-    bool getHasGoodPassword();
-    std::string getNickName();
     void setNickName(std::string nick);
+    void setUserName(std::string username);
+    Socket getClientSocket() const;
+    std::string getPassword() const;
+    bool getHasGoodPassword() const;
+    std::string getNickName() const;
+    std::string getUserName() const;
+    Channels* getChannel() const;
+
+
+    // methods
     void subscribeToChannel(Channels* channel);
 };
+
+std::ostream &operator<<(std::ostream &o, Client const &rhs);
 
 #endif

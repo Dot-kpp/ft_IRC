@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/22 15:44:21 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 16:10:35 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,19 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         std::cout << "Received NICK from client " << clientFd << ": " << strBuffer << std::endl;
         // TODO: Add nickname verification and handling
         client->setNickName(strBuffer);
-        std::cout << "New Nick for client: " << client->getNickName() << std::endl;
+        std::cout << clients[clientFd] << std::endl;
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "USER")
+    {
+        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
+        std::cout << clients[clientFd] << std::endl;
+        client->setUserName(strBuffer);
+        return 0;
+    }
+    else if (strBuffer.substr(0, 4) == "MODE")
+    {
+        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 4) == "PART")
@@ -83,11 +95,6 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     else if (strBuffer.substr(0, 7) == "PRIVMSG")
     {
         std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (strBuffer.substr(0, 4) == "USER")
-    {
-        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 4) == "LIST")
@@ -113,11 +120,6 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     else if (strBuffer.substr(0, 4) == "KICK")
     {
         std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (strBuffer.substr(0, 4) == "MODE")
-    {
-        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
     else if (strBuffer.substr(0, 5) == "TOPIC")
@@ -159,9 +161,8 @@ void Server::start()
             int clientFd = kqueue.getEventList()[i].ident;
             if (clientFd == serverSocket.getSocketFd())
             {
-                Channels channel(0);
                 int clientSocket = serverSocket.accept();
-                clients[clientSocket] = Client(channel, clientSocket, false);
+                clients[clientSocket] = Client(clientSocket, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
@@ -212,6 +213,8 @@ void Server::start()
                     }
                     else if (clients[clientFd].getHasGoodPassword())
                     {
+                        Channels channel(0);
+                        clients[clientFd].subscribeToChannel(&channel);
                         if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd]) == -1)
                         {
                             continue;
