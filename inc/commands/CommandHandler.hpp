@@ -8,6 +8,7 @@
 #include <memory>
 
 class Nick;
+class Command;
 
 class CommandHandler
 {

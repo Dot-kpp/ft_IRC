@@ -7,9 +7,11 @@
 #include <vector>
 #include <map>
 
+
 class Command
 {
 public:
+    Command() {};
     virtual ~Command();
     virtual bool execute(std::string args, int clientFd) = 0;
 };
