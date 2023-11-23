@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 14:17:40 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:03:14 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "KQueue.hpp"
 #include "Channels.hpp"
 #include "../Client.hpp"
+#include "../commands/Command.hpp"
 #include <sstream>
 #include <iostream>
 #include <string.h>

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 14:21:48 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:28:26 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,18 @@ int Server::parseIncomingBuffer(std::string buffer)
 
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
-    if (strBuffer.substr(0, 4) == "NICK")
+    if (strBuffer.empty())
+    {
+        std::string noCommandError = ": 421 " + std::to_string(clientFd) + " :Unknown command";
+        send(clientFd, noCommandError.c_str(), noCommandError.size(), 0);
+        return -1;
+    }
+    
+    else if (strBuffer.substr(0, 4) == "NICK")
     {
         if (strBuffer.empty())
         {
-            std::string noNickError = "431 " + std::to_string(clientFd) + " :No nickname given";
+            std::string noNickError = ": 431 " + std::to_string(clientFd) + " :No nickname given";
             send(clientFd, noNickError.c_str(), noNickError.size(), 0);
             return -1;
         }
