@@ -97,4 +97,4 @@ std::ostream &operator<<(std::ostream &o, Client const &rhs)
     o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl;
 
     return (o);
-};
+}
