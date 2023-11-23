@@ -27,6 +27,9 @@ $(NAME): $(OBJS)
 	@$(CC) $(OBJS) -o $(NAME)
 	@echo "$(G)\n ║ MAKE COMPLETE ║$(RT)"
 
+weechat:
+	@cd WeeChat_Docker && docker build -t my-weechat-image . && docker run -it --rm my-weechat-image
+
 pdf:
 	$(shell open $(PDF))
 
