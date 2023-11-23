@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/22 19:10:07 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/23 14:21:48 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,6 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         std::cout << "Received unknown command from client " << clientFd << ": " << strBuffer << std::endl;
         return -1;
     }
-    if (!(client->getNickName().empty() || client->getUserName().empty()))
-        client->welcomeClient(clientFd);
     return 0;
 }
 
@@ -171,6 +169,7 @@ void Server::start()
         for (int i = 0; i < nev; i++)
         {
             int clientFd = kqueue.getEventList()[i].ident;
+            // CONNECTION SERVER SOCKET
             if (clientFd == serverSocket.getSocketFd())
             {
                 int clientSocket = serverSocket.accept();
@@ -180,6 +179,7 @@ void Server::start()
             }
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
+                // INCOMING MESSAGE FROM CLIENT
                 char buffer[512];
                 ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
                 buffer[bytesRead] = '\0';
@@ -205,7 +205,7 @@ void Server::start()
                     else if (clients[clientFd].getHasGoodPassword())
                     {
                         Channels channel(0);
-                        clients[clientFd].subscribeToChannel(&channel);
+                        /* clients[clientFd].subscribeToChannel(&channel); */
                         if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true) == -1)
                         {
                             continue;

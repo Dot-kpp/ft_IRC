@@ -11,6 +11,7 @@ class Channels
 {
 private:
     int channelId;
+    std::string name;
     std::vector<Client *> clients;
 
 public:

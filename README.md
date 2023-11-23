@@ -1,18 +1,35 @@
 # ft_IRC
 
 ## Commands TO_DO
-- Part
-- Nickname
-- Join
-- Username
-- Ping
-- Pass
-- Privmsg
-- Topic
-- Kick
-- Mode
-- Oper
-- Invite
+
+## CONNECTION MESSAGES
+- NICK
+- USER
+- PASS
+- OPER
+- QUIT
+- PING/PONG
+
+## CHANNEL OPERATIONS
+- NAMES
+- JOIN
+- PART
+- TOPIC
+- INVITE
+- KICK
+- MODE
+
+## SENDING MESSAGES
+- PRIVMSG
+- NOTICE
+
+### Alex
+ * CONNECTION MESSAGES
+
+### Clément
+
+### Jé
+
 
 # IRC Commands Summary
 
