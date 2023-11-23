@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/22 16:44:04 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 19:10:07 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,18 +60,24 @@ int Server::parseIncomingBuffer(std::string buffer)
     return (0);
 }
 
-int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client)
+int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
     if (strBuffer.substr(0, 4) == "NICK")
     {
-        if (strBuffer.empty()) {
+        if (strBuffer.empty())
+        {
             std::string noNickError = "431 " + std::to_string(clientFd) + " :No nickname given";
             send(clientFd, noNickError.c_str(), noNickError.size(), 0);
             return -1;
         }
-        std::string nickname = strBuffer.substr(5);
-        client->setNickName(strBuffer);
-        std::cout << clients[clientFd] << std::endl;
+        std::string nickname = strBuffer.substr(5, strBuffer.size() - 2);
+        if (parseNickname(nickname, clientFd))
+        {
+            client->setNickName(nickname);
+            std::cout << "Nickname successfully changed to: " << nickname << std::endl;
+        }
+        else
+            return -1;
         return 0;
     }
     else if (strBuffer.substr(0, 4) == "USER")
@@ -81,52 +87,52 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         client->setUserName(strBuffer);
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "MODE")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "MODE")
     {
         std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "PART")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PART")
     {
         std::cout << "Received PART from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "JOIN")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "JOIN")
     {
         std::cout << "Received JOIN from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 7) == "PRIVMSG")
+    else if (hasUserAndNick && strBuffer.substr(0, 7) == "PRIVMSG")
     {
         std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "LIST")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "LIST")
     {
         std::cout << "Received LIST from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "QUIT")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "QUIT")
     {
         std::cout << "Received QUIT from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "PING")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PING")
     {
         std::cout << "Received PING from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "PONG")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PONG")
     {
         std::cout << "Received PONG from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 4) == "KICK")
+    else if (hasUserAndNick && strBuffer.substr(0, 4) == "KICK")
     {
         std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
     }
-    else if (strBuffer.substr(0, 5) == "TOPIC")
+    else if (hasUserAndNick && strBuffer.substr(0, 5) == "TOPIC")
     {
         std::cout << "Received TOPIC from client " << clientFd << ": " << strBuffer << std::endl;
         return 0;
@@ -136,6 +142,8 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         std::cout << "Received unknown command from client " << clientFd << ": " << strBuffer << std::endl;
         return -1;
     }
+    if (!(client->getNickName().empty() || client->getUserName().empty()))
+        client->welcomeClient(clientFd);
     return 0;
 }
 
@@ -198,7 +206,7 @@ void Server::start()
                     {
                         Channels channel(0);
                         clients[clientFd].subscribeToChannel(&channel);
-                        if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd]) == -1)
+                        if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true) == -1)
                         {
                             continue;
                         };

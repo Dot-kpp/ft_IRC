@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/22 17:10:02 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/22 18:54:36 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "KQueue.hpp"
 #include "Channels.hpp"
 #include "../Client.hpp"
+#include <sstream>
 #include <iostream>
 #include <string.h>
 #include <string>
@@ -51,7 +52,7 @@ public:
     void stop();
     std::string getPassword();
     int askPassword(int clientSocket);
-    int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client);
+    int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick);
     int parseIncomingBuffer(std::string buffer);
     static void handleSignal(int signal)
     {
@@ -64,6 +65,8 @@ public:
     }
 };
 
+void sendToServer(std::string message, int clientFd);
+bool parseNickname(std::string nickname, int clientFd);
 
 
 #endif
