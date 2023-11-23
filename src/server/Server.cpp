@@ -6,11 +6,12 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 15:28:26 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:45:46 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/server/Server.hpp"
+#include "../../inc/commands/CommandHandler.hpp"
 
 Server *Server::instance = nullptr;
 
@@ -62,28 +63,16 @@ int Server::parseIncomingBuffer(std::string buffer)
 
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
+    CommandHandler commandHandler;
     if (strBuffer.empty())
     {
         std::string noCommandError = ": 421 " + std::to_string(clientFd) + " :Unknown command";
         send(clientFd, noCommandError.c_str(), noCommandError.size(), 0);
         return -1;
     }
-    
     else if (strBuffer.substr(0, 4) == "NICK")
     {
-        if (strBuffer.empty())
-        {
-            std::string noNickError = ": 431 " + std::to_string(clientFd) + " :No nickname given";
-            send(clientFd, noNickError.c_str(), noNickError.size(), 0);
-            return -1;
-        }
-        std::string nickname = strBuffer.substr(5, strBuffer.size() - 2);
-        if (parseNickname(nickname, clientFd))
-        {
-            client->setNickName(nickname);
-            std::cout << "Nickname successfully changed to: " << nickname << std::endl;
-        }
-        else
+        if (!commandHandler.handleCommand("NICK", strBuffer, clientFd))
             return -1;
         return 0;
     }

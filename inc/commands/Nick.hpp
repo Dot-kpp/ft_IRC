@@ -2,7 +2,7 @@
 #ifndef NICK_HPP
 #define NICK_HPP
 
-#include "./Command.hpp"
+#include "Command.hpp"
 
 class Nick : public Command
 {
@@ -12,6 +12,7 @@ private:
 public:
     Nick() : command("NICK") {};
     virtual ~Nick();
+    
     virtual bool execute(std::string args, int clientFd);
     bool parseNickname(std::string nickname, int clientFd);
 };
