@@ -13,7 +13,7 @@ SRCS = $(shell find $(SRCDIR) -type f -name '*.cpp')
 OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 NAME=ft_IRC
 PDF=https://cdn.intra.42.fr/pdf/pdf/94731/en.subject.pdf
-NOTION=https://www.notion.so/zagpyfaq/ft_IRC-6a989eba71844ddaaea3a91e7f1cf406?pvs=4
+NOTION=https://zagpyfaq.notion.site/ft_IRC-6a989eba71844ddaaea3a91e7f1cf406?pvs=4
 
 all: mk_bin $(NAME)
 
