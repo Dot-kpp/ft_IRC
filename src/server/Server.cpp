@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 15:45:46 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/24 16:21:13 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 Server *Server::instance = nullptr;
 
-Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false)
+Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("irc")
 {
     instance = this;
     std::cout << "Server created" << std::endl;
@@ -27,6 +27,11 @@ Server::~Server()
 {
     instance = nullptr;
     std::cout << "Server destroyed" << std::endl;
+};
+
+std::string Server::getServerName() const
+{
+    return (this->serverName);
 };
 
 std::string Server::getPassword()
@@ -55,14 +60,10 @@ int Server::askPassword(int clientSocket)
     return (0);
 }
 
-int Server::parseIncomingBuffer(std::string buffer)
-{
-    (void)buffer;
-    return (0);
-}
-
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
+    (void)hasUserAndNick;
+    (void)client;
     CommandHandler commandHandler;
     if (strBuffer.empty())
     {
@@ -70,75 +71,56 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         send(clientFd, noCommandError.c_str(), noCommandError.size(), 0);
         return -1;
     }
-    else if (strBuffer.substr(0, 4) == "NICK")
-    {
+
+    std::cout << "Client " << clientFd << " sent: " << strBuffer << std::endl;
+    if (strBuffer.substr(0, 4) == "NICK") {
         if (!commandHandler.handleCommand("NICK", strBuffer, clientFd))
             return -1;
-        return 0;
     }
-    else if (strBuffer.substr(0, 4) == "USER")
-    {
-        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
-        std::cout << clients[clientFd] << std::endl;
-        client->setUserName(strBuffer);
-        return 0;
+    else if (strBuffer.substr(0, 4) == "PING") {
+        if (!commandHandler.handleCommand("PING", strBuffer, clientFd))
+            return -1;
     }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "MODE")
-    {
-        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PART")
-    {
-        std::cout << "Received PART from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "JOIN")
-    {
-        std::cout << "Received JOIN from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 7) == "PRIVMSG")
-    {
-        std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "LIST")
-    {
-        std::cout << "Received LIST from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "QUIT")
-    {
-        std::cout << "Received QUIT from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PING")
-    {
-        std::cout << "Received PING from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PONG")
-    {
-        std::cout << "Received PONG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "KICK")
-    {
-        std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 5) == "TOPIC")
-    {
-        std::cout << "Received TOPIC from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "Received unknown command from client " << clientFd << ": " << strBuffer << std::endl;
-        return -1;
-    }
+
     return 0;
+}
+
+void Server::handleIncomingBuffer(int clientFd)
+{
+    char buffer[512];
+    ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+    buffer[bytesRead] = '\0';
+
+    std::string strBuffer(buffer);
+    if (bytesRead > 0)
+    {
+        if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
+        {
+            strBuffer.erase(0, 5);
+            if (strBuffer.compare(0, this->password.size(), this->password) == 0)
+                clients[clientFd].setHasGoodPassword(true);
+            else
+            {
+                std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+                std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
+                send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+            }
+        }
+        else if (clients[clientFd].getHasGoodPassword())
+            treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true);
+    }
+    else if (bytesRead > 512)
+    {
+        std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
+        close(clientFd);
+        clients.erase(clientFd);
+    }
+    else if (bytesRead <= 0)
+    {
+        std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
+        close(clientFd);
+        clients.erase(clientFd);
+    }
 }
 
 void Server::start()
@@ -176,50 +158,7 @@ void Server::start()
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 // INCOMING MESSAGE FROM CLIENT
-                char buffer[512];
-                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
-                buffer[bytesRead] = '\0';
-
-                std::string strBuffer(buffer);
-                if (bytesRead > 0)
-                {
-                    if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
-                    {
-                        strBuffer.erase(0, 5);
-                        if (strBuffer.compare(0, this->password.size(), this->password) == 0)
-                        {
-                            clients[clientFd].setHasGoodPassword(true);
-                            clients[clientFd].welcomeClient(clientFd);
-                        }
-                        else
-                        {
-                            std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                            std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
-                            send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
-                        }
-                    }
-                    else if (clients[clientFd].getHasGoodPassword())
-                    {
-                        Channels channel(0);
-                        /* clients[clientFd].subscribeToChannel(&channel); */
-                        if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true) == -1)
-                        {
-                            continue;
-                        };
-                    }
-                }
-                else if (bytesRead > 512)
-                {
-                    std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
-                    close(clientFd);
-                    clients.erase(clientFd);
-                }
-                else if (bytesRead <= 0)
-                {
-                    std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
-                    close(clientFd);
-                    clients.erase(clientFd);
-                }
+                handleIncomingBuffer(clientFd);
             }
         }
     }

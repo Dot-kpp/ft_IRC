@@ -22,14 +22,36 @@ bool Nick::execute(std::string args, int clientFd)
         return false;
     }
 
+    //: dan-!d@localhost NICK Mamoped
     if (parseNickname(args, clientFd))
     {
-        server->clients[clientFd].setNickName(args);
-        std::stringstream ss;
-        ss << ":" << serverName << " 001 " << args << " "
-           << " :Welcome to the Internet Relay Network " << args << "\r\n";
-        std::string welcomeMsg = ss.str();
-        send(clientFd, welcomeMsg.c_str(), welcomeMsg.size(), 0);
+        args.erase(std::remove(args.begin(), args.end(), '\n'), args.end());
+        args.erase(std::remove(args.begin(), args.end(), '\r'), args.end());
+        bool hasNick = server->clients[clientFd].getNickName() != "";
+        if (hasNick)
+        {
+            std::cout << "NICKNAME CHANGED" << std::endl;
+            std::string oldNick = server->clients[clientFd].getNickName();
+            std::string user = server->clients[clientFd].getUserName().empty() ? "user" : server->clients[clientFd].getUserName();
+
+            std::stringstream ss;
+            ss << ":" << oldNick << "!" << user << "@localhost NICK " << args << "\r\n";
+            std::string nickMsg = ss.str();
+            send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
+            server->clients[clientFd].setNickName(args);
+        }
+        else
+        {
+            std::cout << "NICKNAME SET" << std::endl;
+            std::stringstream ss;
+            std::cout << "NICKNAME SET as" << args << std::endl;
+            server->clients[clientFd].setNickName(args);
+            std::string user = server->clients[clientFd].getUserName() == "" ? "user" : server->clients[clientFd].getUserName();
+            std::string nickMsg = ss.str();
+            server->clients[clientFd].welcomeClient(clientFd);
+            send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
+        }
+
         return true;
     }
     return false;
