@@ -19,13 +19,14 @@ private:
     std::string nickname;
     std::string password;
     bool hasGoodPassword;
+    bool isRegistered;
     std::string mode;
     Channels* channel;
 
 
 public:
     Client() : clientSocket(0), password(""), hasGoodPassword(false) {};
-    Client(Socket clientSocket, bool hasGoodPassword); 
+    Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered); 
     ~Client();
 
     // setters and getters
@@ -34,11 +35,13 @@ public:
     void setClientSocket(Socket clientSocket);
     void setNickName(std::string nick);
     void setUserName(std::string username);
+    void setIsRegistered(bool isRegistered);
     Socket getClientSocket() const;
     std::string getPassword() const;
     bool getHasGoodPassword() const;
     std::string getNickName() const;
     std::string getUserName() const;
+    bool getIsRegistered() const;
     Channels* getChannel() const;
 
 

@@ -21,16 +21,13 @@ bool Nick::execute(std::string args, int clientFd)
         send(clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
         return false;
     }
-
-    //: dan-!d@localhost NICK Mamoped
+    args.erase(std::remove(args.begin(), args.end(), '\n'), args.end());
+    args.erase(std::remove(args.begin(), args.end(), '\r'), args.end());
     if (parseNickname(args, clientFd))
     {
-        args.erase(std::remove(args.begin(), args.end(), '\n'), args.end());
-        args.erase(std::remove(args.begin(), args.end(), '\r'), args.end());
         bool hasNick = server->clients[clientFd].getNickName() != "";
         if (hasNick)
         {
-            std::cout << "NICKNAME CHANGED" << std::endl;
             std::string oldNick = server->clients[clientFd].getNickName();
             std::string user = server->clients[clientFd].getUserName().empty() ? "user" : server->clients[clientFd].getUserName();
 
@@ -42,13 +39,10 @@ bool Nick::execute(std::string args, int clientFd)
         }
         else
         {
-            std::cout << "NICKNAME SET" << std::endl;
             std::stringstream ss;
-            std::cout << "NICKNAME SET as" << args << std::endl;
             server->clients[clientFd].setNickName(args);
             std::string user = server->clients[clientFd].getUserName() == "" ? "user" : server->clients[clientFd].getUserName();
             std::string nickMsg = ss.str();
-            server->clients[clientFd].welcomeClient(clientFd);
             send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
         }
 
@@ -102,9 +96,7 @@ bool Nick::parseNickname(std::string nickname, int clientFd)
         return false;
     }
 
-    // Check if the nickname contains only valid characters
-    std::string trim = nickname.substr(0, nickname.size() - 2);
-    for (std::string::iterator it = trim.begin(); it != trim.end(); ++it)
+    for (std::string::iterator it = nickname.begin(); it != nickname.end(); ++it)
     {
         char c = *it;
         if (!(isalnum(c) || c == '[' || c == ']' || c == '{' || c == '}' || c == '\\' || c == '|'))

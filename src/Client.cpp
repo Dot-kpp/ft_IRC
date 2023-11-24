@@ -1,7 +1,7 @@
 
 #include "../inc/Client.hpp"
 
-Client::Client(Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword) {};
+Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered) {};
 
 Client::~Client(){};
 
@@ -60,6 +60,16 @@ std::string Client::getUserName() const
     return (this->username);
 };
 
+void Client::setIsRegistered(bool isRegistered)
+{
+    this->isRegistered = isRegistered;
+};
+
+bool Client::getIsRegistered() const
+{
+    return (this->isRegistered);
+};
+
 void Client::subscribeToChannel(Channels *channel)
 {
     this->channel = channel;
@@ -93,6 +103,7 @@ std::ostream &operator<<(std::ostream &o, Client const &rhs)
 {
     o << "Client's username: " << rhs.getUserName() << std::endl;
     o << "Client's nickname: " << rhs.getNickName() << std::endl;
+    o << "Client is registered: " << rhs.getIsRegistered() << std::endl;
     o << "Client hasGoodPassword: " << rhs.getHasGoodPassword() << std::endl;
     o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl;
 
