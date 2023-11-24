@@ -3,6 +3,7 @@
 
 #include "Command.hpp"
 #include "Nick.hpp"
+#include "Ping.hpp"
 #include <string>
 #include <map>
 #include <memory>

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 15:45:20 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/24 16:06:18 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ private:
     int port;
     std::string password;
     bool running;
+    const std::string serverName;
 
 public:
     static Server *instance;
@@ -55,6 +56,8 @@ public:
     int askPassword(int clientSocket);
     int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick);
     int parseIncomingBuffer(std::string buffer);
+    void handleIncomingBuffer(int clientFd);
+    std::string getServerName() const;
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
