@@ -6,9 +6,10 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/24 16:21:13 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/24 17:40:09 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../../inc/server/Server.hpp"
 #include "../../inc/commands/CommandHandler.hpp"
@@ -62,8 +63,8 @@ int Server::askPassword(int clientSocket)
 
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
-    (void)hasUserAndNick;
     (void)client;
+    (void) hasUserAndNick;
     CommandHandler commandHandler;
     if (strBuffer.empty())
     {
@@ -72,14 +73,30 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
         return -1;
     }
 
+    // Get the command name
     std::cout << "Client " << clientFd << " sent: " << strBuffer << std::endl;
-    if (strBuffer.substr(0, 4) == "NICK") {
-        if (!commandHandler.handleCommand("NICK", strBuffer, clientFd))
-            return -1;
+    std::istringstream iss(strBuffer);
+    std::string commandName;
+    iss >> commandName;
+
+    // Check if the client is registered, if not, only NICK and USER are allowed
+    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER") {
+        std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
+        send(clientFd, error.c_str(), error.size(), 0);
+        return -1;
     }
-    else if (strBuffer.substr(0, 4) == "PING") {
-        if (!commandHandler.handleCommand("PING", strBuffer, clientFd))
-            return -1;
+
+    // Check if the client is already registered, if so, USER is not allowed
+    if (client->getIsRegistered() && commandName == "USER") {
+        std::cout << *client << std::endl;
+        std::string error = ": 462 " + std::to_string(clientFd) + " :You may not reregister\r\n";
+        send(clientFd, error.c_str(), error.size(), 0);
+        return -1;
+    }
+
+    // Check if the command is registered and handle it
+    if (commandHandler.isCommandRegistered(commandName)) {
+        return commandHandler.handleCommand(commandName, strBuffer, clientFd) ? 0 : -1;
     }
 
     return 0;
@@ -88,12 +105,14 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
 void Server::handleIncomingBuffer(int clientFd)
 {
     char buffer[512];
+    // stores the number of bytes read
     ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
     buffer[bytesRead] = '\0';
 
     std::string strBuffer(buffer);
     if (bytesRead > 0)
     {
+        // If the client has not provided a password yet, we check if the message is a password
         if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
         {
             strBuffer.erase(0, 5);
@@ -106,12 +125,20 @@ void Server::handleIncomingBuffer(int clientFd)
                 send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
             }
         }
-        else if (clients[clientFd].getHasGoodPassword())
-            treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true);
+        // If the client has provided a password, we check if the message is a command
+        else if (clients[clientFd].getHasGoodPassword()) {
+            std::cout << clients[clientFd] << std::endl;
+            bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
+            if (hasUserAndNick) {
+                clients[clientFd].setIsRegistered(true);
+            }
+            treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
+        }
     }
     else if (bytesRead > 512)
     {
         std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
+        std::string tooLong = ":YourServerName 417 * :Input line was too long. \r\n";
         close(clientFd);
         clients.erase(clientFd);
     }
@@ -127,6 +154,7 @@ void Server::start()
 {
     this->running = true;
 
+    // Create kqueue
     int kq = kqueue();
     if (kq == -1)
     {
@@ -134,6 +162,7 @@ void Server::start()
         return;
     }
     KQueue kqueue(kq);
+    // Add server socket to kqueue
     EV_SET(kqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
     if (kevent(kqueue.getKq(), kqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
     {
@@ -143,16 +172,21 @@ void Server::start()
 
     while (this->running)
     {
+        // Wait for events
         int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 1024, NULL);
         for (int i = 0; i < nev; i++)
         {
+            // Get client socket
             int clientFd = kqueue.getEventList()[i].ident;
-            // CONNECTION SERVER SOCKET
+            // If the client socket is the server socket, it means a new client is trying to connect
             if (clientFd == serverSocket.getSocketFd())
             {
+                // Accept new client
                 int clientSocket = serverSocket.accept();
-                clients[clientSocket] = Client(clientSocket, false);
+                // Add client socket to kqueue
+                clients[clientSocket] = Client(clientSocket, false, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                /* askPassword(clientSocket); */
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)

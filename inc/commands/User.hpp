@@ -1,0 +1,20 @@
+
+#ifndef USER_HPP
+#define USER_HPP
+
+#include "Command.hpp"
+
+class User : public Command
+{
+private:
+    std::string command;
+
+public:
+    User() : command("USER") {};
+    virtual ~User();
+    
+    virtual bool execute(std::string args, int clientFd);
+    bool parseUserName(std::string userName, int clientFd);
+};
+
+#endif // NICK_HPP

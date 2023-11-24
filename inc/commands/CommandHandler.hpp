@@ -3,6 +3,8 @@
 
 #include "Command.hpp"
 #include "Nick.hpp"
+#include "User.hpp"
+#include "Ping.hpp"
 #include <string>
 #include <map>
 #include <memory>
@@ -19,6 +21,7 @@ public:
     CommandHandler();
 
     bool handleCommand(const std::string &commandName, std::string buffer, int clientFd);
+    bool isCommandRegistered(const std::string &commandName);
 };
 
 #endif // COMMANDHANDLER_HPP
