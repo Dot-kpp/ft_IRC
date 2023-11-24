@@ -10,6 +10,8 @@ public:
     virtual ~Join();
 
     virtual bool execute(std::string args, int clientFd) override;
+	void createChannel(std::string channelName, int clientFd);
+	
 };
 
 #endif // JOIN_HPP

@@ -1,13 +1,5 @@
-#include "Command.hpp"
-
-class Join : public Command
-{
-public:
-    Join();
-    virtual ~Join();
-
-    virtual bool execute(std::string args, int clientFd) override;
-};
+#include "../../inc/Command.hpp"
+#include "../../inc/Join.hpp"
 
 Join::Join()
 {
@@ -26,12 +18,24 @@ bool Join::execute(std::string args, int clientFd)
     // Check if the channel exists
     if (channels.find(channelName) == channels.end())
     {
-        // If the channel does not exist, return false
-        return false;
+        // If the channel does not exist, create it
+        createChannel(channelName, clientFd);
     }
 
     // Add the client to the channel
     channels[channelName].addClient(clientFd);
 
     return true; // Return true if the command was executed successfully
+}
+
+void Join::createChannel(std::string channelName, int clientFd)
+{
+    // Create a new Channel object
+    Channel newChannel;
+
+    // Add the client to the new channel
+    newChannel.addClient(clientFd);
+
+    // Add the new channel to the channels map
+    channels[channelName] = newChannel;
 }
