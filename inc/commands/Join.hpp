@@ -2,6 +2,7 @@
 #define JOIN_HPP
 
 #include "Command.hpp"
+#include "Channels.hpp"
 
 class Join : public Command
 {
