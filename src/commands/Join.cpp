@@ -1,5 +1,5 @@
-#include "../../inc/Command.hpp"
-#include "../../inc/Join.hpp"
+#include "../../inc/commands/Command.hpp"
+#include "../../inc/commands/Join.hpp"
 
 Join::Join()
 {
