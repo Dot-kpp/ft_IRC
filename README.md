@@ -3,12 +3,9 @@
 ## Commands TO_DO
 
 ## CONNECTION MESSAGES
-- NICK
-- USER
-- PASS
+- MODE
 - OPER
 - QUIT
-- PING/PONG
 
 ## CHANNEL OPERATIONS
 - NAMES
@@ -17,7 +14,6 @@
 - TOPIC
 - INVITE
 - KICK
-- MODE
 
 ## SENDING MESSAGES
 - PRIVMSG
@@ -25,6 +21,10 @@
 
 ### Alex
  * CONNECTION MESSAGES
+- NICK (Done)
+- USER (Done)
+- PASS (Done)
+- PING/PONG (Done)
 
 ### Clément
 
