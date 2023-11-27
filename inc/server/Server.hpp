@@ -17,7 +17,6 @@
 #include "KQueue.hpp"
 #include "Channels.hpp"
 #include "../Client.hpp"
-#include "../commands/Command.hpp"
 #include <sstream>
 #include <iostream>
 #include <string.h>
@@ -31,13 +30,13 @@
 #include <vector>
 
 class Client;
+class Channels;
 class Socket;
 
 class Server
 {
 
 private:
-    Server();
     Socket serverSocket;
     int port;
     std::string password;
@@ -47,6 +46,7 @@ private:
 public:
     static Server *instance;
 
+    Server();
     Server(int port, std::string password);
     ~Server();
     std::map<int, Client> clients;

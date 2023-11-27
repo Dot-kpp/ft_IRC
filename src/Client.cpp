@@ -105,7 +105,7 @@ std::ostream &operator<<(std::ostream &o, Client const &rhs)
     o << "Client's nickname: " << rhs.getNickName() << std::endl;
     o << "Client is registered: " << rhs.getIsRegistered() << std::endl;
     o << "Client hasGoodPassword: " << rhs.getHasGoodPassword() << std::endl;
-    o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl;
+    /* o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl; */
 
     return (o);
 }

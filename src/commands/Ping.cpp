@@ -4,8 +4,9 @@ Ping::~Ping()
 {
 }
 
-bool Ping::execute(std::string args, int clientFd)
+bool Ping::execute(Server *server,std::string args, int clientFd)
 {
+    (void)server;
     std::string token = args.substr(0, args.find(" "));
 
     if (token.empty())
