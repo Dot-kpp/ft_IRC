@@ -21,11 +21,12 @@ private:
     bool hasGoodPassword;
     bool isRegistered;
     std::string mode;
+    int roleId;
+
     Channels* channel;
 
-
 public:
-    Client() : clientSocket(0), password(""), hasGoodPassword(false) {};
+    Client() : clientSocket(0), password(""), hasGoodPassword(false), roleId(3) {};
     Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered); 
     ~Client();
 
@@ -36,6 +37,7 @@ public:
     void setNickName(std::string nick);
     void setUserName(std::string username);
     void setIsRegistered(bool isRegistered);
+    void setRoleId(int roleId);
     Socket getClientSocket() const;
     std::string getPassword() const;
     bool getHasGoodPassword() const;
@@ -43,6 +45,7 @@ public:
     std::string getUserName() const;
     bool getIsRegistered() const;
     Channels* getChannel() const;
+    int getRoleId() const;
 
 
     // methods

@@ -70,6 +70,16 @@ bool Client::getIsRegistered() const
     return (this->isRegistered);
 };
 
+void Client::setRoleId(int roleId)
+{
+    this->roleId = roleId;
+};
+
+int Client::getRoleId() const
+{
+    return (this->roleId);
+};
+
 void Client::subscribeToChannel(Channels *channel)
 {
     this->channel = channel;

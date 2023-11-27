@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/27 15:29:09 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/27 16:33:47 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ int Server::askPassword(int clientSocket)
 
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
-    (void)client;
     (void)hasUserAndNick;
     CommandHandler commandHandler;
     if (strBuffer.empty())
@@ -98,9 +97,7 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
 
     // Check if the command is registered and handle it
     if (commandHandler.isCommandRegistered(commandName))
-    {
         return commandHandler.handleCommand(commandName, strBuffer, clientFd) ? 0 : -1;
-    }
 
     return 0;
 }
@@ -176,7 +173,9 @@ void Server::start()
         return;
     }
 
+    // Initialize default things for the server
     this->channel.push_back(Channels(0));
+    Oper();
     while (this->running)
     {
         // Wait for events
