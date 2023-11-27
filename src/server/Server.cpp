@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/27 16:33:47 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/27 17:13:55 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ void Server::handleIncomingBuffer(int clientFd)
         close(clientFd);
         clients.erase(clientFd);
     }
+
 }
 
 void Server::start()

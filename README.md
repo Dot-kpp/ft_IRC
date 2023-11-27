@@ -3,7 +3,6 @@
 ## Commands TO_DO
 
 ## CONNECTION MESSAGES
-- OPER
 - QUIT
 
 ## CHANNEL OPERATIONS
@@ -20,7 +19,7 @@
 - NOTICE
 
 ### Alex
- * CONNECTION MESSAGES
+- OPER (Done)
 - NICK (Done)
 - USER (Done)
 - PASS (Done)
