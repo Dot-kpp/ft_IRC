@@ -2,10 +2,8 @@
 
 User::~User() {};
 
-bool User::execute(std::string args, int clientFd)
+bool User::execute(Server *server, std::string args, int clientFd)
 {
-    Server *server = Server::instance;
-
     if (args.empty())
     {
         std::string error = ": 461 " + std::to_string(clientFd) + " USER :Not enough parameters\r\n";

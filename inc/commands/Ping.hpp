@@ -13,7 +13,7 @@ public:
     Ping() : command("Ping") {};
     virtual ~Ping();
     
-    virtual bool execute(std::string args, int clientFd);
+    virtual bool execute(Server *server, std::string args, int clientFd);
 };
 
 #endif // PING_HPP

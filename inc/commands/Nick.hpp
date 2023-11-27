@@ -13,7 +13,7 @@ public:
     Nick() : command("NICK") {};
     virtual ~Nick();
     
-    virtual bool execute(std::string args, int clientFd);
+    virtual bool execute(Server *server, std::string args, int clientFd);
     bool parseNickname(std::string nickname, int clientFd);
 };
 
