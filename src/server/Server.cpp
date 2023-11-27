@@ -131,9 +131,7 @@ void Server::handleIncomingBuffer(int clientFd)
         // If the client has provided a password, we check if the message is a command
         else if (clients[clientFd].getHasGoodPassword())
         {
-            std::cout << "--------" << std::endl;
             std::cout << clients[clientFd] << std::endl;
-            std::cout << "--------" << std::endl;
             bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
             if (hasUserAndNick)
             {
