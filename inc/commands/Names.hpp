@@ -5,6 +5,11 @@
 
 class Names : public Command {
 public:
+	Names();
+	Names(Names const &src);
+	~Names();
+
+	bool execute(std::string args, int clientFd);
 
 private:
 
