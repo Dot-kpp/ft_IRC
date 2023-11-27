@@ -5,6 +5,7 @@
 #include "Nick.hpp"
 #include "User.hpp"
 #include "Ping.hpp"
+#include "Names.hpp"
 #include <string>
 #include <map>
 #include <memory>

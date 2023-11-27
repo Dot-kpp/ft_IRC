@@ -176,7 +176,8 @@ void Server::start()
         return;
     }
 
-    this->channel.push_back(Channels(0));
+    this->channel.push_back(Channels(0, "default"));
+    this->channel.push_back(Channels(1, "Channel1"));
     while (this->running)
     {
         // Wait for events
