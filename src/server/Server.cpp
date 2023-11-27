@@ -64,7 +64,7 @@ int Server::askPassword(int clientSocket)
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
     (void)client;
-    (void) hasUserAndNick;
+    (void)hasUserAndNick;
     CommandHandler commandHandler;
     if (strBuffer.empty())
     {
@@ -80,14 +80,16 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     iss >> commandName;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
-    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER") {
+    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER")
+    {
         std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
         return -1;
     }
 
     // Check if the client is already registered, if so, USER is not allowed
-    if (client->getIsRegistered() && commandName == "USER") {
+    if (client->getIsRegistered() && commandName == "USER")
+    {
         std::cout << *client << std::endl;
         std::string error = ": 462 " + std::to_string(clientFd) + " :You may not reregister\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
@@ -95,7 +97,8 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     }
 
     // Check if the command is registered and handle it
-    if (commandHandler.isCommandRegistered(commandName)) {
+    if (commandHandler.isCommandRegistered(commandName))
+    {
         return commandHandler.handleCommand(commandName, strBuffer, clientFd) ? 0 : -1;
     }
 
@@ -126,10 +129,12 @@ void Server::handleIncomingBuffer(int clientFd)
             }
         }
         // If the client has provided a password, we check if the message is a command
-        else if (clients[clientFd].getHasGoodPassword()) {
+        else if (clients[clientFd].getHasGoodPassword())
+        {
             std::cout << clients[clientFd] << std::endl;
             bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
-            if (hasUserAndNick) {
+            if (hasUserAndNick)
+            {
                 clients[clientFd].setIsRegistered(true);
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
@@ -170,6 +175,7 @@ void Server::start()
         return;
     }
 
+    this->channel.push_back(Channels(0));
     while (this->running)
     {
         // Wait for events

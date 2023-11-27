@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <map>
+#include <vector>
 
 class Client;
 class Socket;
@@ -49,6 +50,7 @@ public:
     Server(int port, std::string password);
     ~Server();
     std::map<int, Client> clients;
+    std::vector<Channels> channel;
 
     void start();
     void stop();
