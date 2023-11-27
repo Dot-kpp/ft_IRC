@@ -4,14 +4,15 @@
 #include "Command.hpp"
 
 class Names : public Command {
+private:
+	std::string command;
+
 public:
 	Names();
 	Names(Names const &src);
-	~Names();
+	virtual ~Names();
 
-	bool execute(std::string args, int clientFd);
-
-private:
+	virtual bool execute(Server *server, std::string args, int clientFd);
 
 };
 
