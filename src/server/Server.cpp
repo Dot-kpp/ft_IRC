@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/24 17:40:09 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:29:09 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ void Server::handleIncomingBuffer(int clientFd)
             if (hasUserAndNick)
             {
                 clients[clientFd].setIsRegistered(true);
+                clients[clientFd].subscribeToChannel(0);
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
