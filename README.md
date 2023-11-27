@@ -30,6 +30,16 @@
 
 ### Jé
 
+### Issues
+Found a segfault when passing a wrong password and then trying to connect to the server with a good password. 
+
+CP filled the below:
+```
+The segfault is caused by the fact that the server is not initialized when the client tries to connect to it. 
+The server is initialized when the client sends a password. 
+So if the client sends a wrong password, the server is not initialized and the client can't connect to it. 
+If the client then sends a good password, the server is initialized but the client can't connect to it because it is already initialized.
+```
 
 # IRC Commands Summary
 
