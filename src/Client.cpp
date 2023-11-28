@@ -1,7 +1,10 @@
 
 #include "../inc/Client.hpp"
 
-Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered) {};
+Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered)
+{
+    this->roleId = 3;
+};
 
 Client::~Client(){};
 
@@ -70,6 +73,16 @@ bool Client::getIsRegistered() const
     return (this->isRegistered);
 };
 
+void Client::setRoleId(int roleId)
+{
+    this->roleId = roleId;
+};
+
+int Client::getRoleId() const
+{
+    return (this->roleId);
+};
+
 void Client::subscribeToChannel(Channels *channel)
 {
     this->channel = channel;
@@ -101,11 +114,12 @@ void Client::welcomeClient(int clientFd)
 
 std::ostream &operator<<(std::ostream &o, Client const &rhs)
 {
-    o << "Client's username: " << rhs.getUserName() << std::endl;
-    o << "Client's nickname: " << rhs.getNickName() << std::endl;
     o << "Client is registered: " << rhs.getIsRegistered() << std::endl;
     o << "Client hasGoodPassword: " << rhs.getHasGoodPassword() << std::endl;
-    /* o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl; */
-
+    if (!rhs.getUserName().empty())
+        o << "Client's username: " << rhs.getUserName() << std::endl;
+    else if (!rhs.getNickName().empty())
+        o << "Client's nickname: " << rhs.getNickName() << std::endl;
+    o << "Client Role: " << rhs.getRoleId() << std::endl;
     return (o);
 }

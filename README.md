@@ -3,28 +3,27 @@
 ## Commands TO_DO
 
 ## CONNECTION MESSAGES
-- NICK
-- USER
-- PASS
-- OPER
 - QUIT
-- PING/PONG
 
 ## CHANNEL OPERATIONS
+- MODE
 - NAMES
-- JOIN
+- JOIN 
 - PART
 - TOPIC
 - INVITE
 - KICK
-- MODE
 
 ## SENDING MESSAGES
 - PRIVMSG
 - NOTICE
 
 ### Alex
- * CONNECTION MESSAGES
+- OPER (Done)
+- NICK (Done)
+- USER (Done)
+- PASS (Done)
+- PING/PONG (Done)
 
 ### Clément
 

@@ -6,6 +6,7 @@ CommandHandler::CommandHandler()
     commands["NICK"] = std::auto_ptr<Nick>(new Nick());
     commands["PING"] = std::auto_ptr<Ping>(new Ping());
     commands["USER"] = std::auto_ptr<User>(new User());
+    commands["OPER"] = std::auto_ptr<Oper>(new Oper());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
