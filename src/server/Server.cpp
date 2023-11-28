@@ -136,7 +136,8 @@ void Server::handleIncomingBuffer(int clientFd)
             if (hasUserAndNick)
             {
                 clients[clientFd].setIsRegistered(true);
-                clients[clientFd].subscribeToChannel(0);
+				Channels &channel = this->getChannelById(0);
+				channel.addClient(&clients[clientFd]);
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
@@ -215,4 +216,16 @@ void Server::stop()
     this->serverSocket.closeSocket();
     this->port = 0;
     std::cout << "Server stopped" << std::endl;
+};
+
+Channels &Server::getChannelById(int id)
+{
+	std::vector<Channels>::iterator it = this->channel.begin();
+	while (it != this->channel.end())
+	{
+		if (it->getChannelId() == id)
+			return *it;
+		it++;
+	}
+	return this->channel[0];
 };

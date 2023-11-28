@@ -69,6 +69,7 @@ public:
             exit(0);
         }
     }
+	Channels &getChannelById(int id);
 };
 
 void sendToServer(std::string message, int clientFd);

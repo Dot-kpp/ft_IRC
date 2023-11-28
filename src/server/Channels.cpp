@@ -27,7 +27,7 @@ Channels::Channels(int channelId, std::string name)
 std::string Channels::getClients() const {
 	std::string users;
 	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
-		users += (*it)->getNickName() + " ";
+		users += (*it)->getNickName();
 	}
 
 	return users;
