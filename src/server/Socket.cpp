@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:06 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/21 16:19:43 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 16:08:28 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ bool Socket::bind(const int port)
     if (::bind(this->sockfd, (struct sockaddr *)&this->server_addr, sizeof(this->server_addr)) == -1)
     {
         std::cerr << "Could not bind to port " << port << std::endl;
-        return (false);
+        exit(1);
     }
     return (true);
 }

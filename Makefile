@@ -51,8 +51,8 @@ run: re
 	@echo "\n$(G) ║ RUN PROGRAM ║$(RT)"
 	@./$(NAME) $(ARG1) $(ARG2)
 
-leaks: 
-	@leaks --atExit -- ./$(NAME)
+leaks: re
+	@leaks --atExit -- ./$(NAME) $(ARG1) $(ARG2)
 
 rm_bin:
 	@rm -rf $(OBJDIR)

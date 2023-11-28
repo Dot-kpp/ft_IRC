@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/24 16:06:18 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 16:35:26 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ public:
     int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick);
     int parseIncomingBuffer(std::string buffer);
     void handleIncomingBuffer(int clientFd);
+    void welcomeClient(int clientFd);
     std::string getServerName() const;
     static void handleSignal(int signal)
     {
@@ -69,6 +70,8 @@ public:
             exit(0);
         }
     }
+
+    Channels &getChannelById(int id);
 };
 
 void sendToServer(std::string message, int clientFd);

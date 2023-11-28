@@ -17,12 +17,12 @@ bool Oper::execute(Server *server, std::string args, int clientFd)
     Client &client = server->clients[clientFd];
     std::istringstream iss(args);
 
-    std::string username;
+    std::string nickname;
     std::string password;
-    iss >> username;
+    iss >> nickname;
     iss >> password;
 
-    if (username.empty() || password.empty())
+    if (nickname.empty() || password.empty())
     {
         std::stringstream ss;
         ss << ":" << server->getServerName() << " 461 " << client.getNickName() << " OPER :Not enough parameters\r\n";
@@ -33,7 +33,7 @@ bool Oper::execute(Server *server, std::string args, int clientFd)
     std::map<int, Client>::iterator it = server->clients.begin();
     while (it != server->clients.end())
     {
-        if (it->second.getUserName() != username)
+        if (it->second.getNickName() != nickname)
         {
             std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
             send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);

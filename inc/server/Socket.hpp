@@ -9,8 +9,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-# define MAX_CLIENTS 10
-# define BACKLOG 10
+# define MAX_CLIENTS 50
+# define BACKLOG 50
 
 class Socket {
 public:
