@@ -6,10 +6,9 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/27 15:29:09 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 16:36:07 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../../inc/server/Server.hpp"
 #include "../../inc/commands/CommandHandler.hpp"
@@ -63,7 +62,6 @@ int Server::askPassword(int clientSocket)
 
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
-    (void)client;
     (void)hasUserAndNick;
     CommandHandler commandHandler;
     if (strBuffer.empty())
@@ -80,7 +78,7 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     iss >> commandName;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
-    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER")
+    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER" && commandName != "CAP LS 302")
     {
         std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
@@ -98,9 +96,7 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
 
     // Check if the command is registered and handle it
     if (commandHandler.isCommandRegistered(commandName))
-    {
         return commandHandler.handleCommand(commandName, strBuffer, clientFd) ? 0 : -1;
-    }
 
     return 0;
 }
@@ -136,7 +132,8 @@ void Server::handleIncomingBuffer(int clientFd)
             if (hasUserAndNick)
             {
                 clients[clientFd].setIsRegistered(true);
-                clients[clientFd].subscribeToChannel(0);
+                Channels &channel = this->getChannelById(0);
+                channel.addClient(&clients[clientFd]);
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
@@ -176,7 +173,9 @@ void Server::start()
         return;
     }
 
+    // Initialize default things for the server
     this->channel.push_back(Channels(0));
+    Oper();
     while (this->running)
     {
         // Wait for events
@@ -206,10 +205,51 @@ void Server::start()
     close(kq);
 }
 
+void Server::welcomeClient(int clientFd)
+{
+    std::string serverName = this->getServerName();
+    std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
+    send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
+
+    // RPL_YOURHOST
+    std::string yourHostMessage = ":YourServerName 002 :Your host is badass ft_IRC, running version 0.0.1 \r\n";
+    send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
+
+    // RPL_CREATED
+    std::string createdMessage = ":YourServerName 003 :This server was created Nov 8 2023. \r\n";
+    send(clientFd, createdMessage.c_str(), createdMessage.size(), 0);
+
+    // RPL_MYINFO
+    int nbOfUsers = this->clients.size();
+    std::cout << "nbOfUsers: " << std::to_string(nbOfUsers) << std::endl;
+    int nbOfChannels = this->channel.size();
+    std::cout << "nbOfChannels: " << std::to_string(nbOfChannels) << std::endl;
+    std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 nb of users: " + std::to_string(nbOfUsers) + ", nb of channels: " + std::to_string(nbOfChannels) + " . \r\n";
+    send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
+
+    // RPL_ISUPPORT
+    std::string isupportMessage = ":YourServerName 005 <client> <1-13 tokens> :are supported by this server\r\n";
+    send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
+
+    std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
+}
+
 void Server::stop()
 {
     this->running = false;
     this->serverSocket.closeSocket();
     this->port = 0;
     std::cout << "Server stopped" << std::endl;
+};
+
+Channels &Server::getChannelById(int id)
+{
+    std::vector<Channels>::iterator it = this->channel.begin();
+    while (it != this->channel.end())
+    {
+        if (it->getChannelId() == id)
+            return *it;
+        it++;
+    }
+    return this->channel[0];
 };

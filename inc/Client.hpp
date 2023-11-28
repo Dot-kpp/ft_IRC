@@ -20,10 +20,8 @@ private:
     std::string password;
     bool hasGoodPassword;
     bool isRegistered;
-    std::string mode;
+    /* std::string mode; */
     int roleId;
-
-    Channels* channel;
 
 public:
     Client() : clientSocket(0), password(""), hasGoodPassword(false), roleId(3) {};
