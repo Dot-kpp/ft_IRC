@@ -29,6 +29,7 @@ std::string Channels::getClients() const {
 	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
 		users += (*it)->getNickName() + " ";
 	}
+
 	return users;
 }
 

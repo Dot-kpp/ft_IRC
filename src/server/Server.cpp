@@ -176,8 +176,10 @@ void Server::start()
         return;
     }
 
+	//Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
     this->channel.push_back(Channels(0, "default"));
     this->channel.push_back(Channels(1, "Channel1"));
+	
     while (this->running)
     {
         // Wait for events

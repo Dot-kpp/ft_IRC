@@ -25,7 +25,7 @@ bool Names::execute(Server *server, std::string args, int clientFd) {
 	for (int i = 0; i < size; ++i) {
 		Channels* channel = &(server->channel[i]); // Access the i-th channel
 		cout << "Channel #" << i << " name is: " << channel->getChannelName() << endl;
-
+		cout << "users in Channel #" << i << ": " << channel->getClients() << endl << endl;
 	}
 
 	return true;
