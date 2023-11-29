@@ -23,6 +23,7 @@ Channels::Channels(int channelId, std::string name)
 {
 	  this->channelId = channelId;
 	  this->name = name;
+	  this->topic = "[empty]";
 }
 
 void Channels::addClient(Client* client) {
@@ -32,22 +33,14 @@ void Channels::addClient(Client* client) {
 	}
 }
 
-//std::string Channels::getClients() const {
-//	if (clients.empty()) {
-//		return "No users in the channel.\n";
-//	}
-//
-//	std::string users;
-//	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
-//		users += (*it)->getNickName() + "\n";
-//	}
-//
-//	return users;
-//}
-
 const std::vector<Client *> &Channels::getClients() const {
 	return clients;
 }
 
+std::string Channels::getChannelName() const { return name; }
+
+std::string Channels::getTopic() const { return topic; }
+
+void Channels::setTopic(std::string topic) { this->topic = topic; }
 
 Channels::~Channels(){}
