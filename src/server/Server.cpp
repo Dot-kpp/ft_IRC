@@ -6,9 +6,10 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/28 16:36:07 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:29:09 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../../inc/server/Server.hpp"
 #include "../../inc/commands/CommandHandler.hpp"
@@ -173,9 +174,11 @@ void Server::start()
         return;
     }
 
-    // Initialize default things for the server
-    this->channel.push_back(Channels(0));
-    Oper();
+	//Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
+    this->channel.push_back(Channels(0, "default"));
+    this->channel.push_back(Channels(1, "Channel1"));
+	Oper();
+
     while (this->running)
     {
         // Wait for events
@@ -232,6 +235,15 @@ void Server::welcomeClient(int clientFd)
     send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
 
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
+}
+
+Channels* Server::getChannelByName(const std::string& name) {
+	for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it) {
+		if (it->getChannelName() == name) {
+			return &(*it);
+		}
+	}
+	return NULL;  // Channel not found
 }
 
 void Server::stop()

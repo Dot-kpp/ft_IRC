@@ -6,6 +6,7 @@
 #include "User.hpp"
 #include "Ping.hpp"
 #include "Oper.hpp"
+#include "Names.hpp"
 #include <string>
 #include <map>
 #include <memory>
