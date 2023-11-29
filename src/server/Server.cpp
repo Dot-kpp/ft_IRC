@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 17:09:45 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/29 17:51:36 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 Server *Server::instance = nullptr;
 
-Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("irc")
+Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("YourServerName")
 {
     instance = this;
     std::cout << "Server created" << std::endl;
@@ -140,7 +140,7 @@ void Server::handleIncomingBuffer(int clientFd)
     else if (bytesRead <= 0)
     {
         std::cout << "Client " << clientFd << " disconnected." << std::endl;
-        removeClient(clientFd);
+        removeClient(clientFd, "Client disconnected from the server.");
     }
 }
 
@@ -259,13 +259,16 @@ Channels &Server::getChannelById(int id)
     return this->channel[0];
 };
 
-void Server::removeClient(int clientFd)
+void Server::removeClient(int clientFd, std::string reason)
 {
+    if (reason.empty())
+        reason = "Client disconnected";
     std::map<int, Client>::iterator it = this->clients.begin();
     while (it != this->clients.end())
     {
         if (it->first == clientFd)
         {
+            tellEveryoneButSender(reason, clientFd);
             EV_SET(serverKqueue.getChangeEvent(), clientFd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
             kevent(serverKqueue.getKq(), serverKqueue.getChangeEvent(), 1, NULL, 0, NULL);
             clients.erase(clientFd);
@@ -275,3 +278,16 @@ void Server::removeClient(int clientFd)
         it++;
     }
 };
+
+void    Server::tellEveryoneButSender(std::string message, int clientFd)
+{
+    for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+    {
+        if (it->first != clientFd) {
+            std::stringstream ss;
+            ss << ":" << serverName << " " << clients[clientFd].getNickName() << " is exiting the network with the message: Quit: " << message << "\r\n";
+            std::string msg = ss.str();
+            send(it->first, msg.c_str(), message.size(), 0);
+        }
+    }
+}
