@@ -33,7 +33,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
 
 - **inc**: Contains the header files for the source code
     **Client.hpp**:
-    - **commands**: The commands folder contains all the basic commands for the IRC Chat
+    - ### **commands**: The commands folder contains all the basic commands for the IRC Chat
      - **Command.hpp**: Contains the class definition for Command. Command is the parent of each commands.
      - **CommandHandler.hpp**: Class definition of the command handler.
      - **Invite.hpp**: Class definition of the invite command.
@@ -51,7 +51,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
      - **Quit.hpp**: Class definition of the quit command.
      - **Topic.hpp**: Class definition of the topic command.
 
-    - **server**: The server folder contains all classes related to the server functionnality
+    - ### **server**: The server folder contains all classes related to the server functionnality
         - **Channels.hpp**: Class definition of the channels.
         - **KQueue.hpp**: Class definition of the kqueue
         - **Server.hpp**: Class definition of the server.
@@ -81,7 +81,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
         - ```int Client::getRoleId() const```
         - ```std::ostream &operator<<(std::ostream &o, Client const &rhs)```
 
-    - **commands**:
+    - ### **commands**:
      - **Command.cpp**:
         - ```Command()```
         - ```virtual ~Command()```
@@ -114,7 +114,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
      - **PrivMsg.cpp**:
      - **Quit.cpp**:
      - **Topic.cpp**:
-    - **server**:
+    - ### **server**:
         - **Channels.cpp**
             - ```Channels()```
             - ```Channels(int channelId) ```
