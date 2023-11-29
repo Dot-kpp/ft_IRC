@@ -15,10 +15,10 @@
 
 ### Clément
 - NAMES (Done)
+- TOPIC (Done)
 - MODE
-    - TOPIC
-    - INVITE
-    - KICK
+- INVITE
+- KICK
 
 ### Jé
 - JOIN 

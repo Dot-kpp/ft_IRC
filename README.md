@@ -93,7 +93,16 @@ This IRC application, developed in C++, offers a robust and efficient platform f
      - **Join.cpp**:
      - **Kick.cpp**:
      - **Mode.cpp**:
+     - **Topic.cpp**:
+         - ```Topic()```
+         - ```virtual ~Topic()```
+         - ```virtual bool execute(Server *server, std::string args, int clientFd)```
+         - ```std::string trim(const std::string& str)```
      - **Names.cpp**:
+         - ```Names()```
+         - ```virtual ~Names()```
+         - ```virtual bool execute(Server *server, std::string args, int clientFd)```
+         - ```std::string trim(const std::string& str)```
      - **Nick.cpp**:
         - ```Nick()```
         - ```virtual ~Nick()```
@@ -112,15 +121,18 @@ This IRC application, developed in C++, offers a robust and efficient platform f
         - ```virtual bool execute(Server *server, std::string args, int clientFd)```
      - **PrivMsg.cpp**:
      - **Quit.cpp**:
-     - **Topic.cpp**:
     ### **server**:
     - **Channels.cpp**
         - ```Channels()```
-        - ```Channels(int channelId) ```
+        - ```Channels(int channelId, std::string name)```
         - ```Channels(Channels const *copy) ```
         - ```Channels &operator=(Channels const &rhs)```
         - ```~Channels()```
         - ```int getChannelId() const```
+        - ```std::string getChannelName() const;```
+        - ```std::string getTopic() const```
+        - ```std::vector<Client *> getClients() const```
+        - ```void setTopic(std::string topic)```
         - ```void addClient(Client *client)```
         - ```void removeClient(Client *client)```
     - **KQueue.cpp**

@@ -12,6 +12,7 @@ class Channels
 private:
     int channelId;
     std::string name;
+    std::string topic;
     std::vector<Client *> clients;
 
 public:
@@ -22,17 +23,16 @@ public:
     ~Channels();
 
     int getChannelId() const { return channelId; }
+	std::string getChannelName() const;
+	std::string getTopic() const;
+	const std::vector<Client *> &getClients() const; // Get users in channel
+	void setTopic(std::string topic);
 
     void addClient(Client *client);
     void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
 
-	// Get the channel name
-	std::string getChannelName() const { return name; }
-
-	// Get users in channel
-//	std::string getClients() const;
-	const std::vector<Client *> &getClients() const;
-
 };
+
+std::string trim(const std::string& str) ;
 
 #endif
