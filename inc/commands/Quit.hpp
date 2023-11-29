@@ -6,10 +6,13 @@
 
 class Quit : public Command
 {
+private:
+    std::string command;
 public:
     Quit();
-    ~Quit();
-    bool execute(Server &server, std::string args, int clientSocket);
+    virtual ~Quit();
+    
+    virtual bool execute(Server *server, std::string args, int clientFd);
 };
 
 #endif // QUIT_HPP

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/28 16:36:07 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 17:45:53 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ void Server::handleIncomingBuffer(int clientFd)
     }
     else if (bytesRead <= 0)
     {
-        std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
+        std::cout << "Client " << clientFd << " disconnected." << std::endl;
         close(clientFd);
         clients.erase(clientFd);
     }
@@ -176,6 +176,7 @@ void Server::start()
     // Initialize default things for the server
     this->channel.push_back(Channels(0));
     Oper();
+    int clientSocket;
     while (this->running)
     {
         // Wait for events
@@ -188,7 +189,7 @@ void Server::start()
             if (clientFd == serverSocket.getSocketFd())
             {
                 // Accept new client
-                int clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
                 // Add client socket to kqueue
                 clients[clientSocket] = Client(clientSocket, false, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
@@ -253,3 +254,18 @@ Channels &Server::getChannelById(int id)
     }
     return this->channel[0];
 };
+
+void Server::removeClient(int clientFd)
+{
+    std::map<int, Client>::iterator it = this->clients.begin();
+    while (it != this->clients.end())
+    {
+        if (it->first == clientFd)
+        {
+            /* close(clientFd); */
+            clients.erase(clientFd);
+            break;
+        }
+        it++;
+    }
+}

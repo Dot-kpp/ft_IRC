@@ -83,11 +83,6 @@ int Client::getRoleId() const
     return (this->roleId);
 };
 
-/* void Client::subscribeToChannel(Channels *channel)
-{
-    this->channel = channel;
-}; */
-
 std::ostream &operator<<(std::ostream &o, Client const &rhs)
 {
     o << "Client is registered: " << rhs.getIsRegistered() << std::endl;

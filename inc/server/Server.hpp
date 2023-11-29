@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/28 16:35:26 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 17:07:50 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ public:
     }
 
     Channels &getChannelById(int id);
+    void removeClient(int clientFd);
 };
 
 void sendToServer(std::string message, int clientFd);
