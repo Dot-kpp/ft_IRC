@@ -1,22 +1,9 @@
 # ft_IRC
 
-## Commands TO_DO
-
-## CONNECTION MESSAGES
-- QUIT
-
-## CHANNEL OPERATIONS
-- MODE
-- NAMES
-- JOIN 
-- PART
-- TOPIC
-- INVITE
-- KICK
+# Commands TO_DO
 
 ## SENDING MESSAGES
 - PRIVMSG
-- NOTICE
 
 ### Alex
 - OPER (Done)
@@ -24,10 +11,18 @@
 - USER (Done)
 - PASS (Done)
 - PING/PONG (Done)
+- QUIT
 
 ### Clément
+- NAMES (Done)
+- MODE
+    - TOPIC
+    - INVITE
+    - KICK
 
 ### Jé
+- JOIN 
+- PART
 
 
 # IRC Commands Summary
