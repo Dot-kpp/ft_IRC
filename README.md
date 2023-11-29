@@ -33,7 +33,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
 
 - **inc**: Contains the header files for the source code
     **Client.hpp**:
-    - ### **commands**: The commands folder contains all the basic commands for the IRC Chat
+    ### **commands**: The commands folder contains all the basic commands for the IRC Chat
      - **Command.hpp**: Contains the class definition for Command. Command is the parent of each commands.
      - **CommandHandler.hpp**: Class definition of the command handler.
      - **Invite.hpp**: Class definition of the invite command.
@@ -51,11 +51,11 @@ This IRC application, developed in C++, offers a robust and efficient platform f
      - **Quit.hpp**: Class definition of the quit command.
      - **Topic.hpp**: Class definition of the topic command.
 
-    - ### **server**: The server folder contains all classes related to the server functionnality
-        - **Channels.hpp**: Class definition of the channels.
-        - **KQueue.hpp**: Class definition of the kqueue
-        - **Server.hpp**: Class definition of the server.
-        - **Socket.hpp**: Class definition for the sockets.
+    ### **server**: The server folder contains all classes related to the server functionnality
+    - **Channels.hpp**: Class definition of the channels.
+    - **KQueue.hpp**: Class definition of the kqueue
+    - **Server.hpp**: Class definition of the server.
+    - **Socket.hpp**: Class definition for the sockets.
 
 
 - **src**: Contains the core functions for the chat
@@ -81,7 +81,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
         - ```int Client::getRoleId() const```
         - ```std::ostream &operator<<(std::ostream &o, Client const &rhs)```
 
-    - ### **commands**:
+    ### **commands**:
      - **Command.cpp**:
         - ```Command()```
         - ```virtual ~Command()```
@@ -114,47 +114,47 @@ This IRC application, developed in C++, offers a robust and efficient platform f
      - **PrivMsg.cpp**:
      - **Quit.cpp**:
      - **Topic.cpp**:
-    - ### **server**:
-        - **Channels.cpp**
-            - ```Channels()```
-            - ```Channels(int channelId) ```
-            - ```Channels(Channels const *copy) ```
-            - ```Channels &operator=(Channels const &rhs)```
-            - ```~Channels()```
-            - ```int getChannelId() const```
-            - ```void addClient(Client *client)```
-            - ```void removeClient(Client *client)```
-        - **KQueue.cpp**
-            - ```KQueue(int kq)```
-            - ```~KQueue()```
-            - ```struct kevent *getEventList()```
-            - ```struct kevent *getChangeEvent()```
-            - ```void setKq(int kq)```
-            - ```int getKq()```
-        - **Socket.cpp**
-            - ```Socket(int port)```
-            - ```~Socket()```
-            - ```bool create()```
-            - ```bool bind(const int port)```
-            - ```bool listen() const```
-            - ```int accept() const```
-            - ```void closeSocket() const```
-            - ```int getSocketFd() const```
-        - **Server.cpp**
-            - ```Server()```
-            - ```Server(int port, std::string password)```
-            - ```~Server()```
-            - ```void start()```
-            - ```void stop()```
-            - ```std::string getPassword()```
-            - ```int askPassword(int clientSocket)```
-            - ```int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)```
-            - ```int parseIncomingBuffer(std::string buffer)```
-            - ```void handleIncomingBuffer(int clientFd)```
-            - ```void welcomeClient(int clientFd)```
-            - ```std::string getServerName() const```
-            - ```static void handleSignal(int signal)```
-            - ```Channels &getChannelById(int id)```
+    ### **server**:
+    - **Channels.cpp**
+        - ```Channels()```
+        - ```Channels(int channelId) ```
+        - ```Channels(Channels const *copy) ```
+        - ```Channels &operator=(Channels const &rhs)```
+        - ```~Channels()```
+        - ```int getChannelId() const```
+        - ```void addClient(Client *client)```
+        - ```void removeClient(Client *client)```
+    - **KQueue.cpp**
+        - ```KQueue(int kq)```
+        - ```~KQueue()```
+        - ```struct kevent *getEventList()```
+        - ```struct kevent *getChangeEvent()```
+        - ```void setKq(int kq)```
+        - ```int getKq()```
+    - **Socket.cpp**
+        - ```Socket(int port)```
+        - ```~Socket()```
+        - ```bool create()```
+        - ```bool bind(const int port)```
+        - ```bool listen() const```
+        - ```int accept() const```
+        - ```void closeSocket() const```
+        - ```int getSocketFd() const```
+    - **Server.cpp**
+        - ```Server()```
+        - ```Server(int port, std::string password)```
+        - ```~Server()```
+        - ```void start()```
+        - ```void stop()```
+        - ```std::string getPassword()```
+        - ```int askPassword(int clientSocket)```
+        - ```int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)```
+        - ```int parseIncomingBuffer(std::string buffer)```
+        - ```void handleIncomingBuffer(int clientFd)```
+        - ```void welcomeClient(int clientFd)```
+        - ```std::string getServerName() const```
+        - ```static void handleSignal(int signal)```
+        - ```Channels &getChannelById(int id)```
        
 
 
