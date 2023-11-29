@@ -1,7 +1,10 @@
 
 #include "../inc/Client.hpp"
 
-Client::Client(Socket clientSocket, bool hasGoodPassword) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword) {};
+Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered)
+{
+    this->roleId = 3;
+};
 
 Client::~Client(){};
 
@@ -40,10 +43,10 @@ std::string Client::getNickName() const
     return (this->nickname);
 };
 
-Channels *Client::getChannel() const
+/* Channels *Client::getChannel() const
 {
     return (this->channel);
-};
+}; */
 
 void Client::setNickName(std::string nick)
 {
@@ -60,41 +63,39 @@ std::string Client::getUserName() const
     return (this->username);
 };
 
-void Client::subscribeToChannel(Channels *channel)
+void Client::setIsRegistered(bool isRegistered)
 {
-    this->channel = channel;
+    this->isRegistered = isRegistered;
 };
 
-void Client::welcomeClient(int clientFd)
+bool Client::getIsRegistered() const
 {
-    std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
-    send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
+    return (this->isRegistered);
+};
 
-    // RPL_YOURHOST
-    std::string yourHostMessage = ":YourServerName 002 :Your host is badass ft_IRC, running version 0.0.1 \r\n";
-    send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
+void Client::setRoleId(int roleId)
+{
+    this->roleId = roleId;
+};
 
-    // RPL_CREATED
-    std::string createdMessage = ":YourServerName 003 :This server was created Nov 8 2023. \r\n";
-    send(clientFd, createdMessage.c_str(), createdMessage.size(), 0);
+int Client::getRoleId() const
+{
+    return (this->roleId);
+};
 
-    // RPL_MYINFO
-    std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 (NB OF USER) (NB OF CHANNELS). \r\n";
-    send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
-
-    // RPL_ISUPPORT
-    std::string isupportMessage = ":YourServerName 005 <client> <1-13 tokens> :are supported by this server\r\n";
-    send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
-
-    std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
-}
+/* void Client::subscribeToChannel(Channels *channel)
+{
+    this->channel = channel;
+}; */
 
 std::ostream &operator<<(std::ostream &o, Client const &rhs)
 {
-    o << "Client's username: " << rhs.getUserName() << std::endl;
-    o << "Client's nickname: " << rhs.getNickName() << std::endl;
+    o << "Client is registered: " << rhs.getIsRegistered() << std::endl;
     o << "Client hasGoodPassword: " << rhs.getHasGoodPassword() << std::endl;
-    o << "Client's Channel: " << rhs.getChannel()->getChannelId() << std::endl;
-
+    if (!rhs.getUserName().empty())
+        o << "Client's username: " << rhs.getUserName() << std::endl;
+    else if (!rhs.getNickName().empty())
+        o << "Client's nickname: " << rhs.getNickName() << std::endl;
+    o << "Client Role: " << rhs.getRoleId() << std::endl;
     return (o);
-};
+}

@@ -6,15 +6,16 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/23 14:21:48 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/28 16:36:07 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/server/Server.hpp"
+#include "../../inc/commands/CommandHandler.hpp"
 
 Server *Server::instance = nullptr;
 
-Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false)
+Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("irc")
 {
     instance = this;
     std::cout << "Server created" << std::endl;
@@ -26,6 +27,11 @@ Server::~Server()
 {
     instance = nullptr;
     std::cout << "Server destroyed" << std::endl;
+};
+
+std::string Server::getServerName() const
+{
+    return (this->serverName);
 };
 
 std::string Server::getPassword()
@@ -54,101 +60,104 @@ int Server::askPassword(int clientSocket)
     return (0);
 }
 
-int Server::parseIncomingBuffer(std::string buffer)
-{
-    (void)buffer;
-    return (0);
-}
-
 int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
 {
-    if (strBuffer.substr(0, 4) == "NICK")
+    (void)hasUserAndNick;
+    CommandHandler commandHandler;
+    if (strBuffer.empty())
     {
-        if (strBuffer.empty())
-        {
-            std::string noNickError = "431 " + std::to_string(clientFd) + " :No nickname given";
-            send(clientFd, noNickError.c_str(), noNickError.size(), 0);
-            return -1;
-        }
-        std::string nickname = strBuffer.substr(5, strBuffer.size() - 2);
-        if (parseNickname(nickname, clientFd))
-        {
-            client->setNickName(nickname);
-            std::cout << "Nickname successfully changed to: " << nickname << std::endl;
-        }
-        else
-            return -1;
-        return 0;
-    }
-    else if (strBuffer.substr(0, 4) == "USER")
-    {
-        std::cout << "Received USER from client " << clientFd << ": " << strBuffer << std::endl;
-        std::cout << clients[clientFd] << std::endl;
-        client->setUserName(strBuffer);
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "MODE")
-    {
-        std::cout << "Received MODE from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PART")
-    {
-        std::cout << "Received PART from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "JOIN")
-    {
-        std::cout << "Received JOIN from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 7) == "PRIVMSG")
-    {
-        std::cout << "Received PRIVMSG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "LIST")
-    {
-        std::cout << "Received LIST from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "QUIT")
-    {
-        std::cout << "Received QUIT from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PING")
-    {
-        std::cout << "Received PING from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "PONG")
-    {
-        std::cout << "Received PONG from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 4) == "KICK")
-    {
-        std::cout << "Received KICK from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else if (hasUserAndNick && strBuffer.substr(0, 5) == "TOPIC")
-    {
-        std::cout << "Received TOPIC from client " << clientFd << ": " << strBuffer << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "Received unknown command from client " << clientFd << ": " << strBuffer << std::endl;
+        std::string noCommandError = ": 421 " + std::to_string(clientFd) + " :Unknown command";
+        send(clientFd, noCommandError.c_str(), noCommandError.size(), 0);
         return -1;
     }
+
+    // Get the command name
+    std::cout << "Client " << clientFd << " sent: " << strBuffer << std::endl;
+    std::istringstream iss(strBuffer);
+    std::string commandName;
+    iss >> commandName;
+
+    // Check if the client is registered, if not, only NICK and USER are allowed
+    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER" && commandName != "CAP LS 302")
+    {
+        std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
+        send(clientFd, error.c_str(), error.size(), 0);
+        return -1;
+    }
+
+    // Check if the client is already registered, if so, USER is not allowed
+    if (client->getIsRegistered() && commandName == "USER")
+    {
+        std::cout << *client << std::endl;
+        std::string error = ": 462 " + std::to_string(clientFd) + " :You may not reregister\r\n";
+        send(clientFd, error.c_str(), error.size(), 0);
+        return -1;
+    }
+
+    // Check if the command is registered and handle it
+    if (commandHandler.isCommandRegistered(commandName))
+        return commandHandler.handleCommand(commandName, strBuffer, clientFd) ? 0 : -1;
+
     return 0;
+}
+
+void Server::handleIncomingBuffer(int clientFd)
+{
+    char buffer[512];
+    // stores the number of bytes read
+    ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+    buffer[bytesRead] = '\0';
+
+    std::string strBuffer(buffer);
+    if (bytesRead > 0)
+    {
+        // If the client has not provided a password yet, we check if the message is a password
+        if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
+        {
+            strBuffer.erase(0, 5);
+            if (strBuffer.compare(0, this->password.size(), this->password) == 0)
+                clients[clientFd].setHasGoodPassword(true);
+            else
+            {
+                std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+                std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
+                send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+            }
+        }
+        // If the client has provided a password, we check if the message is a command
+        else if (clients[clientFd].getHasGoodPassword())
+        {
+            std::cout << clients[clientFd] << std::endl;
+            bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
+            if (hasUserAndNick)
+            {
+                clients[clientFd].setIsRegistered(true);
+                Channels &channel = this->getChannelById(0);
+                channel.addClient(&clients[clientFd]);
+            }
+            treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
+        }
+    }
+    else if (bytesRead > 512)
+    {
+        std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
+        std::string tooLong = ":YourServerName 417 * :Input line was too long. \r\n";
+        close(clientFd);
+        clients.erase(clientFd);
+    }
+    else if (bytesRead <= 0)
+    {
+        std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
+        close(clientFd);
+        clients.erase(clientFd);
+    }
 }
 
 void Server::start()
 {
     this->running = true;
 
+    // Create kqueue
     int kq = kqueue();
     if (kq == -1)
     {
@@ -156,6 +165,7 @@ void Server::start()
         return;
     }
     KQueue kqueue(kq);
+    // Add server socket to kqueue
     EV_SET(kqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
     if (kevent(kqueue.getKq(), kqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
     {
@@ -163,71 +173,65 @@ void Server::start()
         return;
     }
 
+    // Initialize default things for the server
+    this->channel.push_back(Channels(0));
+    Oper();
     while (this->running)
     {
+        // Wait for events
         int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 1024, NULL);
         for (int i = 0; i < nev; i++)
         {
+            // Get client socket
             int clientFd = kqueue.getEventList()[i].ident;
-            // CONNECTION SERVER SOCKET
+            // If the client socket is the server socket, it means a new client is trying to connect
             if (clientFd == serverSocket.getSocketFd())
             {
+                // Accept new client
                 int clientSocket = serverSocket.accept();
-                clients[clientSocket] = Client(clientSocket, false);
+                // Add client socket to kqueue
+                clients[clientSocket] = Client(clientSocket, false, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                /* askPassword(clientSocket); */
                 kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
             else if (kqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 // INCOMING MESSAGE FROM CLIENT
-                char buffer[512];
-                ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
-                buffer[bytesRead] = '\0';
-
-                std::string strBuffer(buffer);
-                if (bytesRead > 0)
-                {
-                    if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
-                    {
-                        strBuffer.erase(0, 5);
-                        if (strBuffer.compare(0, this->password.size(), this->password) == 0)
-                        {
-                            clients[clientFd].setHasGoodPassword(true);
-                            clients[clientFd].welcomeClient(clientFd);
-                        }
-                        else
-                        {
-                            std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                            std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
-                            send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
-                        }
-                    }
-                    else if (clients[clientFd].getHasGoodPassword())
-                    {
-                        Channels channel(0);
-                        /* clients[clientFd].subscribeToChannel(&channel); */
-                        if (treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], true) == -1)
-                        {
-                            continue;
-                        };
-                    }
-                }
-                else if (bytesRead > 512)
-                {
-                    std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
-                    close(clientFd);
-                    clients.erase(clientFd);
-                }
-                else if (bytesRead <= 0)
-                {
-                    std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
-                    close(clientFd);
-                    clients.erase(clientFd);
-                }
+                handleIncomingBuffer(clientFd);
             }
         }
     }
     close(kq);
+}
+
+void Server::welcomeClient(int clientFd)
+{
+    std::string serverName = this->getServerName();
+    std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
+    send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
+
+    // RPL_YOURHOST
+    std::string yourHostMessage = ":YourServerName 002 :Your host is badass ft_IRC, running version 0.0.1 \r\n";
+    send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
+
+    // RPL_CREATED
+    std::string createdMessage = ":YourServerName 003 :This server was created Nov 8 2023. \r\n";
+    send(clientFd, createdMessage.c_str(), createdMessage.size(), 0);
+
+    // RPL_MYINFO
+    int nbOfUsers = this->clients.size();
+    std::cout << "nbOfUsers: " << std::to_string(nbOfUsers) << std::endl;
+    int nbOfChannels = this->channel.size();
+    std::cout << "nbOfChannels: " << std::to_string(nbOfChannels) << std::endl;
+    std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 nb of users: " + std::to_string(nbOfUsers) + ", nb of channels: " + std::to_string(nbOfChannels) + " . \r\n";
+    send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
+
+    // RPL_ISUPPORT
+    std::string isupportMessage = ":YourServerName 005 <client> <1-13 tokens> :are supported by this server\r\n";
+    send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
+
+    std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
 }
 
 void Server::stop()
@@ -236,4 +240,16 @@ void Server::stop()
     this->serverSocket.closeSocket();
     this->port = 0;
     std::cout << "Server stopped" << std::endl;
+};
+
+Channels &Server::getChannelById(int id)
+{
+    std::vector<Channels>::iterator it = this->channel.begin();
+    while (it != this->channel.end())
+    {
+        if (it->getChannelId() == id)
+            return *it;
+        it++;
+    }
+    return this->channel[0];
 };
