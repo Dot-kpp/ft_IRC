@@ -210,6 +210,15 @@ void Server::start()
     close(kq);
 }
 
+Channels* Server::getChannelByName(const std::string& name) {
+	for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it) {
+		if (it->getChannelName() == name) {
+			return &(*it);
+		}
+	}
+	return NULL;  // Channel not found
+}
+
 void Server::stop()
 {
     this->running = false;

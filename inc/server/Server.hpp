@@ -70,6 +70,7 @@ public:
         }
     }
 	Channels &getChannelById(int id);
+	Channels* getChannelByName(const std::string& name);
 };
 
 void sendToServer(std::string message, int clientFd);

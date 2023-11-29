@@ -23,7 +23,7 @@ public:
 
     int getChannelId() const { return channelId; }
 
-    void addClient(Client *client) { clients.push_back(client); }
+    void addClient(Client *client);
     void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
 
 	// Get the channel name
