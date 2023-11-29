@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 15:30:12 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/29 17:09:45 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,6 @@ void Server::handleIncomingBuffer(int clientFd)
         // If the client has provided a password, we check if the message is a command
         else if (clients[clientFd].getHasGoodPassword())
         {
-            std::cout << clients[clientFd] << std::endl;
             bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
             if (hasUserAndNick)
             {
@@ -138,18 +137,10 @@ void Server::handleIncomingBuffer(int clientFd)
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
     }
-    else if (bytesRead > 512)
-    {
-        std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
-        std::string tooLong = ":YourServerName 417 * :Input line was too long. \r\n";
-        close(clientFd);
-        clients.erase(clientFd);
-    }
     else if (bytesRead <= 0)
     {
         std::cout << "Client " << clientFd << " disconnected." << std::endl;
-        close(clientFd);
-        clients.erase(clientFd);
+        removeClient(clientFd);
     }
 }
 
@@ -164,40 +155,40 @@ void Server::start()
         std::cerr << "Could not create kqueue" << std::endl;
         return;
     }
-    KQueue kqueue(kq);
+    this->serverKqueue = KQueue(kq);
     // Add server socket to kqueue
-    EV_SET(kqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-    if (kevent(kqueue.getKq(), kqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
+    EV_SET(serverKqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+    if (kevent(serverKqueue.getKq(), serverKqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
     {
         std::cerr << "Could not add event to kqueue" << std::endl;
         return;
     }
 
-	//Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
+    // Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
     this->channel.push_back(Channels(0, "default"));
     this->channel.push_back(Channels(1, "Channel1"));
-	Oper();
-
     while (this->running)
     {
         // Wait for events
-        int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 1024, NULL);
+        int nev = kevent(kq, NULL, 0, serverKqueue.getEventList(), 1024, NULL);
         for (int i = 0; i < nev; i++)
         {
             // Get client socket
-            int clientFd = kqueue.getEventList()[i].ident;
+            int clientFd = serverKqueue.getEventList()[i].ident;
+            std::cout << "clientFd: " << std::to_string(clientFd) << std::endl;
             // If the client socket is the server socket, it means a new client is trying to connect
             if (clientFd == serverSocket.getSocketFd())
             {
                 // Accept new client
-                int clientSocket = serverSocket.accept();
-                // Add client socket to kqueue
-                clients[clientSocket] = Client(clientSocket, false, false);
-                EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                /* askPassword(clientSocket); */
-                kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
+                int newClientSocket = serverSocket.accept();
+                std::cout << "newClientSocket: " << std::to_string(newClientSocket) << std::endl;
+                // Add new client to clients map
+                clients[newClientSocket] = Client(newClientSocket, false, false);
+                // Add new client socket to serverKqueue
+                EV_SET(serverKqueue.getChangeEvent(), newClientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                kevent(kq, serverKqueue.getChangeEvent(), 1, NULL, 0, NULL);
             }
-            else if (kqueue.getEventList()[i].filter == EVFILT_READ)
+            else if (serverKqueue.getEventList()[i].filter == EVFILT_READ)
             {
                 // INCOMING MESSAGE FROM CLIENT
                 handleIncomingBuffer(clientFd);
@@ -236,13 +227,16 @@ void Server::welcomeClient(int clientFd)
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
 }
 
-Channels* Server::getChannelByName(const std::string& name) {
-	for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it) {
-		if (it->getChannelName() == name) {
-			return &(*it);
-		}
-	}
-	return NULL;  // Channel not found
+Channels *Server::getChannelByName(const std::string &name)
+{
+    for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it)
+    {
+        if (it->getChannelName() == name)
+        {
+            return &(*it);
+        }
+    }
+    return NULL; // Channel not found
 }
 
 void Server::stop()
@@ -272,8 +266,10 @@ void Server::removeClient(int clientFd)
     {
         if (it->first == clientFd)
         {
-            /* close(clientFd); */
+            EV_SET(serverKqueue.getChangeEvent(), clientFd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+            kevent(serverKqueue.getKq(), serverKqueue.getChangeEvent(), 1, NULL, 0, NULL);
             clients.erase(clientFd);
+            close(clientFd);
             break;
         }
         it++;

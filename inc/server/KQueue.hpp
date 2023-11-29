@@ -6,7 +6,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include "Server.hpp"
 
 class KQueue {
 private:
@@ -15,6 +14,7 @@ private:
     struct kevent event_list[1024];
 
 public:
+    KQueue() {};
     KQueue(int kq) : _kq(kq) {};
     ~KQueue() {};
 

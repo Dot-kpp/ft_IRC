@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 15:27:47 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:12:41 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ private:
     std::string password;
     bool running;
     const std::string serverName;
+    
 
 public:
     static Server *instance;
@@ -49,6 +50,8 @@ public:
     Server();
     Server(int port, std::string password);
     ~Server();
+
+    KQueue serverKqueue;
     std::map<int, Client> clients;
     std::vector<Channels> channel;
 
