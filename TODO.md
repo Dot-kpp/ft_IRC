@@ -16,13 +16,13 @@
 ### Clément
 - NAMES (Done)
 - MODE
-    - TOPIC
-    - INVITE
-    - KICK
+- TOPIC
+- INVITE
 
 ### Jé
 - JOIN 
 - PART
+- KICK
 
 
 # IRC Commands Summary

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/27 15:29:09 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/29 15:24:31 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,4 +264,19 @@ Channels &Server::getChannelById(int id)
         it++;
     }
     return this->channel[0];
+};
+
+void Server::removeClient(int clientFd)
+{
+    std::map<int, Client>::iterator it = this->clients.begin();
+    while (it != this->clients.end())
+    {
+        if (it->first == clientFd)
+        {
+            /* close(clientFd); */
+            clients.erase(clientFd);
+            break;
+        }
+        it++;
+    }
 };
