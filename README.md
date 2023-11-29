@@ -59,27 +59,27 @@ This IRC application, developed in C++, offers a robust and efficient platform f
 
 
 - **src**: Contains the core functions for the chat
-    **main.cpp**:
-    - ```void handleSignal(int signal, Server &server)```
-    - ```int main(int ac, char **av)```
-    **Client.cpp**:
-    - ```Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered)```
-    - ```Client::~Client(){}```
-    - ```void Client::setPassword(std::string password)```
-    - ```void Client::setHasGoodPassword(bool hasGoodPassword)```
-    - ```void Client::setClientSocket(Socket clientSocket)```
-    - ```Socket Client::getClientSocket() const```
-    - ```std::string Client::getPassword() const```
-    - ```bool Client::getHasGoodPassword() const```
-    - ```std::string Client::getNickName() const```
-    - ```void Client::setNickName(std::string nick)```
-    - ```void Client::setUserName(std::string username)```
-    - ```std::string Client::getUserName() const```
-    - ```void Client::setIsRegistered(bool isRegistered)```
-    - ```bool Client::getIsRegistered() const```
-    - ```void Client::setRoleId(int roleId)```
-    - ```int Client::getRoleId() const```
-    - ```std::ostream &operator<<(std::ostream &o, Client const &rhs)```
+    - **main.cpp**:
+        - ```void handleSignal(int signal, Server &server)```
+        - ```int main(int ac, char **av)```
+    - **Client.cpp**:
+        - ```Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered)```
+        - ```Client::~Client(){}```
+        - ```void Client::setPassword(std::string password)```
+        - ```void Client::setHasGoodPassword(bool hasGoodPassword)```
+        - ```void Client::setClientSocket(Socket clientSocket)```
+        - ```Socket Client::getClientSocket() const```
+        - ```std::string Client::getPassword() const```
+        - ```bool Client::getHasGoodPassword() const```
+        - ```std::string Client::getNickName() const```
+        - ```void Client::setNickName(std::string nick)```
+        - ```void Client::setUserName(std::string username)```
+        - ```std::string Client::getUserName() const```
+        - ```void Client::setIsRegistered(bool isRegistered)```
+        - ```bool Client::getIsRegistered() const```
+        - ```void Client::setRoleId(int roleId)```
+        - ```int Client::getRoleId() const```
+        - ```std::ostream &operator<<(std::ostream &o, Client const &rhs)```
 
     - **commands**:
      - **Command.cpp**:
