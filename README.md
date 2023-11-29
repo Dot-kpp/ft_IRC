@@ -30,31 +30,31 @@ This IRC application, developed in C++, offers a robust and efficient platform f
 
 ### Directories
 
-### inc: Contains the header files for the source code
-**Client.hpp**
-### **commands**: The commands folder contains all the basic commands for the IRC Chat
-- **Command.hpp**: Contains the class definition for Command. Command is the parent of each commands.
-- **CommandHandler.hpp**: Class definition of the command handler.
-- **Invite.hpp**: Class definition of the invite command.
-- **Join.hpp**: Class definition of the join command.
-- **Kick.hpp**: Class definition of the kick command.
-- **Mode.hpp**: Class definition of the mode command.
-- **Names.hpp**: Class definition of the names command.
-- **Nick.hpp**: Class definition of the nick command.
-- **Notice.hpp**: Class definition of the notice command.
-- **Oper.hpp**: Class definition of the oper command.
-- **Part.hpp**: Class definition of the part command.
-- **Pass.hpp**: Class definition of the pass command.
-- **Ping.hpp**: Class definition of the ping command.
-- **PrivMsg.hpp**: Class definition of the prvmsg command.
-- **Quit.hpp**: Class definition of the quit command.
-- **Topic.hpp**: Class definition of the topic command.
+- **inc**: Contains the header files for the source code
+    - **Client.hpp**:
+    ### **commands**: The commands folder contains all the basic commands for the IRC Chat
+     - **Command.hpp**: Contains the class definition for Command. Command is the parent of each commands.
+     - **CommandHandler.hpp**: Class definition of the command handler.
+     - **Invite.hpp**: Class definition of the invite command.
+     - **Join.hpp**: Class definition of the join command.
+     - **Kick.hpp**: Class definition of the kick command.
+     - **Mode.hpp**: Class definition of the mode command.
+     - **Names.hpp**: Class definition of the names command.
+     - **Nick.hpp**: Class definition of the nick command.
+     - **Notice.hpp**: Class definition of the notice command.
+     - **Oper.hpp**: Class definition of the oper command.
+     - **Part.hpp**: Class definition of the part command.
+     - **Pass.hpp**: Class definition of the pass command.
+     - **Ping.hpp**: Class definition of the ping command.
+     - **PrivMsg.hpp**: Class definition of the prvmsg command.
+     - **Quit.hpp**: Class definition of the quit command.
+     - **Topic.hpp**: Class definition of the topic command.
 
-### **server**: The server folder contains all classes related to the server functionnality
-- **Channels.hpp**: Class definition of the channels.
-- **KQueue.hpp**: Class definition of the kqueue
-- **Server.hpp**: Class definition of the server.
-- **Socket.hpp**: Class definition for the sockets.
+    ### **server**: The server folder contains all classes related to the server functionnality
+    - **Channels.hpp**: Class definition of the channels.
+    - **KQueue.hpp**: Class definition of the kqueue
+    - **Server.hpp**: Class definition of the server.
+    - **Socket.hpp**: Class definition for the sockets.
 
 
 - **src**: Contains the core functions for the chat
