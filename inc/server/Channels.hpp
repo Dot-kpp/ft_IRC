@@ -30,7 +30,8 @@ public:
 	std::string getChannelName() const { return name; }
 
 	// Get users in channel
-	std::string getClients() const;
+//	std::string getClients() const;
+	const std::vector<Client *> &getClients() const;
 
 };
 

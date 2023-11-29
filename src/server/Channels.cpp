@@ -32,17 +32,21 @@ void Channels::addClient(Client* client) {
 	}
 }
 
-std::string Channels::getClients() const {
-	if (clients.empty()) {
-		return "No users in the channel.";
-	}
+//std::string Channels::getClients() const {
+//	if (clients.empty()) {
+//		return "No users in the channel.\n";
+//	}
+//
+//	std::string users;
+//	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
+//		users += (*it)->getNickName() + "\n";
+//	}
+//
+//	return users;
+//}
 
-	std::string users;
-	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
-		users += (*it)->getNickName() + "\n";
-	}
-
-	return users;
+const std::vector<Client *> &Channels::getClients() const {
+	return clients;
 }
 
 
