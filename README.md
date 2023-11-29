@@ -154,6 +154,7 @@ This IRC application, developed in C++, offers a robust and efficient platform f
         - ```std::string getServerName() const```
         - ```static void handleSignal(int signal)```
         - ```Channels &getChannelById(int id)```
+        - ```void removeClient(int clientFd)```
        
 
 
