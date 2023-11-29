@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/28 17:45:53 by acouture         ###   ########.fr       */
+/*   Updated: 2023/11/29 15:30:12 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,10 +173,11 @@ void Server::start()
         return;
     }
 
-    // Initialize default things for the server
-    this->channel.push_back(Channels(0));
-    Oper();
-    int clientSocket;
+	//Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
+    this->channel.push_back(Channels(0, "default"));
+    this->channel.push_back(Channels(1, "Channel1"));
+	Oper();
+
     while (this->running)
     {
         // Wait for events
@@ -189,7 +190,7 @@ void Server::start()
             if (clientFd == serverSocket.getSocketFd())
             {
                 // Accept new client
-                clientSocket = serverSocket.accept();
+                int clientSocket = serverSocket.accept();
                 // Add client socket to kqueue
                 clients[clientSocket] = Client(clientSocket, false, false);
                 EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
@@ -235,6 +236,15 @@ void Server::welcomeClient(int clientFd)
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
 }
 
+Channels* Server::getChannelByName(const std::string& name) {
+	for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it) {
+		if (it->getChannelName() == name) {
+			return &(*it);
+		}
+	}
+	return NULL;  // Channel not found
+}
+
 void Server::stop()
 {
     this->running = false;
@@ -268,4 +278,4 @@ void Server::removeClient(int clientFd)
         }
         it++;
     }
-}
+};

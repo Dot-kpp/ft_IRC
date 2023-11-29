@@ -5,8 +5,9 @@
 #include "Nick.hpp"
 #include "User.hpp"
 #include "Ping.hpp"
-#include "Quit.hpp"
 #include "Oper.hpp"
+#include "Names.hpp"
+#include "Quit.hpp"
 #include <string>
 #include <map>
 #include <memory>
