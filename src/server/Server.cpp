@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 17:51:36 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/01 14:37:52 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@ Server *Server::instance = nullptr;
 Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("YourServerName")
 {
     instance = this;
+    // Socket serverSocket(this->port);
+    serverSocket.bindSocket();
+    serverSocket.listenSocket();
     std::cout << "Server created" << std::endl;
     std::cout << "Port: " << this->port << std::endl;
     std::cout << "Password: " << this->password << std::endl;
@@ -105,7 +108,7 @@ void Server::handleIncomingBuffer(int clientFd)
 {
     char buffer[512];
     // stores the number of bytes read
-    ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+    size_t bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
     buffer[bytesRead] = '\0';
 
     std::string strBuffer(buffer);
@@ -137,65 +140,79 @@ void Server::handleIncomingBuffer(int clientFd)
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
     }
-    else if (bytesRead <= 0)
+    else if (bytesRead == 0)
     {
+        // Handle client disconnection when bytesRead is 0
         std::cout << "Client " << clientFd << " disconnected." << std::endl;
         removeClient(clientFd, "Client disconnected from the server.");
+    }
+    else
+    {
+        // Handle read error when bytesRead is -1
+        std::cerr << "Read error on client " << clientFd << std::endl;
+        // Optionally, you might want to remove the client here too, depending on your error handling strategy
     }
 }
 
 void Server::start()
 {
-    this->running = true;
+    int new_events;
+    struct kevent change_event[4], event[4];
+    struct sockaddr_in client_addr;
+    socklen_t client_len;
 
     // Create kqueue
     int kq = kqueue();
-    if (kq == -1)
+    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+
+    // Register kevent with the kqueue
+    if (kevent(kq, change_event, 1, NULL, 0, NULL) == -1)
     {
-        std::cerr << "Could not create kqueue" << std::endl;
-        return;
-    }
-    this->serverKqueue = KQueue(kq);
-    // Add server socket to kqueue
-    EV_SET(serverKqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-    if (kevent(serverKqueue.getKq(), serverKqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
-    {
-        std::cerr << "Could not add event to kqueue" << std::endl;
-        return;
+        perror("kevent");
+        exit(1);
     }
 
-    // Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
     this->channel.push_back(Channels(0, "default"));
     this->channel.push_back(Channels(1, "Channel1"));
-    while (this->running)
+    for (;;)
     {
-        // Wait for events
-        int nev = kevent(kq, NULL, 0, serverKqueue.getEventList(), 1024, NULL);
-        for (int i = 0; i < nev; i++)
+        new_events = kevent(kq, NULL, 0, event, 1, NULL);
+        if (new_events == -1)
         {
-            // Get client socket
-            int clientFd = serverKqueue.getEventList()[i].ident;
-            std::cout << "clientFd: " << std::to_string(clientFd) << std::endl;
-            // If the client socket is the server socket, it means a new client is trying to connect
-            if (clientFd == serverSocket.getSocketFd())
+            perror("kevent");
+            exit(1);
+        }
+
+        for (int i = 0; i < new_events; i++)
+        {
+            int event_fd = event[i].ident;
+
+            if (event[i].flags & EV_EOF)
             {
-                // Accept new client
-                int newClientSocket = serverSocket.accept();
-                std::cout << "newClientSocket: " << std::to_string(newClientSocket) << std::endl;
-                // Add new client to clients map
-                clients[newClientSocket] = Client(newClientSocket, false, false);
-                // Add new client socket to serverKqueue
-                EV_SET(serverKqueue.getChangeEvent(), newClientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                kevent(kq, serverKqueue.getChangeEvent(), 1, NULL, 0, NULL);
+                // Client disconnected
+                removeClient(event_fd, "Client disconnected from the server.");
             }
-            else if (serverKqueue.getEventList()[i].filter == EVFILT_READ)
+            else if (event_fd == serverSocket.getSocketFd())
             {
-                // INCOMING MESSAGE FROM CLIENT
-                handleIncomingBuffer(clientFd);
+                // New connection
+                int client_fd = serverSocket.acceptConnection(client_addr, client_len);
+                if (client_fd == -1)
+                {
+                    perror("Accept socket error");
+                    continue;
+                }
+                // Add new client socket to kqueue
+                EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
+                    perror("kevent error");
+            }
+            else if (event[i].filter == EVFILT_READ)
+            {
+                // Incoming data on client socket
+                handleIncomingBuffer(event_fd);
             }
         }
     }
-    close(kq);
 }
 
 void Server::welcomeClient(int clientFd)
@@ -268,9 +285,7 @@ void Server::removeClient(int clientFd, std::string reason)
     {
         if (it->first == clientFd)
         {
-            tellEveryoneButSender(reason, clientFd);
-            EV_SET(serverKqueue.getChangeEvent(), clientFd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-            kevent(serverKqueue.getKq(), serverKqueue.getChangeEvent(), 1, NULL, 0, NULL);
+            // tellEveryoneButSender(reason, clientFd);
             clients.erase(clientFd);
             close(clientFd);
             break;
@@ -279,15 +294,16 @@ void Server::removeClient(int clientFd, std::string reason)
     }
 };
 
-void    Server::tellEveryoneButSender(std::string message, int clientFd)
+void Server::tellEveryoneButSender(std::string message, int clientFd)
 {
     for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
     {
-        if (it->first != clientFd) {
+        if (it->first != clientFd)
+        {
             std::stringstream ss;
             ss << ":" << serverName << " " << clients[clientFd].getNickName() << " is exiting the network with the message: Quit: " << message << "\r\n";
             std::string msg = ss.str();
-            send(it->first, msg.c_str(), message.size(), 0);
+            send(it->first, msg.c_str(), msg.size(), 0);
         }
     }
 }
