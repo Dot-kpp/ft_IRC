@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/01 15:31:10 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/01 16:06:24 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,22 +43,8 @@ std::string Server::getPassword()
 
 int Server::askPassword(int clientSocket)
 {
-    std::string greeting = "Hello, client!";
-    size_t bytesSent = 0;
-    size_t totalSent = 0;
-    std::string passwordPrompt = "Please enter the server password: ";
-    totalSent = 0;
-    while (totalSent < passwordPrompt.size())
-    {
-        bytesSent = send(clientSocket, passwordPrompt.c_str() + totalSent, passwordPrompt.size() - totalSent, 0);
-        if (bytesSent == ((size_t)-1))
-        {
-            std::cerr << "Could not send password prompt to client" << std::endl;
-            close(clientSocket);
-            return -1;
-        }
-        totalSent += bytesSent;
-    }
+    std::string askPassword = ":YourServerName 331 " + std::to_string(clientSocket) + " :Please enter your password\r\n";
+    send(clientSocket, askPassword.c_str(), askPassword.size(), 0);
     return (0);
 }
 
@@ -74,10 +60,11 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     }
 
     // Get the command name
-    std::cout << "Client " << clientFd << " sent: " << strBuffer << std::endl;
     std::istringstream iss(strBuffer);
     std::string commandName;
+    std::string msg = iss.str();
     iss >> commandName;
+    std::cout << "Client " << clientFd << " sent: " << msg.c_str() << std::endl;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
     if (!client->getIsRegistered() && commandName != "USER" && commandName != "NICK" && commandName != "CAP LS 302")
@@ -113,7 +100,7 @@ void Server::handleIncomingBuffer(int clientFd)
     std::string strBuffer(buffer);
     if (bytesRead > 0)
     {
-        if (strBuffer.compare("EXIT"))
+        if (strBuffer.compare("EXIT") == 0)
             this->stop();
         // If the client has not provided a password yet, we check if the message is a password
         if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
@@ -140,8 +127,6 @@ void Server::handleIncomingBuffer(int clientFd)
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
-        else if (!clients[clientFd].getHasGoodPassword())
-            askPassword(clientFd);
     }
     else if (bytesRead == 0)
     {
@@ -261,6 +246,12 @@ Channels *Server::getChannelByName(const std::string &name)
 
 void Server::stop()
 {
+    std::stringstream ss;
+    ss << ":" << serverName << " 421 " << ": Server shutting down" << "\r\n";
+    std::string msg = ss.str();
+
+    for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+        send(it->first, msg.c_str(), msg.size(), 0);
     this->running = false;
     this->serverSocket.closeSocket();
     this->port = 0;
