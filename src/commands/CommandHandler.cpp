@@ -6,6 +6,7 @@ CommandHandler::CommandHandler()
     commands["NICK"] = std::auto_ptr<Nick>(new Nick());
     commands["PING"] = std::auto_ptr<Ping>(new Ping());
     commands["USER"] = std::auto_ptr<User>(new User());
+    commands["QUIT"] = std::auto_ptr<Quit>(new Quit());
     commands["NAMES"] = std::auto_ptr<Names>(new Names());
     commands["OPER"] = std::auto_ptr<Oper>(new Oper());
     commands["TOPIC"] = std::auto_ptr<Topic>(new Topic());

@@ -2,32 +2,32 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
-#include <string>
 #include <iostream>
-#include <netinet/in.h>
 #include <sys/socket.h>
-#include <sys/types.h>
+#include <netinet/in.h>
 #include <unistd.h>
 
 # define MAX_CLIENTS 10
 # define BACKLOG 10
+
+#include <cstring>
 
 class Socket {
 public:
     Socket(int port);
     ~Socket();
 
-    bool create();
-    bool bind(const int port);
-    bool listen() const;
-    int accept() const;
-    void closeSocket() const;
-
     int getSocketFd() const;
+    void bindSocket();
+    void listenSocket(int backlog = 3);
+    int acceptConnection(struct sockaddr_in &client_addr, socklen_t &client_len) const;
+    void closeSocket();
 
 private:
     int sockfd;
-    sockaddr_in server_addr;
+    int port;
+    struct sockaddr_in serv_addr;
 };
+
 
 #endif // SOCKET_HPP

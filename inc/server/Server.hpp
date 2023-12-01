@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 15:24:55 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/01 14:33:12 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define SERVER_HPP
 
 #include "Socket.hpp"
-#include "KQueue.hpp"
 #include "Channels.hpp"
 #include "../Client.hpp"
 #include <sstream>
@@ -42,6 +41,7 @@ private:
     std::string password;
     bool running;
     const std::string serverName;
+    
 
 public:
     static Server *instance;
@@ -49,6 +49,7 @@ public:
     Server();
     Server(int port, std::string password);
     ~Server();
+
     std::map<int, Client> clients;
     std::vector<Channels> channel;
 
@@ -72,7 +73,8 @@ public:
     }
 	Channels &getChannelById(int id);
 	Channels* getChannelByName(const std::string& name);
-    void removeClient(int clientFd);
+    void removeClient(int clientFd, std::string reason);
+    void tellEveryoneButSender(std::string message, int clientFd);
 };
 
 void sendToServer(std::string message, int clientFd);
