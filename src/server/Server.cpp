@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/01 14:37:52 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/01 15:31:10 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,9 @@ Server *Server::instance = nullptr;
 Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("YourServerName")
 {
     instance = this;
-    // Socket serverSocket(this->port);
     serverSocket.bindSocket();
     serverSocket.listenSocket();
-    std::cout << "Server created" << std::endl;
+    std::cout << "Server launched" << std::endl;
     std::cout << "Port: " << this->port << std::endl;
     std::cout << "Password: " << this->password << std::endl;
 };
@@ -81,7 +80,7 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     iss >> commandName;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
-    if (!client->getIsRegistered() && commandName != "NICK" && commandName != "USER" && commandName != "CAP LS 302")
+    if (!client->getIsRegistered() && commandName != "USER" && commandName != "NICK" && commandName != "CAP LS 302")
     {
         std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
@@ -114,6 +113,8 @@ void Server::handleIncomingBuffer(int clientFd)
     std::string strBuffer(buffer);
     if (bytesRead > 0)
     {
+        if (strBuffer.compare("EXIT"))
+            this->stop();
         // If the client has not provided a password yet, we check if the message is a password
         if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
         {
@@ -130,7 +131,7 @@ void Server::handleIncomingBuffer(int clientFd)
         // If the client has provided a password, we check if the message is a command
         else if (clients[clientFd].getHasGoodPassword())
         {
-            bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
+            bool hasUserAndNick = clients[clientFd].getUserName() != "" && clients[clientFd].getNickName() != "" ? true : false;
             if (hasUserAndNick)
             {
                 clients[clientFd].setIsRegistered(true);
@@ -139,6 +140,8 @@ void Server::handleIncomingBuffer(int clientFd)
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
+        else if (!clients[clientFd].getHasGoodPassword())
+            askPassword(clientFd);
     }
     else if (bytesRead == 0)
     {
@@ -150,7 +153,7 @@ void Server::handleIncomingBuffer(int clientFd)
     {
         // Handle read error when bytesRead is -1
         std::cerr << "Read error on client " << clientFd << std::endl;
-        // Optionally, you might want to remove the client here too, depending on your error handling strategy
+        removeClient(clientFd, "Client disconnected from the server.");
     }
 }
 
@@ -261,7 +264,11 @@ void Server::stop()
     this->running = false;
     this->serverSocket.closeSocket();
     this->port = 0;
+    this->clients.clear();
+    this->channel.clear();
+    Server::~Server();
     std::cout << "Server stopped" << std::endl;
+    exit(0);
 };
 
 Channels &Server::getChannelById(int id)
@@ -285,7 +292,7 @@ void Server::removeClient(int clientFd, std::string reason)
     {
         if (it->first == clientFd)
         {
-            // tellEveryoneButSender(reason, clientFd);
+            tellEveryoneButSender(reason, clientFd);
             clients.erase(clientFd);
             close(clientFd);
             break;

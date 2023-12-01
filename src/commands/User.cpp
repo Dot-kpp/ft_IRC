@@ -10,7 +10,6 @@ bool User::execute(Server *server, std::string args, int clientFd)
         send(clientFd, error.c_str(), error.size(), 0);
         return false;
     }
-    std::cout << "User args: " << args << std::endl;
     std::string userName;
     std::string realName;
     std::string tmp;
