@@ -22,8 +22,14 @@ private:
     int channelId;
     std::string name;
     std::string topic;
-    std::vector<Client *> clients;
-    
+//    std::vector<Client *> clients;
+	std::map<Client*, int> users;
+	bool hasInviteOnly;
+	bool hasKey;
+	bool hasTopicRestriction;
+//	bool hasOperPrivilege;
+//	bool hasUserLimit;
+
 public:
     Channels();
     Channels(int channelId, std::string name);
