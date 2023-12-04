@@ -29,15 +29,28 @@ Channels::Channels(int channelId, std::string name)
 	  this->hasTopicRestriction = false;
 }
 
-void Channels::addClient(Client* client) {
-	// Check if the client is not already in the channel
-	if (std::find(clients.begin(), clients.end(), client) == clients.end()) {
-		clients.push_back(client);
-	}
+//void Channels::addClient(Client* client) {
+//	// Check if the client is not already in the channel
+//	if (std::find(clients.begin(), clients.end(), client) == clients.end()) {
+//		clients.push_back(client);
+//	}
+//}
+
+void Channels::addUsers(Client* user, int roleId) {
+	users[user] = roleId;
 }
 
-const std::vector<Client *> &Channels::getClients() const {
-	return clients;
+void Channels::removeUser(Client* user) {
+	users.erase(user);
+}
+
+int Channels::getUserRole(Client* user) const {
+	std::map<Client*, int>::const_iterator it = users.find(user);
+	return (it != users.end()) ? it->second : -1; // Return -1 if user not found
+}
+
+const std::map<Client *, int> &Channels::getUsers() const {
+	return users;
 }
 
 // Will toggle the bool status (true/false) depending on the current status

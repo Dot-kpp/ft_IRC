@@ -4,6 +4,7 @@
 #include "../Client.hpp"
 #include <iostream>
 #include <vector>
+#include <map>
 
 class Client;
 
@@ -21,7 +22,8 @@ private:
     int channelId;
     std::string name;
     std::string topic;
-    std::vector<Client *> clients;
+//    std::vector<Client *> clients;
+	std::map<Client*, int> users;
 	bool hasInviteOnly;
 	bool hasKey;
 	bool hasTopicRestriction;
@@ -38,11 +40,17 @@ public:
     int getChannelId() const { return channelId; }
 	std::string getChannelName() const;
 	std::string getTopic() const;
-	const std::vector<Client *> &getClients() const; // Get users in channel
+	const std::map<Client *, int> &getUsers() const;
+//	const std::vector<Client *> &getClients() const; // Get users in channel
 	void setTopic(std::string topic);
 
-    void addClient(Client *client);
-    void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
+//    void addClient(Client *client);
+//    void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
+
+	void addUsers(Client* user, int roleId);
+	void removeUser(Client* user);
+	int getUserRole(Client* user) const;
+
 	void toggleChannelKey();
 	void toggleInviteOnly();
 	void toggleTopicRestriction();

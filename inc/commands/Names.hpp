@@ -2,6 +2,8 @@
 #define NAMES_HPP
 
 #include "Command.hpp"
+#include <map>
+#include <vector>
 
 class Names : public Command {
 private:

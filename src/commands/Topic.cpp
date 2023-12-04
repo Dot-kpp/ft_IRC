@@ -25,6 +25,8 @@ std::string Topic::trim(const std::string& str) {
 bool Topic::execute(Server *server, std::string args, int clientFd) {
 	std::cout << "You are in TOPIC execute" << std::endl;
 
+	// Check if the client has the required role to execute this command
+
 	if (args.empty() || clientFd < 0) {
 		std::cout << "Not enough param or client doesn't exist" << std::endl;
 		return false;

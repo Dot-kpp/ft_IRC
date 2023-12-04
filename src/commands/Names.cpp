@@ -22,53 +22,59 @@ std::string Names::trim(const std::string& str) {
 	return str.substr(start, end - start + 1);
 }
 
-bool Names::execute(Server *server, std::string args, int clientFd) {
-	//NEED add user's prefix when sending the list of names
+bool Names::execute(Server *server, std::string args, int clientFd)
+{
+	std::cout << "You are in NAMES execute" << std::endl;
 
-	std::cout << "You are in NAMES execute" << std::endl; // NEED To remove
-
-	if (args.empty() || clientFd < 0) {
-		cout << "Not enough param or client doesn't exist" << endl;
+	if (args.empty() || clientFd < 0)
+	{
+		std::cout << "Not enough param or client doesn't exist" << std::endl;
 		return false;
 	}
 
-	string channelName;
+	std::string channelName;
 	std::istringstream iss(args);
 
 	// Iterate through channel names separated by a comma
-	while (getline(iss, channelName, ',')) {
+	while (getline(iss, channelName, ','))
+	{
 		// Trim leading and trailing whitespaces from the channel name
 		channelName = trim(channelName);
 
 		// Get the channel object by name
 		Channels *channel = server->getChannelByName(channelName);
 
-		if (channel != nullptr) {
-			string namesList;
+		if (channel != nullptr)
+		{
+			std::string namesList;
 
 			// Start of NAMES list numeric reply
-			string replyStart = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = #" + channelName + " : ";
+			std::string replyStart = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = #" + channelName + " : ";
 			send(clientFd, replyStart.c_str(), replyStart.size(), 0);
 
 			// Iterate through clients in the channel and send their names
-			const std::vector<Client *> &clientsList = channel->getClients();
-			for (size_t i = 0; i < clientsList.size(); ++i) {
+			const std::map<Client *, int> &usersMap = channel->getUsers();
+			for (std::map<Client *, int>::const_iterator it = usersMap.begin(); it != usersMap.end(); ++it)
+			{
 				// Add the appropriate channel membership symbol here, e.g., "=" for public channel
-				namesList += clientsList[i]->getNickName() + " ";
+				namesList += it->first->getNickName() + " ";
 			}
 
 			// Send the NAMES list
 			send(clientFd, namesList.c_str(), namesList.size(), 0);
 
 			// End of NAMES list numeric reply
-			string replyEnd = "\r\n:" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " #" + channelName + " :End of /NAMES list \r\n";
+			std::string replyEnd = "\r\n:" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " #" + channelName + " :End of /NAMES list \r\n";
 			send(clientFd, replyEnd.c_str(), replyEnd.size(), 0);
-		} else {
+		}
+		else
+		{
 			// Channel not found
-			string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
+			std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
 		}
 	}
 
 	return true;
 }
+

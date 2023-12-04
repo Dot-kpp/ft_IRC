@@ -135,7 +135,9 @@ void Server::handleIncomingBuffer(int clientFd)
             {
                 clients[clientFd].setIsRegistered(true);
                 Channels &channel = this->getChannelById(0);
-                channel.addClient(&clients[clientFd]);
+				channel.addUsers(&clients[clientFd], 2); //2 is User by Default, 1 is Moderator
+//                channel.addClient(&clients[clientFd]);
+
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
