@@ -15,6 +15,7 @@
 
 ### Clément
 - NAMES (Done)
+- TOPIC (Done)
 - MODE
 - TOPIC
 - INVITE

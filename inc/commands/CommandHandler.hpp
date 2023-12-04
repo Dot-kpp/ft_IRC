@@ -7,6 +7,7 @@
 #include "Ping.hpp"
 #include "Oper.hpp"
 #include "Names.hpp"
+#include "Topic.hpp"
 #include "Quit.hpp"
 #include <string>
 #include <map>

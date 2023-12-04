@@ -9,6 +9,7 @@ CommandHandler::CommandHandler()
     commands["QUIT"] = std::auto_ptr<Quit>(new Quit());
     commands["NAMES"] = std::auto_ptr<Names>(new Names());
     commands["OPER"] = std::auto_ptr<Oper>(new Oper());
+    commands["TOPIC"] = std::auto_ptr<Topic>(new Topic());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
