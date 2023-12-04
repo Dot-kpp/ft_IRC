@@ -4,7 +4,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-Topic::Topic() : command("NAMES") {}
+Topic::Topic() : command("TOPIC") {}
 
 Topic::~Topic() {}
 
@@ -21,17 +21,6 @@ std::string Topic::trim(const std::string& str) {
 
 	return str.substr(start, end - start + 1);
 }
-
-//bool Topic::execute(Server *server, std::string args, int clientFd) {
-////	(void)server;
-////	(void)args;
-////	(void)clientFd;
-//	cout << "You are in TOPIC execute" << endl; // NEED To remove
-//
-//
-//
-//	return true;
-//}
 
 bool Topic::execute(Server *server, std::string args, int clientFd) {
 	std::cout << "You are in TOPIC execute" << std::endl;

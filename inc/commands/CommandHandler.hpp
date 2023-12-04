@@ -9,6 +9,7 @@
 #include "Names.hpp"
 #include "Topic.hpp"
 #include "Quit.hpp"
+#include "Invite.hpp"
 #include <string>
 #include <map>
 #include <memory>
