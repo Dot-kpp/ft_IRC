@@ -19,8 +19,10 @@ bool CommandHandler::handleCommand(const std::string &commandName, std::string b
     if (commands.find(commandName) != commands.end())
     {
         bool returnValue = commands[commandName]->execute(server, buffer, clientFd);
-        if (!server->clients[clientFd].getIsRegistered() && (!server->clients[clientFd].getNickName().empty() && !server->clients[clientFd].getUserName().empty()))
+        if (!server->clients[clientFd].getIsRegistered() && !server->clients[clientFd].getNickName().empty() && !server->clients[clientFd].getUserName().empty()) {
+            server->clients[clientFd].setIsRegistered(true);
             server->welcomeClient(clientFd);
+        }
         return returnValue;
     }
     return false;

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/01 16:06:24 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:35:43 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,12 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     std::cout << "Client " << clientFd << " sent: " << msg.c_str() << std::endl;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
-    if (!client->getIsRegistered() && commandName != "USER" && commandName != "NICK" && commandName != "CAP LS 302")
+    if (!client->getIsRegistered() && commandName != "USER" && commandName != "NICK")
     {
+        if (msg.compare(0, 11, "CAP LS 302"))
+            return 0;
+        std::cout << commandName << std::endl;
+        std::cout << msg.c_str() << std::endl;
         std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
         return -1;
@@ -121,23 +125,15 @@ void Server::handleIncomingBuffer(int clientFd)
             bool hasUserAndNick = clients[clientFd].getUserName() != "" && clients[clientFd].getNickName() != "" ? true : false;
             if (hasUserAndNick)
             {
-                clients[clientFd].setIsRegistered(true);
                 Channels &channel = this->getChannelById(0);
                 channel.addClient(&clients[clientFd]);
             }
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
     }
-    else if (bytesRead == 0)
-    {
-        // Handle client disconnection when bytesRead is 0
-        std::cout << "Client " << clientFd << " disconnected." << std::endl;
-        removeClient(clientFd, "Client disconnected from the server.");
-    }
     else
     {
-        // Handle read error when bytesRead is -1
-        std::cerr << "Read error on client " << clientFd << std::endl;
+        std::cout << "Client " << clientFd << " disconnected." << std::endl;
         removeClient(clientFd, "Client disconnected from the server.");
     }
 }
@@ -175,14 +171,12 @@ void Server::start()
         {
             int event_fd = event[i].ident;
 
-            if (event[i].flags & EV_EOF)
-            {
-                // Client disconnected
-                removeClient(event_fd, "Client disconnected from the server.");
-            }
-            else if (event_fd == serverSocket.getSocketFd())
+            /* if (event[i].flags & EV_EOF)
+                removeClient(event_fd, "Client disconnected from the server."); */
+            if (event_fd == serverSocket.getSocketFd())
             {
                 // New connection
+                std::cout << "New connection" << std::endl;
                 int client_fd = serverSocket.acceptConnection(client_addr, client_len);
                 if (client_fd == -1)
                 {
@@ -241,13 +235,15 @@ Channels *Server::getChannelByName(const std::string &name)
             return &(*it);
         }
     }
-    return NULL; // Channel not found
+    return NULL;
 }
 
 void Server::stop()
 {
     std::stringstream ss;
-    ss << ":" << serverName << " 421 " << ": Server shutting down" << "\r\n";
+    ss << ":" << serverName << " 421 "
+       << ": Server shutting down"
+       << "\r\n";
     std::string msg = ss.str();
 
     for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
@@ -299,7 +295,8 @@ void Server::tellEveryoneButSender(std::string message, int clientFd)
         if (it->first != clientFd)
         {
             std::stringstream ss;
-            ss << ":" << serverName << " " << clients[clientFd].getNickName() << " is exiting the network with the message: Quit: " << message << "\r\n";
+            ss << ":" << serverName << " QUIT "
+               << ":Quit: " << clients[clientFd].getNickName() << " is exiting the network with the message: Quit: " << message << "\r\n";
             std::string msg = ss.str();
             send(it->first, msg.c_str(), msg.size(), 0);
         }
