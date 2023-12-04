@@ -7,8 +7,6 @@ Nick::~Nick()
 
 bool Nick::execute(Server *server, std::string args, int clientFd)
 {
-    /* Server *server = Server::instance; */
-
     std::string serverName = "YourServerName";
     std::string clientNick = "*";
 
