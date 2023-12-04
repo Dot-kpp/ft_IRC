@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/04 16:54:11 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/04 17:56:01 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,35 +99,44 @@ void Server::handleIncomingBuffer(int clientFd)
     buffer[bytesRead] = '\0';
 
     std::string strBuffer(buffer);
+    std::vector<std::string> lines;
+    std::istringstream iss(strBuffer);
+    std::string line;
+    while (std::getline(iss, line))
+    {
+        lines.push_back(line);
+    }
     if (bytesRead > 0)
     {
-        if (strBuffer.compare("EXIT") == 0)
-            this->stop();
-        // If the client has not provided a password yet, we check if the message is a password
-        if (!clients[clientFd].getHasGoodPassword() && strBuffer.substr(0, 4) == "PASS")
+        for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
         {
-            strBuffer.erase(0, 5);
-            if (strBuffer.compare(0, this->password.size(), this->password) == 0)
-                clients[clientFd].setHasGoodPassword(true);
-            else
+            if (it->compare("EXIT") == 0)
+                this->stop();
+            // If the client has not provided a password yet, we check if the message is a password
+            if (!clients[clientFd].getHasGoodPassword() && it->substr(0, 4) == "PASS")
             {
-                std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
-                send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+                it->erase(0, 5);
+                if (it->compare(0, this->password.size(), this->password) == 0)
+                    clients[clientFd].setHasGoodPassword(true);
+                else
+                {
+                    std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+                    std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
+                    send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+                }
             }
-        }
-        // If the client has provided a password, we check if the message is a command
-        else if (clients[clientFd].getHasGoodPassword())
-        {
-            bool hasUserAndNick = clients[clientFd].getUserName() != "" && clients[clientFd].getNickName() != "" ? true : false;
-            if (hasUserAndNick)
+            // If the client has provided a password, we check if the message is a command
+            else if (clients[clientFd].getHasGoodPassword())
             {
-                Channels &channel = this->getChannelById(0);
-				channel.addUsers(&clients[clientFd], 2); //2 is User by Default, 1 is Moderator
-//                channel.addClient(&clients[clientFd]);
-
+                bool hasUserAndNick = clients[clientFd].getUserName() != "" && clients[clientFd].getNickName() != "" ? true : false;
+                if (hasUserAndNick)
+                {
+                    Channels &channel = this->getChannelById(0);
+                    channel.addUsers(&clients[clientFd], 2); // 2 is User by Default, 1 is Moderator
+                    //                channel.addClient(&clients[clientFd]);
+                }
+                treatIncomingBuffer(*it, clientFd, &clients[clientFd], hasUserAndNick);
             }
-            treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
     }
     else
@@ -135,6 +144,7 @@ void Server::handleIncomingBuffer(int clientFd)
         std::cout << "Client " << clientFd << " disconnected." << std::endl;
         removeClient(clientFd, "Client disconnected from the server.");
     }
+    memset(buffer, 0, sizeof(buffer));
 }
 
 void Server::start()
@@ -170,8 +180,6 @@ void Server::start()
         {
             int event_fd = event[i].ident;
 
-            /* if (event[i].flags & EV_EOF)
-                removeClient(event_fd, "Client disconnected from the server."); */
             if (event_fd == serverSocket.getSocketFd())
             {
                 // New connection
