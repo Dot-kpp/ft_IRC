@@ -6,19 +6,21 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/11/29 15:24:31 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/01 14:37:52 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../../inc/server/Server.hpp"
 #include "../../inc/commands/CommandHandler.hpp"
 
 Server *Server::instance = nullptr;
 
-Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("irc")
+Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("YourServerName")
 {
     instance = this;
+    // Socket serverSocket(this->port);
+    serverSocket.bindSocket();
+    serverSocket.listenSocket();
     std::cout << "Server created" << std::endl;
     std::cout << "Port: " << this->port << std::endl;
     std::cout << "Password: " << this->password << std::endl;
@@ -106,7 +108,7 @@ void Server::handleIncomingBuffer(int clientFd)
 {
     char buffer[512];
     // stores the number of bytes read
-    ssize_t bytesRead = read(clientFd, buffer, sizeof(buffer) - 1);
+    size_t bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
     buffer[bytesRead] = '\0';
 
     std::string strBuffer(buffer);
@@ -128,7 +130,6 @@ void Server::handleIncomingBuffer(int clientFd)
         // If the client has provided a password, we check if the message is a command
         else if (clients[clientFd].getHasGoodPassword())
         {
-            std::cout << clients[clientFd] << std::endl;
             bool hasUserAndNick = clients[clientFd].getNickName() != "" && clients[clientFd].getUserName() != "" ? true : false;
             if (hasUserAndNick)
             {
@@ -139,73 +140,79 @@ void Server::handleIncomingBuffer(int clientFd)
             treatIncomingBuffer(strBuffer, clientFd, &clients[clientFd], hasUserAndNick);
         }
     }
-    else if (bytesRead > 512)
+    else if (bytesRead == 0)
     {
-        std::cout << "Client " << clientFd << " sent a message that was too long." << std::endl;
-        std::string tooLong = ":YourServerName 417 * :Input line was too long. \r\n";
-        close(clientFd);
-        clients.erase(clientFd);
+        // Handle client disconnection when bytesRead is 0
+        std::cout << "Client " << clientFd << " disconnected." << std::endl;
+        removeClient(clientFd, "Client disconnected from the server.");
     }
-    else if (bytesRead <= 0)
+    else
     {
-        std::cout << "Client " << clientFd << " disconnected or error." << std::endl;
-        close(clientFd);
-        clients.erase(clientFd);
+        // Handle read error when bytesRead is -1
+        std::cerr << "Read error on client " << clientFd << std::endl;
+        // Optionally, you might want to remove the client here too, depending on your error handling strategy
     }
 }
 
 void Server::start()
 {
-    this->running = true;
+    int new_events;
+    struct kevent change_event[4], event[4];
+    struct sockaddr_in client_addr;
+    socklen_t client_len;
 
     // Create kqueue
     int kq = kqueue();
-    if (kq == -1)
+    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+
+    // Register kevent with the kqueue
+    if (kevent(kq, change_event, 1, NULL, 0, NULL) == -1)
     {
-        std::cerr << "Could not create kqueue" << std::endl;
-        return;
-    }
-    KQueue kqueue(kq);
-    // Add server socket to kqueue
-    EV_SET(kqueue.getChangeEvent(), serverSocket.getSocketFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-    if (kevent(kqueue.getKq(), kqueue.getChangeEvent(), 1, NULL, 0, NULL) == -1)
-    {
-        std::cerr << "Could not add event to kqueue" << std::endl;
-        return;
+        perror("kevent");
+        exit(1);
     }
 
-	//Here is the lines that "create" channels manually (don't forget to subscribe to channel, see line 139)
     this->channel.push_back(Channels(0, "default"));
     this->channel.push_back(Channels(1, "Channel1"));
-	Oper();
-
-    while (this->running)
+    for (;;)
     {
-        // Wait for events
-        int nev = kevent(kq, NULL, 0, kqueue.getEventList(), 1024, NULL);
-        for (int i = 0; i < nev; i++)
+        new_events = kevent(kq, NULL, 0, event, 1, NULL);
+        if (new_events == -1)
         {
-            // Get client socket
-            int clientFd = kqueue.getEventList()[i].ident;
-            // If the client socket is the server socket, it means a new client is trying to connect
-            if (clientFd == serverSocket.getSocketFd())
+            perror("kevent");
+            exit(1);
+        }
+
+        for (int i = 0; i < new_events; i++)
+        {
+            int event_fd = event[i].ident;
+
+            if (event[i].flags & EV_EOF)
             {
-                // Accept new client
-                int clientSocket = serverSocket.accept();
-                // Add client socket to kqueue
-                clients[clientSocket] = Client(clientSocket, false, false);
-                EV_SET(kqueue.getChangeEvent(), clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                /* askPassword(clientSocket); */
-                kevent(kq, kqueue.getChangeEvent(), 1, NULL, 0, NULL);
+                // Client disconnected
+                removeClient(event_fd, "Client disconnected from the server.");
             }
-            else if (kqueue.getEventList()[i].filter == EVFILT_READ)
+            else if (event_fd == serverSocket.getSocketFd())
             {
-                // INCOMING MESSAGE FROM CLIENT
-                handleIncomingBuffer(clientFd);
+                // New connection
+                int client_fd = serverSocket.acceptConnection(client_addr, client_len);
+                if (client_fd == -1)
+                {
+                    perror("Accept socket error");
+                    continue;
+                }
+                // Add new client socket to kqueue
+                EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
+                    perror("kevent error");
+            }
+            else if (event[i].filter == EVFILT_READ)
+            {
+                // Incoming data on client socket
+                handleIncomingBuffer(event_fd);
             }
         }
     }
-    close(kq);
 }
 
 void Server::welcomeClient(int clientFd)
@@ -237,13 +244,16 @@ void Server::welcomeClient(int clientFd)
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
 }
 
-Channels* Server::getChannelByName(const std::string& name) {
-	for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it) {
-		if (it->getChannelName() == name) {
-			return &(*it);
-		}
-	}
-	return NULL;  // Channel not found
+Channels *Server::getChannelByName(const std::string &name)
+{
+    for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it)
+    {
+        if (it->getChannelName() == name)
+        {
+            return &(*it);
+        }
+    }
+    return NULL; // Channel not found
 }
 
 void Server::stop()
@@ -266,17 +276,34 @@ Channels &Server::getChannelById(int id)
     return this->channel[0];
 };
 
-void Server::removeClient(int clientFd)
+void Server::removeClient(int clientFd, std::string reason)
 {
+    if (reason.empty())
+        reason = "Client disconnected";
     std::map<int, Client>::iterator it = this->clients.begin();
     while (it != this->clients.end())
     {
         if (it->first == clientFd)
         {
-            /* close(clientFd); */
+            // tellEveryoneButSender(reason, clientFd);
             clients.erase(clientFd);
+            close(clientFd);
             break;
         }
         it++;
     }
 };
+
+void Server::tellEveryoneButSender(std::string message, int clientFd)
+{
+    for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+    {
+        if (it->first != clientFd)
+        {
+            std::stringstream ss;
+            ss << ":" << serverName << " " << clients[clientFd].getNickName() << " is exiting the network with the message: Quit: " << message << "\r\n";
+            std::string msg = ss.str();
+            send(it->first, msg.c_str(), msg.size(), 0);
+        }
+    }
+}

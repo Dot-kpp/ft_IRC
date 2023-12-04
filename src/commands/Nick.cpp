@@ -32,7 +32,7 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
             std::string user = server->clients[clientFd].getUserName().empty() ? "user" : server->clients[clientFd].getUserName();
 
             std::stringstream ss;
-            ss << ":" << oldNick << "!" << user << "@localhost NICK " << args << "\r\n";
+            ss << ":" << oldNick << "!" << user << "@" << serverName << " NICK " << args << "\r\n";
             std::string nickMsg = ss.str();
             send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
             server->clients[clientFd].setNickName(args);
