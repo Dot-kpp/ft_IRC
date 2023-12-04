@@ -7,6 +7,14 @@
 
 class Client;
 
+/* Channel MODES
+ * +/-i: Invite only
+ * +/-t: Topic restriction
+ * +/-k: Key
+ * +/-o: Operator privilege
+ * +/-l: User limit
+  * */
+
 class Channels
 {
 private:
@@ -14,6 +22,11 @@ private:
     std::string name;
     std::string topic;
     std::vector<Client *> clients;
+	bool hasInviteOnly;
+	bool hasKey;
+	bool hasTopicRestriction;
+//	bool hasOperPrivilege;
+//	bool hasUserLimit;
 
 public:
     Channels();
@@ -30,6 +43,14 @@ public:
 
     void addClient(Client *client);
     void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
+	void toggleChannelKey();
+	void toggleInviteOnly();
+	void toggleTopicRestriction();
+
+	//Debug
+	bool getHasKey() const { return hasKey; }
+	bool getInviteOnly() const { return hasInviteOnly; }
+	bool getTopicRestriction() const { return hasTopicRestriction; }
 
 };
 

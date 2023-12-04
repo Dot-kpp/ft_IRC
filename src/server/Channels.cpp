@@ -24,6 +24,9 @@ Channels::Channels(int channelId, std::string name)
 	  this->channelId = channelId;
 	  this->name = name;
 	  this->topic = "[empty]";
+	  this->hasKey = false;
+	  this->hasInviteOnly = false;
+	  this->hasTopicRestriction = false;
 }
 
 void Channels::addClient(Client* client) {
@@ -36,6 +39,13 @@ void Channels::addClient(Client* client) {
 const std::vector<Client *> &Channels::getClients() const {
 	return clients;
 }
+
+// Will toggle the bool status (true/false) depending on the current status
+void Channels::toggleChannelKey() { this->hasKey = !hasKey; }
+
+void Channels::toggleInviteOnly() { this->hasInviteOnly = !hasInviteOnly; }
+
+void Channels::toggleTopicRestriction() { this->hasTopicRestriction = !hasTopicRestriction; }
 
 std::string Channels::getChannelName() const { return name; }
 

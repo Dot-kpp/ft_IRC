@@ -11,6 +11,7 @@ CommandHandler::CommandHandler()
     commands["OPER"] = std::auto_ptr<Oper>(new Oper());
     commands["TOPIC"] = std::auto_ptr<Topic>(new Topic());
     commands["INVITE"] = std::auto_ptr<Invite>(new Invite());
+    commands["MODE"] = std::auto_ptr<Mode>(new Mode());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)

@@ -22,7 +22,7 @@ To connect to server:
 		/server add irc host.docker.internal/6667
 	
 	- Setup password
-		/set irc.server.irc.password password
+		/set irc.server.irc.password password1
 
 	-Connect to the server:
 		After adding the server, you can connect to it using:  /connect freenode

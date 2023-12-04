@@ -10,6 +10,7 @@
 #include "Topic.hpp"
 #include "Quit.hpp"
 #include "Invite.hpp"
+#include "Mode.hpp"
 #include <string>
 #include <map>
 #include <memory>
@@ -29,4 +30,4 @@ public:
     bool isCommandRegistered(const std::string &commandName);
 };
 
-#endif // COMMANDHANDLER_HPP
+#endif

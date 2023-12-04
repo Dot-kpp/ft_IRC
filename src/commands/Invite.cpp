@@ -18,9 +18,8 @@ bool Invite::execute(Server *server, std::string args, int clientFd) {
 	(void)clientFd;
 
 	cout << "You are in INVITE execute" << endl;
-	Channels *channel = server->getChannelByName(channelName);
+//	Channels *channel = server->getChannelByName(channelName);
 
-	const std::vector<Client *> &clientsList = channel->getClients();
+//	const std::vector<Client *> &clientsList = channel->getClients();
 	return true;
 }
-
