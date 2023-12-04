@@ -7,8 +7,6 @@ Nick::~Nick()
 
 bool Nick::execute(Server *server, std::string args, int clientFd)
 {
-    /* Server *server = Server::instance; */
-
     std::string serverName = "YourServerName";
     std::string clientNick = "*";
 
@@ -29,23 +27,23 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
         if (hasNick)
         {
             std::string oldNick = server->clients[clientFd].getNickName();
-            std::string user = server->clients[clientFd].getUserName().empty() ? "user" : server->clients[clientFd].getUserName();
-
+            
             std::stringstream ss;
-            ss << ":" << oldNick << "!" << user << "@" << serverName << " NICK " << args << "\r\n";
+            ss << ":" << oldNick << " NICK " << args << "\r\n";
             std::string nickMsg = ss.str();
-            send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
-            server->clients[clientFd].setNickName(args);
+            if (send(clientFd, nickMsg.c_str(), nickMsg.size(), 0) >= 0) {
+                std::cout << "NICKNAME CHANGED" << std::endl;
+                server->clients[clientFd].setNickName(args);
+            }
         }
         else
         {
             std::stringstream ss;
-            server->clients[clientFd].setNickName(args);
-            std::string user = server->clients[clientFd].getUserName() == "" ? "user" : server->clients[clientFd].getUserName();
+            ss << ":" << args << " NICK " << args << "\r\n";
             std::string nickMsg = ss.str();
             send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
+            server->clients[clientFd].setNickName(args);
         }
-
         return true;
     }
     return false;

@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/01 14:33:12 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/04 13:49:32 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@
 #include <unistd.h>
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <iterator>
+#include <set>
 
 class Client;
 class Channels;
