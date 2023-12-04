@@ -14,7 +14,7 @@ private:
     std::string name;
     std::string topic;
     std::vector<Client *> clients;
-
+    
 public:
     Channels();
     Channels(int channelId, std::string name);

@@ -29,16 +29,14 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
         if (hasNick)
         {
             std::string oldNick = server->clients[clientFd].getNickName();
-            std::string user = server->clients[clientFd].getUserName().empty() ? "user" : server->clients[clientFd].getUserName();
             
             std::stringstream ss;
-            //nickMessage = ":" + liveNickname + " NICK " + ":" + newNickname + "\r\n";
             ss << ":" << oldNick << " NICK " << args << "\r\n";
             std::string nickMsg = ss.str();
-            if (send(clientFd, nickMsg.c_str(), nickMsg.size(), 0)) {
+            if (send(clientFd, nickMsg.c_str(), nickMsg.size(), 0) >= 0) {
                 std::cout << "NICKNAME CHANGED" << std::endl;
+                server->clients[clientFd].setNickName(args);
             }
-            server->clients[clientFd].setNickName(args);
         }
         else
         {
@@ -48,7 +46,6 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
             send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
             server->clients[clientFd].setNickName(args);
         }
-
         return true;
     }
     return false;

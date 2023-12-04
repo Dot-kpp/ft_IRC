@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/04 14:35:43 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/04 15:40:16 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,9 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     std::cout << "Client " << clientFd << " sent: " << msg.c_str() << std::endl;
 
     // Check if the client is registered, if not, only NICK and USER are allowed
-    if (!client->getIsRegistered() && commandName != "USER" && commandName != "NICK")
+    if (!client->getIsRegistered() && (!commandName.compare(0, 4, "USER") && !commandName.compare(0, 4, "NICK") && !msg.compare(0, 11, "CAP LS 302")))
     {
-        if (msg.compare(0, 11, "CAP LS 302"))
-            return 0;
-        std::cout << commandName << std::endl;
+        std::cout << "FIRST CONDITION" << std::endl;
         std::cout << msg.c_str() << std::endl;
         std::string error = ": 451 " + std::to_string(clientFd) + " :You have not registered\r\n";
         send(clientFd, error.c_str(), error.size(), 0);
