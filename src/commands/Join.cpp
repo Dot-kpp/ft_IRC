@@ -20,7 +20,8 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
     cout << "You are in JOIN execute" << endl;
 
     if (args.empty() || clientFd < 0){
-        cout << "Not enough param or client doesn't exists" << endl;
+        std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " JOIN " + " :No such channel \r\n";
+        send(clientFd, replyError.c_str(), replyError.size(), 0);
         return false;
     }
 
