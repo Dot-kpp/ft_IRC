@@ -11,11 +11,6 @@ Join::Join(Join const &src) {
 	*this = src;
 }
 
-bool compareChannelName(const Channels& obj, const std::string& channelName) {
-    return obj.getChannelName() == channelName;
-}
-
-
 bool Join::execute(Server *server, std::string args, int clientFd) {
     cout << "You are in JOIN execute" << endl;
 
