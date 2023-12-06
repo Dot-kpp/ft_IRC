@@ -39,7 +39,7 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
     if (channel == nullptr) {
         // Channel does not exist, create it
         Channels newChannel; // Assuming Channels is a class
-        newChannel.addUsers(client, 2); // Pass the Client object and role ID
+        newChannel.addUsers(client, 1); // Pass the Client object and role ID
         std::string channelName = name.substr(1);
         newChannel.setChannelName(channelName); // Set the name of the channel
         server->channel.push_back(newChannel);

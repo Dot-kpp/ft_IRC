@@ -14,6 +14,7 @@ CommandHandler::CommandHandler()
     commands["MODE"] = std::auto_ptr<Mode>(new Mode());
     commands["JOIN"] = std::auto_ptr<Join>(new Join());
     commands["PART"] = std::auto_ptr<Part>(new Part());
+    commands["KICK"] = std::auto_ptr<Kick>(new Kick());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
