@@ -13,6 +13,7 @@ CommandHandler::CommandHandler()
     commands["INVITE"] = std::auto_ptr<Invite>(new Invite());
     commands["MODE"] = std::auto_ptr<Mode>(new Mode());
     commands["JOIN"] = std::auto_ptr<Join>(new Join());
+    commands["PART"] = std::auto_ptr<Part>(new Part());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)

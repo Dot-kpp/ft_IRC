@@ -20,8 +20,8 @@
 - INVITE
 
 ### Jé
-- JOIN 
-- PART
+- JOIN (Done)
+- PART 
 - KICK
 
 

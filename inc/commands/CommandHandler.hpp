@@ -12,6 +12,7 @@
 #include "Invite.hpp"
 #include "Mode.hpp"
 #include "Join.hpp"
+#include "Part.hpp"
 #include <string>
 #include <map>
 #include <memory>
