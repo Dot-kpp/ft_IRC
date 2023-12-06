@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/04 13:49:32 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/06 12:09:07 by jpilotte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,13 @@ public:
 	Channels* getChannelByName(const std::string& name);
     void removeClient(int clientFd, std::string reason);
     void tellEveryoneButSender(std::string message, int clientFd);
+    Client* getClientByFd(int clientFd) {
+        try {
+            return &clients.at(clientFd);
+        } catch (std::out_of_range& e) {
+            return nullptr;
+        }
+    }
 };
 
 void sendToServer(std::string message, int clientFd);

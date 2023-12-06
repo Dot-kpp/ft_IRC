@@ -2,7 +2,7 @@
 
 # Connect to localhost on port 6667 using nc
 nc -C localhost 6667 <<EOF
-PASS password1
+PASS password123
 USER lou 0 * lou
 NICK lou
 NAMES lou

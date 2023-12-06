@@ -49,6 +49,8 @@ int Channels::getUserRole(Client* user) const {
 	return (it != users.end()) ? it->second : -1; // Return -1 if user not found
 }
 
+void Channels::setChannelName(std::string name) { this->name = name; }
+
 const std::map<Client *, int> &Channels::getUsers() const {
 	return users;
 }

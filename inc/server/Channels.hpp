@@ -21,6 +21,7 @@ class Channels
 private:
     int channelId;
     std::string name;
+	std::string channelName;
     std::string topic;
 //    std::vector<Client *> clients;
 	std::map<Client*, int> users;
@@ -39,6 +40,7 @@ public:
 
     int getChannelId() const { return channelId; }
 	std::string getChannelName() const;
+	void setChannelName(std::string name);
 	std::string getTopic() const;
 	const std::map<Client *, int> &getUsers() const;
 //	const std::vector<Client *> &getClients() const; // Get users in channel
