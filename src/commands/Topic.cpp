@@ -44,6 +44,20 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 	// Get the channel object by name
 	Channels *channel = server->getChannelByName(channelName);
 
+//	// Check if the client is an operator
+//	if (!channel->isOperator(server->clients[clientFd].getNickName()))
+//	{
+//		// Client is not an operator
+//		std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
+//		send(clientFd, replyError.c_str(), replyError.size(), 0);
+//		return false;
+//	}
+//	if (channel->getTopicRestriction())
+//	{
+//
+//	}
+
+
 	if (channel != nullptr) {
 		// Get the remaining argument after the channel name
 		std::string topicArg;

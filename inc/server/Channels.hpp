@@ -53,7 +53,7 @@ public:
 
 	void addUsers(Client* user, int roleId);
 	void removeUser(Client* user);
-//	int getUserRole(Client* user) const;
+	int getUserRole(Client* user) const;
 
 
 	void toggleChannelKey();
@@ -62,6 +62,8 @@ public:
 	void toggleUserLimit();
 	void setUserLimit(int limit);
 	void setKey(std::string key);
+	void promoteUser(const std::string &nickname);
+	void demoteUser(const std::string &nickname);
 
 	//Debug
 	bool getHasKey() const { return hasKey; }
