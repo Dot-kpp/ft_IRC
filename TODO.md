@@ -21,8 +21,8 @@
 
 ### Jé
 - JOIN (Done)
-- PART 
-- KICK
+- PART (Done)
+- KICK 
 
 
 # IRC Commands Summary
