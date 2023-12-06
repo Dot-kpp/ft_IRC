@@ -11,6 +11,7 @@
 #include "Quit.hpp"
 #include "Invite.hpp"
 #include "Mode.hpp"
+#include "Join.hpp"
 #include <string>
 #include <map>
 #include <memory>

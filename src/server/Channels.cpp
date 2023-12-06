@@ -42,14 +42,20 @@ void Channels::addUsers(Client* user, int roleId) {
 	users[user] = roleId;
 }
 
-void Channels::removeUser(Client* user) { users.erase(user); }
+void Channels::removeUser(Client* user) {
+	users.erase(user);
+}
 
 int Channels::getUserRole(Client* user) const {
 	std::map<Client*, int>::const_iterator it = users.find(user);
 	return (it != users.end()) ? it->second : -1; // Return -1 if user not found
 }
 
-const std::map<Client *, int> &Channels::getUsers() const { return users; }
+void Channels::setChannelName(std::string name) { this->name = name; }
+
+const std::map<Client *, int> &Channels::getUsers() const {
+	return users;
+}
 
 // Will toggle the bool status (true/false) depending on the current status
 void Channels::toggleChannelKey() { this->hasKey = !hasKey; }

@@ -12,6 +12,7 @@ CommandHandler::CommandHandler()
     commands["TOPIC"] = std::auto_ptr<Topic>(new Topic());
     commands["INVITE"] = std::auto_ptr<Invite>(new Invite());
     commands["MODE"] = std::auto_ptr<Mode>(new Mode());
+    commands["JOIN"] = std::auto_ptr<Join>(new Join());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
