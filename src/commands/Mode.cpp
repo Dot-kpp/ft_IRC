@@ -60,15 +60,27 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 				break;
 			case 'k':
 				cout << "Toggling channel key" << endl;
-				cout <<"Key status: " << channel->getHasKey() << endl;
+				cout << "Key status: " << channel->getHasKey() << endl;
 				channel->toggleChannelKey();
+				channel->setKey("test"); //need to do it by parse args
+				// maybe toggleInviteOnly() should be called here
 				if (channel->getHasKey())
 					cout << "Channel now has a key" << endl;
 				else
 					cout << "Channel no longer has a key" << endl;
 				break;
+			case 'o':
+				cout << "Toggling channel operator privilege" << endl;
+				//channel->toggleOperPrivilege();
+				break;
 			case 'l':
 				cout << "Toggling channel user limit" << endl;
+				channel->toggleUserLimit();
+				channel->setUserLimit(5); //need to do it by parse args
+				if (channel->getHasUserLimit())
+					cout << "Channel now has a user limit" << endl;
+				else
+					cout << "Channel no longer has a user limit" << endl;
 				break;
 			default:
 				std::cout << "Unsupported mode: " << mode << std::endl;
@@ -80,5 +92,3 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 	return true;
 }
-
-
