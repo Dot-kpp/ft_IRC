@@ -39,15 +39,16 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
     std::getline(iss, name, ' ');
 
     // Get the channel object by name
-    Channels *channel = server->getChannelByName(name);
+    std::string channelName = name.substr(1);
+    Channels *channel = server->getChannelByName(channelName);
 
     if (channel == nullptr) {
         // Channel does not exist, create it
         Channels newChannel; // Assuming Channels is a class
         newChannel.addUsers(client, 1); // Pass the Client object and role ID
-        std::string channelName = name.substr(1);
         newChannel.setChannelName(channelName); // Set the name of the channel
         server->channel.push_back(newChannel);
+        cout << "size: " << server->channel.size() << endl;
         cout << "Channel " << channelName << " created and client " << clientFd << " added to it." << endl;
     } else {
         // Channel exists, add the client to it
