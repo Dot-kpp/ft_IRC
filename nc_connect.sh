@@ -6,5 +6,3 @@ PASS password123
 USER lou 0 * lou
 NICK lou
 JOIN #test
-MODE #test +o lou
-MODE #test -o lou

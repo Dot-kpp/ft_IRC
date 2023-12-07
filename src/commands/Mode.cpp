@@ -45,14 +45,11 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 	// Find the channel by name
 	Channels *channel = server->getChannelByName(channelName);
 
-		// Find the client by nickname in the current channel
-		Client *targetClient = server->getClientByNickname(targetUser);
-
-		// Check if the channel exists
-		if (channel == NULL) {
-			std::cout << "Channel '" << channelName << "' not found" << std::endl;
-			return false;
-		}
+	// Check if the channel exists
+	if (channel == nullptr) {
+		std::cout << "Channel '" << channelName << "' not found" << std::endl;
+		return false;
+	}
 
 	bool isSettingMode = true; // Default to setting mode
 
@@ -71,6 +68,17 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 		if (channel->isOperator(targetClient)) {
 			switch (mode) {
+
+				case 't':
+					// MODE #exampleChannel +t
+					cout << "Toggling channel topic restriction" << endl;
+					channel->toggleTopicRestriction();
+					if (channel->getTopicRestriction())
+						cout << "Channel now has topic restriction" << endl;
+					else
+						cout << "Channel no longer has topic restriction" << endl;
+					break;
+
 				case 'o':
 //					cout << "Toggling channel operator" << endl;
 //					cout << "Operator target: " << targetClient->getUserName() << endl;
@@ -173,15 +181,6 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 //						cout << "Channel no longer invite only" << endl;
 //					break;
 //
-//				case 't':
-//					// MODE #exampleChannel +t
-//					cout << "Toggling channel topic restriction" << endl;
-//					channel->toggleTopicRestriction();
-//					if (channel->getTopicRestriction())
-//						cout << "Channel now has topic restriction" << endl;
-//					else
-//						cout << "Channel no longer has topic restriction" << endl;
-//					break;
 //
 //				case 'k':
 //					// MODE #secretChannel +k mySecretKey
