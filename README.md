@@ -1,4 +1,4 @@
-# WeedLogger API
+# ft_IRC
 
 # Table of Contents
 

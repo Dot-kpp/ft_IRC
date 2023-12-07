@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/04 17:56:01 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/07 13:57:38 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,11 +207,13 @@ void Server::start()
 void Server::welcomeClient(int clientFd)
 {
     std::string serverName = this->getServerName();
-    std::string welcomeMessage = ":YourServerName 001 :Welcome to the baddest IRC network. \r\n";
-    send(clientFd, welcomeMessage.c_str(), welcomeMessage.size(), 0);
+    std::string nick = clients[clientFd].getNickName();
+
+    std::string welcomeMsg = ":YourServerName 001 " + nick + " :Welcome to the IRC Network, " + nick + "!\r\n";
+    send(clientFd, welcomeMsg.c_str(), welcomeMsg.size(), 0);
 
     // RPL_YOURHOST
-    std::string yourHostMessage = ":YourServerName 002 :Your host is badass ft_IRC, running version 0.0.1 \r\n";
+    std::string yourHostMessage = ":YourServerName 002 " + nick + " :Your host is badass ft_IRC, running version 0.0.1 \r\n";
     send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
 
     // RPL_CREATED
@@ -220,9 +222,7 @@ void Server::welcomeClient(int clientFd)
 
     // RPL_MYINFO
     int nbOfUsers = this->clients.size();
-    std::cout << "nbOfUsers: " << std::to_string(nbOfUsers) << std::endl;
     int nbOfChannels = this->channel.size();
-    std::cout << "nbOfChannels: " << std::to_string(nbOfChannels) << std::endl;
     std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 nb of users: " + std::to_string(nbOfUsers) + ", nb of channels: " + std::to_string(nbOfChannels) + " . \r\n";
     send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
 
