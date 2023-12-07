@@ -62,8 +62,8 @@ public:
 	void toggleUserLimit();
 	void setUserLimit(int limit);
 	void setKey(std::string key);
-	void promoteUser(const std::string &nickname);
-	void demoteUser(const std::string &nickname);
+	void promoteUser(Client *user);
+	void demoteUser(Client *user);
 
 	//Debug
 	bool getHasKey() const { return hasKey; }

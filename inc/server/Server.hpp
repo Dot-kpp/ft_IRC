@@ -65,6 +65,7 @@ public:
     void handleIncomingBuffer(int clientFd);
     void welcomeClient(int clientFd);
     std::string getServerName() const;
+
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
@@ -85,6 +86,8 @@ public:
             return nullptr;
         }
     }
+	Client* getClientByNickname(const std::string& nickname);
+
 };
 
 void sendToServer(std::string message, int clientFd);

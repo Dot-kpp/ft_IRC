@@ -309,3 +309,12 @@ void Server::tellEveryoneButSender(std::string message, int clientFd)
         }
     }
 }
+
+Client* Server::getClientByNickname(const std::string& nickname) {
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+		if (it->second.getNickName() == nickname) {
+			return &(it->second);
+		}
+	}
+	return nullptr;
+}

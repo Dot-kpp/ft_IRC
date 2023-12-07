@@ -78,29 +78,26 @@ void Channels::setTopic(std::string topic) { this->topic = topic; }
 
 Channels::~Channels(){}
 
-void Channels::promoteUser(const std::string &nickname) {
-	for (std::map<Client*, int>::iterator it = users.begin(); it != users.end(); ++it)
-	{
+void Channels::promoteUser(Client* user) {
+	std::map<Client*, int>::iterator it = users.find(user);
+	if (it != users.end()) {
 		if (it->second == 1) {
 			std::cout << it->first << " is already promoted to the highest role." << std::endl;
-		}
-		if (it->first->getNickName() == nickname) {
+		} else {
 			it->second = 1; // Promote the user to roleId 1 (operator)
 			std::cout << it->first->getNickName() << " is promoted to the highest role." << std::endl;
-			return;
 		}
 	}
 }
 
-void Channels::demoteUser(const std::string &nickname) {
-	for (std::map<Client*, int>::iterator it = users.begin(); it != users.end(); ++it)
-	{
+void Channels::demoteUser(Client* user) {
+	std::map<Client*, int>::iterator it = users.find(user);
+	if (it != users.end()) {
 		if (it->second == 2) {
-			std::cout << it->first << " is already demoted to the lowest role." << std::endl;
-		}
-		if (it->first->getNickName() == nickname) {
-			it->second = 2; // Promote the user to roleId 2 (operator)
-			return;
+			std::cout << it->first->getNickName() << " is already demoted to the lowest role." << std::endl;
+		} else {
+			it->second = 2;
+			std::cout << it->first->getNickName() << " is demoted to the lowest role." << std::endl;
 		}
 	}
 }

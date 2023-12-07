@@ -40,7 +40,10 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 		std::string channelName = name.substr(1);
 
 		// Find the channel by name
-		Channels *channel = server->getChannelByName(channelName);
+		Channels* channel = server->getChannelByName(channelName);
+
+		// Find the client by nickname in the current channel
+		Client* targetClient = server->getClientByNickname(targetUser);
 
 		// Check if the channel exists
 		if (channel == NULL) {
@@ -65,20 +68,18 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 			switch (mode) {
 				case 'o':
-					cout << "Toggling channel operator" << endl;
-					cout << "Operator target: " << targetUser << endl;
-					// MODE #exampleChannel +o exampleUser
-//					iss >> targetUser; // Parse the next argument as the target user's nickname
-					if (targetUser.empty())
-						cout << "No target user provided" << endl;
-					if (!targetUser.empty()){
+//					cout << "Toggling channel operator" << endl;
+//					cout << "Operator target: " << targetClient->getUserName() << endl;
+					cout << "Operator role (before): " << channel->getUserRole(targetClient) << endl;
+					if (targetClient != nullptr) {
 						if (isSettingMode)
-							channel->promoteUser(targetUser);
+							channel->promoteUser(targetClient);
 						else
-							channel->demoteUser(targetUser);
-					}
-					else
+							channel->demoteUser(targetClient);
+					} else {
 						std::cout << "No target user provided" << std::endl;
+					}
+					cout << "Operator after (before): " << channel->getUserRole(targetClient) << endl;
 					break;
 
 
