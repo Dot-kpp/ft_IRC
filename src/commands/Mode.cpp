@@ -30,17 +30,20 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 	iss >> name >> modeChanges >> targetUser;
 
-	bool isChannel = (!name.empty() && name[0] == '#');
+	// Find the client by nickname in the current channel
+	Client *targetClient = server->getClientByNickname(targetUser);
+
+
+//	bool isChannel = (!name.empty() && name[0] == '#');
 
 	cout << "Channel name: " << name << endl;
 	cout << "Mode changes: " << modeChanges << endl;
 
-	if (isChannel) {
-		// Remove '#' from the channel name
-		std::string channelName = name.substr(1);
+	// Remove '#' from the channel name
+	std::string channelName = name.substr(1);
 
-		// Find the channel by name
-		Channels *channel = server->getChannelByName(channelName);
+	// Find the channel by name
+	Channels *channel = server->getChannelByName(channelName);
 
 		// Find the client by nickname in the current channel
 		Client *targetClient = server->getClientByNickname(targetUser);
@@ -51,21 +54,22 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 			return false;
 		}
 
-		bool isSettingMode = true; // Default to setting mode
+	bool isSettingMode = true; // Default to setting mode
 
-		// Process the mode changes
-		// SYNTAXE : MODE #exampleChannel [+itkol] [args
-		for (std::string::iterator it = modeChanges.begin(); it != modeChanges.end(); ++it) {
-			char mode = *it;
+	// Process the mode changes
+	// SYNTAXE : MODE #exampleChannel [+itkol] [args
+	for (std::string::iterator it = modeChanges.begin(); it != modeChanges.end(); ++it) {
+		char mode = *it;
 
-			if (mode == '+') {
-				isSettingMode = true;
-				continue;
-			} else if (mode == '-') {
-				isSettingMode = false;
-				continue;
-			}
+		if (mode == '+') {
+			isSettingMode = true;
+			continue;
+		} else if (mode == '-') {
+			isSettingMode = false;
+			continue;
+		}
 
+		if (channel->isOperator(targetClient)) {
 			switch (mode) {
 				case 'o':
 //					cout << "Toggling channel operator" << endl;

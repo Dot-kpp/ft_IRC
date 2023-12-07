@@ -101,3 +101,8 @@ void Channels::demoteUser(Client* user) {
 		}
 	}
 }
+
+bool Channels::isOperator(Client* user) const {
+	std::map<Client*, int>::const_iterator it = users.find(user);
+	return (it != users.end() && it->second == 1);
+}

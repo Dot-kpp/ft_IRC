@@ -62,6 +62,7 @@ public:
 	void toggleUserLimit();
 	void setUserLimit(int limit);
 	void setKey(std::string key);
+	bool isOperator(Client* user) const;
 	void promoteUser(Client *user);
 	void demoteUser(Client *user);
 
