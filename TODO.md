@@ -20,9 +20,9 @@
 - INVITE
 
 ### Jé
-- JOIN 
-- PART
-- KICK
+- JOIN (Done)
+- PART (Done)
+- KICK 
 
 
 # IRC Commands Summary

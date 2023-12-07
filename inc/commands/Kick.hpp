@@ -1,17 +1,17 @@
-#ifndef PART_HPP
-#define PART_HPP
+#ifndef KICK_HPP
+#define KICK_HPP
 
 #include "Command.hpp"
 #include <functional>
 
-class Part : public Command {
+class Kick : public Command {
 private:
 	std::string command;
 
 public:
-	Part();
-	Part(Part const &src);
-	virtual ~Part();
+	Kick();
+	Kick(Kick const &src);
+	virtual ~Kick();
 
 	virtual bool execute(Server *server, std::string args, int clientFd);
 
