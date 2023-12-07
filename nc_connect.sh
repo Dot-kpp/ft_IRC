@@ -5,5 +5,6 @@ nc -C localhost 6667 <<EOF
 PASS password123
 USER lou 0 * lou
 NICK lou
-NAMES lou
-exec </dev/tty
+JOIN #test
+PART #test
+PART #test
