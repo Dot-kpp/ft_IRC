@@ -3,16 +3,16 @@
 
 CommandHandler::CommandHandler()
 {
-    commands["NICK"] = std::auto_ptr<Nick>(new Nick());
-    commands["PING"] = std::auto_ptr<Ping>(new Ping());
-    commands["USER"] = std::auto_ptr<User>(new User());
-    commands["QUIT"] = std::auto_ptr<Quit>(new Quit());
-    commands["NAMES"] = std::auto_ptr<Names>(new Names());
-    commands["OPER"] = std::auto_ptr<Oper>(new Oper());
-    commands["TOPIC"] = std::auto_ptr<Topic>(new Topic());
-    commands["INVITE"] = std::auto_ptr<Invite>(new Invite());
-    commands["MODE"] = std::auto_ptr<Mode>(new Mode());
-    commands["JOIN"] = std::auto_ptr<Join>(new Join());
+    commands["NICK"] = std::auto_ptr<>(new Nick());
+    commands["PING"] = std::auto_ptr<>(new Ping());
+    commands["USER"] = std::auto_ptr<>(new User());
+    commands["QUIT"] = std::auto_ptr<>(new Quit());
+    commands["NAMES"] = std::auto_ptr<>(new Names());
+    commands["OPER"] = std::auto_ptr<>(new Oper());
+    commands["TOPIC"] = std::auto_ptr<>(new Topic());
+    commands["INVITE"] = std::auto_ptr<>(new Invite());
+    commands["MODE"] = std::auto_ptr<>(new Mode());
+    commands["JOIN"] = std::auto_ptr<>(new Join());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)

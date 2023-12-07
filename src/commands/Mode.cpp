@@ -40,10 +40,10 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 		std::string channelName = name.substr(1);
 
 		// Find the channel by name
-		Channels* channel = server->getChannelByName(channelName);
+		Channels *channel = server->getChannelByName(channelName);
 
 		// Find the client by nickname in the current channel
-		Client* targetClient = server->getClientByNickname(targetUser);
+		Client *targetClient = server->getClientByNickname(targetUser);
 
 		// Check if the channel exists
 		if (channel == NULL) {
