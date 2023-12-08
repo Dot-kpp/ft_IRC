@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
+/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/06 12:09:07 by jpilotte         ###   ########.fr       */
+/*   Updated: 2023/12/08 16:16:24 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ private:
     std::string password;
     bool running;
     const std::string serverName;
-    
 
 public:
     static Server *instance;
@@ -58,13 +57,12 @@ public:
 
     void start();
     void stop();
-    std::string getPassword();
+    // parsing server commands
     int askPassword(int clientSocket);
-    int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick);
-    int parseIncomingBuffer(std::string buffer);
+    int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client);
+    void treatPassCommand(std::string strBuffer, int clientFd);
     void handleIncomingBuffer(int clientFd);
     void welcomeClient(int clientFd);
-    std::string getServerName() const;
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
@@ -74,21 +72,25 @@ public:
             exit(0);
         }
     }
-	Channels &getChannelById(int id);
-	Channels* getChannelByName(const std::string& name);
-    void removeClient(int clientFd, std::string reason);
-    void tellEveryoneButSender(std::string message, int clientFd);
-    Client* getClientByFd(int clientFd) {
-        try {
+    // getters
+    std::string getServerName() const;
+    std::string getPassword();
+    Channels &getChannelById(int id);
+    Channels *getChannelByName(const std::string &name);
+    Client *getClientByFd(int clientFd)
+    {
+        try
+        {
             return &clients.at(clientFd);
-        } catch (std::out_of_range& e) {
+        }
+        catch (std::out_of_range &e)
+        {
             return nullptr;
         }
     }
+    // general server commands
+    void removeClient(int clientFd, std::string reason);
+    void tellEveryoneButSender(std::string message, int clientFd);
 };
-
-void sendToServer(std::string message, int clientFd);
-bool parseNickname(std::string nickname, int clientFd);
-
 
 #endif

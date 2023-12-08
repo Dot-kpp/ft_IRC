@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/07 13:57:38 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/08 15:47:24 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,16 +31,6 @@ Server::~Server()
     std::cout << "Server destroyed" << std::endl;
 };
 
-std::string Server::getServerName() const
-{
-    return (this->serverName);
-};
-
-std::string Server::getPassword()
-{
-    return (this->password);
-};
-
 int Server::askPassword(int clientSocket)
 {
     std::string askPassword = ":YourServerName 331 " + std::to_string(clientSocket) + " :Please enter your password\r\n";
@@ -48,9 +38,11 @@ int Server::askPassword(int clientSocket)
     return (0);
 }
 
-int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick)
+// ----------------------------------------------- //
+// ------- Parse incoming commands --------------- //
+// ----------------------------------------------- //
+int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client)
 {
-    (void)hasUserAndNick;
     CommandHandler commandHandler;
     if (strBuffer.empty())
     {
@@ -91,6 +83,19 @@ int Server::treatIncomingBuffer(std::string strBuffer, int clientFd, Client *cli
     return 0;
 }
 
+void Server::treatPassCommand(std::string string, int clientFd)
+{
+    string.erase(0, 5);
+    if (string.compare(0, this->password.size(), this->password) == 0)
+        clients[clientFd].setHasGoodPassword(true);
+    else
+    {
+        std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+        std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
+        send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+    }
+}
+
 void Server::handleIncomingBuffer(int clientFd)
 {
     char buffer[512];
@@ -103,9 +108,7 @@ void Server::handleIncomingBuffer(int clientFd)
     std::istringstream iss(strBuffer);
     std::string line;
     while (std::getline(iss, line))
-    {
         lines.push_back(line);
-    }
     if (bytesRead > 0)
     {
         for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -114,17 +117,7 @@ void Server::handleIncomingBuffer(int clientFd)
                 this->stop();
             // If the client has not provided a password yet, we check if the message is a password
             if (!clients[clientFd].getHasGoodPassword() && it->substr(0, 4) == "PASS")
-            {
-                it->erase(0, 5);
-                if (it->compare(0, this->password.size(), this->password) == 0)
-                    clients[clientFd].setHasGoodPassword(true);
-                else
-                {
-                    std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
-                    std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
-                    send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
-                }
-            }
+                treatPassCommand(*it, clientFd);
             // If the client has provided a password, we check if the message is a command
             else if (clients[clientFd].getHasGoodPassword())
             {
@@ -135,7 +128,7 @@ void Server::handleIncomingBuffer(int clientFd)
                     channel.addUsers(&clients[clientFd], 2); // 2 is User by Default, 1 is Moderator
                     //                channel.addClient(&clients[clientFd]);
                 }
-                treatIncomingBuffer(*it, clientFd, &clients[clientFd], hasUserAndNick);
+                treatIncomingBuffer(*it, clientFd, &clients[clientFd]);
             }
         }
     }
@@ -147,12 +140,16 @@ void Server::handleIncomingBuffer(int clientFd)
     memset(buffer, 0, sizeof(buffer));
 }
 
+// ----------------------------------------------- //
+// -------------- Server functions --------------- //
+// ----------------------------------------------- //
 void Server::start()
 {
     int new_events;
     struct kevent change_event[4], event[4];
     struct sockaddr_in client_addr;
-    socklen_t client_len;
+    socklen_t client_len = sizeof(client_addr);
+    memset(&client_addr, 0, sizeof(client_addr));
 
     // Create kqueue
     int kq = kqueue();
@@ -184,6 +181,11 @@ void Server::start()
             {
                 // New connection
                 std::cout << "New connection" << std::endl;
+                if (clients.size() >= MAX_CLIENTS)
+                {
+                    std::cout << "Server is full" << std::endl;
+                    continue;
+                }
                 int client_fd = serverSocket.acceptConnection(client_addr, client_len);
                 if (client_fd == -1)
                 {
@@ -204,6 +206,68 @@ void Server::start()
     }
 }
 
+void Server::stop()
+{
+    std::stringstream ss;
+    ss << ":" << serverName << " 421 "
+       << ": Server shutting down"
+       << "\r\n";
+    std::string msg = ss.str();
+
+    if (clients.size() > 1) {
+        for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+            send(it->first, msg.c_str(), msg.size(), 0);
+    }
+    this->running = false;
+    this->serverSocket.closeSocket();
+    this->port = 0;
+    this->clients.clear();
+    this->channel.clear();
+    Server::~Server();
+    std::cout << "Server stopped" << std::endl;
+    exit(0);
+};
+
+// ----------------------------------------------- //
+// ------------- Getters and setters ------------- //
+// ----------------------------------------------- //
+std::string Server::getServerName() const
+{
+    return (this->serverName);
+};
+
+std::string Server::getPassword()
+{
+    return (this->password);
+};
+
+Channels *Server::getChannelByName(const std::string &name)
+{
+    for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it)
+    {
+        if (it->getChannelName() == name)
+        {
+            return &(*it);
+        }
+    }
+    return NULL;
+}
+
+Channels &Server::getChannelById(int id)
+{
+    std::vector<Channels>::iterator it = this->channel.begin();
+    while (it != this->channel.end())
+    {
+        if (it->getChannelId() == id)
+            return *it;
+        it++;
+    }
+    return this->channel[0];
+};
+
+// ----------------------------------------------- //
+// -------- General server functions ------------- //
+// ----------------------------------------------- //
 void Server::welcomeClient(int clientFd)
 {
     std::string serverName = this->getServerName();
@@ -232,50 +296,6 @@ void Server::welcomeClient(int clientFd)
 
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;
 }
-
-Channels *Server::getChannelByName(const std::string &name)
-{
-    for (std::vector<Channels>::iterator it = channel.begin(); it != channel.end(); ++it)
-    {
-        if (it->getChannelName() == name)
-        {
-            return &(*it);
-        }
-    }
-    return NULL;
-}
-
-void Server::stop()
-{
-    std::stringstream ss;
-    ss << ":" << serverName << " 421 "
-       << ": Server shutting down"
-       << "\r\n";
-    std::string msg = ss.str();
-
-    for (std::map<int, Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
-        send(it->first, msg.c_str(), msg.size(), 0);
-    this->running = false;
-    this->serverSocket.closeSocket();
-    this->port = 0;
-    this->clients.clear();
-    this->channel.clear();
-    Server::~Server();
-    std::cout << "Server stopped" << std::endl;
-    exit(0);
-};
-
-Channels &Server::getChannelById(int id)
-{
-    std::vector<Channels>::iterator it = this->channel.begin();
-    while (it != this->channel.end())
-    {
-        if (it->getChannelId() == id)
-            return *it;
-        it++;
-    }
-    return this->channel[0];
-};
 
 void Server::removeClient(int clientFd, std::string reason)
 {

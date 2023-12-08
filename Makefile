@@ -54,6 +54,9 @@ run: re
 leaks: re
 	@leaks --atExit -- ./$(NAME) $(ARG1) $(ARG2)
 
+valgrind: re
+	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./$(NAME) $(ARG1) $(ARG2)
+
 rm_bin:
 	@rm -rf $(OBJDIR)
 	
