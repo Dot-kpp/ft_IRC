@@ -26,7 +26,6 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 	std::cout << "You are in TOPIC execute" << std::endl;
 
 	// Check if the client has the required role to execute this command
-
 	if (args.empty() || clientFd < 0) {
 		std::cout << "Not enough param or client doesn't exist" << std::endl;
 		return false;
@@ -34,6 +33,7 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 
 	std::string channelName;
 	std::istringstream iss(args);
+
 	// Find the client by nickname in the current channel
 	Client *targetClient = server->getClientByNickname(server->clients[clientFd].getNickName());
 
@@ -43,16 +43,11 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 	// Trim leading and trailing whitespaces from the channel name
 	channelName = trim(channelName);
 
+	// Remove '#' from the channel name
+	channelName = channelName.substr(1);
+
 	// Get the channel object by name
 	Channels *channel = server->getChannelByName(channelName);
-
-	if (!channel->isOperator(targetClient))
-	{
-		// Client is not an operator
-		std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
-		send(clientFd, replyError.c_str(), replyError.size(), 0);
-		return false;
-	}
 
 	if (channel != nullptr) {
 		// Get the remaining argument after the channel name
@@ -70,10 +65,24 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 			// Set or clear the topic based on the argument
 			if (topicArg == ":") {
 				// Clear the topic
-				channel->setTopic("");
-				std::string replyTopic = ":" + server->getServerName() + " 331 " + server->clients[clientFd].getNickName() + " #" + channelName + " :No topic is set\r\n";
-				send(clientFd, replyTopic.c_str(), replyTopic.size(), 0);
+				if (channel->isOperator(targetClient) || !channel->getTopicRestriction()) {
+					channel->setTopic("");
+					std::string replyTopic = ":" + server->getServerName() + " 331 " + server->clients[clientFd].getNickName() + " #" + channelName + " :No topic is set\r\n";
+					send(clientFd, replyTopic.c_str(), replyTopic.size(), 0);
+				} else {
+					// Client is not an operator and topic restriction is on
+					std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " #" + channelName + " :You're not channel operator\r\n";
+					send(clientFd, replyError.c_str(), replyError.size(), 0);
+					return false;
+				}
 			} else {
+				if (!channel->isOperator(targetClient) && channel->getTopicRestriction()) {
+					// Client is not an operator and topic restriction is on
+					std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " #" + channelName + " :You're not channel operator\r\n";
+					send(clientFd, replyError.c_str(), replyError.size(), 0);
+					return false;
+				}
+
 				// Set the topic
 				topicArg = topicArg.substr(1); // Remove the leading ':'
 				channel->setTopic(topicArg);
@@ -89,4 +98,5 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 
 	return true;
 }
+
 

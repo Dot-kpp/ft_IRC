@@ -13,7 +13,6 @@ Mode::Mode(Mode const &src) {
 }
 
 bool Mode::execute(Server *server, std::string args, int clientFd) {
-	(void)clientFd;
 	std::cout << "You are in MODE execute" << std::endl;
 
 	// Check if enough parameters are provided
@@ -26,21 +25,19 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 	std::istringstream iss(args);
 	std::string name;
 	std::string modeChanges;
-	std::string targetUser;
+	std::string target;
 
-	iss >> name >> modeChanges >> targetUser;
+	iss >> name >> modeChanges >> target;
 
 	// Find the client by nickname in the current channel
-	Client *targetClient = server->getClientByNickname(targetUser);
-
-
-//	bool isChannel = (!name.empty() && name[0] == '#');
+	Client *targetClient = server->getClientByFd(clientFd);
 
 	cout << "Channel name: " << name << endl;
 	cout << "Mode changes: " << modeChanges << endl;
 
 	// Remove '#' from the channel name
 	std::string channelName = name.substr(1);
+	cout << "CHANNEL NAME: " << channelName << endl;
 
 	// Find the channel by name
 	Channels *channel = server->getChannelByName(channelName);
@@ -94,11 +91,29 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 					cout << "Operator after (before): " << channel->getUserRole(targetClient) << endl;
 					break;
 
+				case 'k':
+					// MODE #secretChannel +k mySecretKey
+					cout << "target: " << target << endl;
+					cout << "Toggling channel key" << endl;
+					cout << "Key status: " << channel->getHasKey() << endl;
+					channel->toggleChannelKey();
+					channel->setKey(target); //need to do it by parse args
+
+					if (channel->getHasKey()) {
+						cout << "Channel now has a key" << endl;
+						cout << "Key: " << channel->getKey() << endl;
+					}
+					else
+						cout << "Channel no longer has a key" << endl;
+					break;
 
 				default:
 					std::cout << "Unsupported mode: " << mode << std::endl;
 					break;
 			}
+		}
+		else {
+			std::cout << "You are not an operator" << std::endl;
 		}
 	}
 

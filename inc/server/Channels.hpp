@@ -67,13 +67,13 @@ public:
 	void demoteUser(Client *user);
 
 	//Debug
-	bool getHasKey() const { return hasKey; }
-	bool getInviteOnly() const { return hasInviteOnly; }
-	bool getTopicRestriction() const { return hasTopicRestriction; }
-	bool getUserLimit() const { return hasUserLimit; }
-	int getUserLimitValue() const { return userLimit; }
-	std::string getKey() const { return key; }
-
+	bool getHasKey() const;
+	bool getInviteOnly() const;
+	bool getTopicRestriction() const;
+	bool getUserLimit() const;
+	int getUserLimitValue() const;
+	std::string getKey() const;
+	bool hasUser(Client *user) const;
 };
 
 std::string trim(const std::string& str) ;

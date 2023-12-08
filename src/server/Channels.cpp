@@ -25,6 +25,7 @@ Channels::Channels(int channelId, std::string name)
 	  this->name = name;
 	  this->topic = "[empty]";
 	  this->hasKey = false;
+	  this->key = "";
 	  this->hasInviteOnly = false;
 	  this->hasTopicRestriction = false;
 	  this->hasUserLimit = false;
@@ -73,6 +74,22 @@ void Channels::setKey(std::string key) { this->key = key; }
 std::string Channels::getChannelName() const { return name; }
 
 std::string Channels::getTopic() const { return topic; }
+
+bool Channels::getHasKey() const {
+	if (this->key != "")
+		return true;
+	else
+		return false;
+}
+bool Channels::getInviteOnly() const { return hasInviteOnly; }
+bool Channels::getTopicRestriction() const { return hasTopicRestriction; }
+bool Channels::getUserLimit() const { return hasUserLimit; }
+std::string Channels::getKey() const { return key; }
+int Channels::getUserLimitValue() const { return userLimit; }
+bool Channels::hasUser(Client *user) const {
+	// Check if the user is in the channel
+	return users.find(user) != users.end();
+}
 
 void Channels::setTopic(std::string topic) { this->topic = topic; }
 

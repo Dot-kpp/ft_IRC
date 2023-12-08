@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Connect to localhost on port 6667 using nc
-nc -C localhost 6667 <<EOF
+nc localhost 6667 <<EOF
 PASS password123
 USER lou 0 * lou
 NICK lou
 JOIN #test
-PART #test
-PART #test
+MODE #test +k password123
