@@ -83,9 +83,9 @@ bool Channels::getHasKey() const {
 }
 bool Channels::getInviteOnly() const { return hasInviteOnly; }
 bool Channels::getTopicRestriction() const { return hasTopicRestriction; }
-bool Channels::getUserLimit() const { return hasUserLimit; }
+bool Channels::getHasLimit() const { return hasUserLimit; }
 std::string Channels::getKey() const { return key; }
-int Channels::getUserLimitValue() const { return userLimit; }
+size_t Channels::getUserLimitValue() const { return userLimit; }
 bool Channels::hasUser(Client *user) const {
 	// Check if the user is in the channel
 	return users.find(user) != users.end();

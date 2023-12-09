@@ -31,7 +31,7 @@ private:
 	bool hasTopicRestriction;
 //	bool hasOperPrivilege;
 	bool hasUserLimit;
-	int userLimit;
+	size_t userLimit;
 
 public:
     Channels();
@@ -70,8 +70,8 @@ public:
 	bool getHasKey() const;
 	bool getInviteOnly() const;
 	bool getTopicRestriction() const;
-	bool getUserLimit() const;
-	int getUserLimitValue() const;
+	bool getHasLimit() const;
+	size_t getUserLimitValue() const;
 	std::string getKey() const;
 	bool hasUser(Client *user) const;
 };

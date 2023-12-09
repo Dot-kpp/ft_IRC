@@ -107,6 +107,17 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 						cout << "Channel no longer has a key" << endl;
 					break;
 
+				case 'l':
+					// MODE #exampleChannel +l [userLimit]
+					cout << "Toggling channel user limit" << endl;
+					channel->toggleUserLimit();
+					channel->setUserLimit(stoi(target)); //need to do it by parse args
+					if (channel->getHasLimit())
+						cout << "Channel now has a user limit" << endl;
+					else
+						cout << "Channel no longer has a user limit" << endl;
+					break;
+
 				default:
 					std::cout << "Unsupported mode: " << mode << std::endl;
 					break;

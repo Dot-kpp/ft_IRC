@@ -2,6 +2,10 @@
 
 # Commands TO_DO
 
+##ISSUE
+- [ ] When using "password123" it's working but it should not
+
+
 ## SENDING MESSAGES
 - PRIVMSG
 
