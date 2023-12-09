@@ -20,8 +20,8 @@
 ### Clément
 - NAMES (Done)
 - TOPIC (Done)
-- MODE
-- INVITE
+- MODE (Done)
+- INVITE (Done)
 
 ### Jé
 - JOIN (Done)
