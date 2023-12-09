@@ -73,6 +73,12 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			return false;
 		}
+		if(channel->getInviteOnly() && !channel->hasUser(client)) {
+			// Channel is invite-only and user is not invited
+			std::string replyError = ":" + server->getServerName() + " 473 " + server->clients[clientFd].getNickName() + " #" + channelName + " :Cannot join channel (+i) - not invited \r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
+			return false;
+		}
 		// Channel exists, add the client to it
 		channel->addUsers(client, 2); // Pass the Client object and role ID
 		cout << "Client " << clientFd << " added to the existing channel " << name << endl;

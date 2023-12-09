@@ -5,6 +5,6 @@ nc localhost 6667 <<EOF
 PASS password1
 USER cs 0 * cs
 NICK cs
-JOIN #tests
-MODE #tests +k password123
-MODE #tests +l 2
+JOIN #test
+MODE #test +i
+INVITE lou #test

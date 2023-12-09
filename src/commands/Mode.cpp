@@ -65,6 +65,16 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 		if (channel->isOperator(targetClient)) {
 			switch (mode) {
+				case 'i':
+					// MODE #exampleChannel +i
+					cout << "Toggling channel invite only" << endl;
+					cout << "Invite only status: " << channel->getInviteOnly() << endl;
+					channel->toggleInviteOnly();
+					if (channel->getInviteOnly())
+						cout << "Channel now invite only" << endl;
+					else
+						cout << "Channel no longer invite only" << endl;
+					break;
 
 				case 't':
 					// MODE #exampleChannel +t
