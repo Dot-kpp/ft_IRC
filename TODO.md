@@ -27,6 +27,7 @@
 - JOIN (Done)
 - PART (Done)
 - KICK 
+- BAN 
 
 
 # IRC Commands Summary

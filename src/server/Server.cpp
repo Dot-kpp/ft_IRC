@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/09 17:51:37 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/11 14:20:59 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,9 @@ void Server::handleIncomingBuffer(int clientFd)
             if (!clients[clientFd].getHasGoodPassword() && it->substr(0, 4) == "PASS")
             {
                 it->erase(0, 5);
+                it->erase(std::remove(it->begin(), it->end(), '\n'), it->end());
+                it->erase(std::remove(it->begin(), it->end(), '\r'), it->end());
+                std::cout << *it << std::endl;
                 if (it->compare(0, it->size(), this->password) == 0) {
                     std::cout << "Client " << clientFd << " provided the right password." << std::endl;
                     clients[clientFd].setHasGoodPassword(true);
