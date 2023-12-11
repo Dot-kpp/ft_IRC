@@ -13,7 +13,7 @@ public:
 	virtual ~Mode();
 
 	virtual bool execute(Server *server, std::string args, int clientFd);
-	std::string trim(const std::string& str);
+//	std::string trim(const std::string& str);
 };
 
 

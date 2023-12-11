@@ -12,7 +12,9 @@ public:
 	Invite(Invite const &src);
 	virtual ~Invite();
 
+	std::string trim(const std::string& str) ;
 	virtual bool execute(Server *server, std::string args, int clientFd);
 };
+
 
 #endif

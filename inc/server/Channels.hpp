@@ -27,9 +27,11 @@ private:
 	std::map<Client*, int> users;
 	bool hasInviteOnly;
 	bool hasKey;
+	std::string key;
 	bool hasTopicRestriction;
 //	bool hasOperPrivilege;
-//	bool hasUserLimit;
+	bool hasUserLimit;
+	size_t userLimit;
 
 public:
     Channels();
@@ -53,15 +55,25 @@ public:
 	void removeUser(Client* user);
 	int getUserRole(Client* user) const;
 
+
 	void toggleChannelKey();
 	void toggleInviteOnly();
 	void toggleTopicRestriction();
+	void toggleUserLimit();
+	void setUserLimit(int limit);
+	void setKey(std::string key);
+	bool isOperator(Client* user) const;
+	void promoteUser(Client *user);
+	void demoteUser(Client *user);
 
 	//Debug
-	bool getHasKey() const { return hasKey; }
-	bool getInviteOnly() const { return hasInviteOnly; }
-	bool getTopicRestriction() const { return hasTopicRestriction; }
-
+	bool getHasKey() const;
+	bool getInviteOnly() const;
+	bool getTopicRestriction() const;
+	bool getHasLimit() const;
+	size_t getUserLimitValue() const;
+	std::string getKey() const;
+	bool hasUser(Client *user) const;
 };
 
 std::string trim(const std::string& str) ;

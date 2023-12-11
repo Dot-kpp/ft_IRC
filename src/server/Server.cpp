@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/08 15:47:24 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/11 14:27:49 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,22 @@ void Server::handleIncomingBuffer(int clientFd)
                 this->stop();
             // If the client has not provided a password yet, we check if the message is a password
             if (!clients[clientFd].getHasGoodPassword() && it->substr(0, 4) == "PASS")
-                treatPassCommand(*it, clientFd);
+            {
+                it->erase(0, 5);
+                it->erase(std::remove(it->begin(), it->end(), '\n'), it->end());
+                it->erase(std::remove(it->begin(), it->end(), '\r'), it->end());
+                std::cout << *it << std::endl;
+                if (it->compare(0, it->size(), this->password) == 0) {
+                    std::cout << "Client " << clientFd << " provided the right password." << std::endl;
+                    clients[clientFd].setHasGoodPassword(true);
+                }
+                else
+                {
+                    std::cout << "Client " << clientFd << " provided the wrong password." << std::endl;
+                    std::string wrongPassword = ":YourServerName 464 * :Password incorrect. \r\n";
+                    send(clientFd, wrongPassword.c_str(), wrongPassword.size(), 0);
+                }
+            }
             // If the client has provided a password, we check if the message is a command
             else if (clients[clientFd].getHasGoodPassword())
             {
@@ -328,4 +343,13 @@ void Server::tellEveryoneButSender(std::string message, int clientFd)
             send(it->first, msg.c_str(), msg.size(), 0);
         }
     }
+}
+
+Client* Server::getClientByNickname(const std::string& nickname) {
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+		if (it->second.getNickName() == nickname) {
+			return &(it->second);
+		}
+	}
+	return nullptr;
 }

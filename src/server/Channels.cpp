@@ -25,8 +25,11 @@ Channels::Channels(int channelId, std::string name)
 	  this->name = name;
 	  this->topic = "[empty]";
 	  this->hasKey = false;
+	  this->key = "";
 	  this->hasInviteOnly = false;
 	  this->hasTopicRestriction = false;
+	  this->hasUserLimit = false;
+	  this->userLimit = 0;
 }
 
 //void Channels::addClient(Client* client) {
@@ -62,10 +65,61 @@ void Channels::toggleInviteOnly() { this->hasInviteOnly = !hasInviteOnly; }
 
 void Channels::toggleTopicRestriction() { this->hasTopicRestriction = !hasTopicRestriction; }
 
+void Channels::toggleUserLimit() { this->hasUserLimit = !hasUserLimit; }
+
+void Channels::setUserLimit(int limit) { this->userLimit = limit; }
+
+void Channels::setKey(std::string key) { this->key = key; }
+
 std::string Channels::getChannelName() const { return name; }
 
 std::string Channels::getTopic() const { return topic; }
 
+bool Channels::getHasKey() const {
+	if (this->key != "")
+		return true;
+	else
+		return false;
+}
+bool Channels::getInviteOnly() const { return hasInviteOnly; }
+bool Channels::getTopicRestriction() const { return hasTopicRestriction; }
+bool Channels::getHasLimit() const { return hasUserLimit; }
+std::string Channels::getKey() const { return key; }
+size_t Channels::getUserLimitValue() const { return userLimit; }
+bool Channels::hasUser(Client *user) const {
+	// Check if the user is in the channel
+	return users.find(user) != users.end();
+}
+
 void Channels::setTopic(std::string topic) { this->topic = topic; }
 
 Channels::~Channels(){}
+
+void Channels::promoteUser(Client* user) {
+	std::map<Client*, int>::iterator it = users.find(user);
+	if (it != users.end()) {
+		if (it->second == 1) {
+			std::cout << it->first << " is already promoted to the highest role." << std::endl;
+		} else {
+			it->second = 1; // Promote the user to roleId 1 (operator)
+			std::cout << it->first->getNickName() << " is promoted to the highest role." << std::endl;
+		}
+	}
+}
+
+void Channels::demoteUser(Client* user) {
+	std::map<Client*, int>::iterator it = users.find(user);
+	if (it != users.end()) {
+		if (it->second == 2) {
+			std::cout << it->first->getNickName() << " is already demoted to the lowest role." << std::endl;
+		} else {
+			it->second = 2;
+			std::cout << it->first->getNickName() << " is demoted to the lowest role." << std::endl;
+		}
+	}
+}
+
+bool Channels::isOperator(Client* user) const {
+	std::map<Client*, int>::const_iterator it = users.find(user);
+	return (it != users.end() && it->second == 1);
+}

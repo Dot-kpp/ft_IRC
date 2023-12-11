@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/08 16:16:24 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/11 14:27:40 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ public:
     void treatPassCommand(std::string strBuffer, int clientFd);
     void handleIncomingBuffer(int clientFd);
     void welcomeClient(int clientFd);
+
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
@@ -91,6 +92,8 @@ public:
     // general server commands
     void removeClient(int clientFd, std::string reason);
     void tellEveryoneButSender(std::string message, int clientFd);
+	Client* getClientByNickname(const std::string& nickname);
+
 };
 
 #endif

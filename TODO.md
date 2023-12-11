@@ -2,6 +2,10 @@
 
 # Commands TO_DO
 
+##ISSUE
+- [ ] When using "password123" it's working but it should not
+
+
 ## SENDING MESSAGES
 - PRIVMSG
 
@@ -16,13 +20,14 @@
 ### Clément
 - NAMES (Done)
 - TOPIC (Done)
-- MODE
-- INVITE
+- MODE (Done)
+- INVITE (Done)
 
 ### Jé
 - JOIN (Done)
 - PART (Done)
 - KICK 
+- BAN 
 
 
 # IRC Commands Summary
