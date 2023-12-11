@@ -51,4 +51,4 @@ add_executable(ft_IRC
         src/server/Server.cpp
         src/server/Socket.cpp
         src/Client.cpp
-        src/main.cpp)
+        src/main.cpp src/commands/Join.cpp src/commands/Join.cpp src/commands/Join.cpp src/commands/Mode.cpp)

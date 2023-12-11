@@ -14,6 +14,7 @@
 #include "Join.hpp"
 #include "Part.hpp"
 #include "Kick.hpp"
+#include "PrivMsg.hpp"
 #include <string>
 #include <map>
 #include <memory>

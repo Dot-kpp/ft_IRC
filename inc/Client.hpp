@@ -49,6 +49,10 @@ public:
     // methods
     void welcomeClient(int clientFd);
     void subscribeToChannel(Channels* channel);
+//	void sendMessage(const std::string& message) {
+//		// Write the message to the socket
+//		write(socketFd, message.c_str(), message.size());
+//	}
 };
 
 std::ostream &operator<<(std::ostream &o, Client const &rhs);

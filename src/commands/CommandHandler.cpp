@@ -15,6 +15,7 @@ CommandHandler::CommandHandler()
     commands["JOIN"] = std::auto_ptr<Join>(new Join());
     commands["PART"] = std::auto_ptr<Part>(new Part());
     commands["KICK"] = std::auto_ptr<Kick>(new Kick());
+    commands["PRIVMSG"] = std::auto_ptr<PrivMsg>(new PrivMsg());
 };
 
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
