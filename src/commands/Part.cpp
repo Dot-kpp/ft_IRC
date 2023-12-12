@@ -1,8 +1,5 @@
 #include "../../inc/commands/Part.hpp"
 
-using std::cout;
-using std::endl;
-
 Part::Part() : command("PART") {}
 
 Part::~Part() {}
@@ -12,7 +9,7 @@ Part::Part(Part const &src) {
 }
 
 bool Part::execute(Server *server, std::string args, int clientFd) {
-    cout << "You are in PART execute" << endl;
+    std::cout << "You are in PART execute" << std::endl;
 
     if (args.empty() || clientFd < 0){
         std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PART " + " :No such channel \r\n";
@@ -23,7 +20,7 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     // Get the Client object associated with clientFd
     Client* client = server->getClientByFd(clientFd);
     if (!client) {
-        cout << "Client with fd " << clientFd << " does not exist" << endl;
+        std::cout << "Client with fd " << clientFd << " does not exist" << std::endl;
         return false;
     }
 
@@ -35,16 +32,17 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     std::getline(iss, name);
 
     // Get the channel object by name
-    Channels *channel = server->getChannelByName(name);
+    std::string channelName = name.substr(1);
+    Channels *channel = server->getChannelByName(channelName);
 
     if (channel == nullptr) {
         // Channel does not exist
-        cout << "Channel " << name << " does not exist" << endl;
+        std::cout << "Channel " << name << " does not exist" << std::endl;
         return false;
     } else {
         // Channel exists, remove the client from it
-        channel->removeUser(client); // Assuming Channels has a removeUser method
-        cout << "Client " << clientFd << " removed from the existing channel " << name << endl;
+        channel->removeUser(client);
+        std::cout << "Client " << clientFd << " removed from the existing channel " << name << std::endl;
     }
 
     return true;
