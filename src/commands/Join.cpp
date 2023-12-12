@@ -28,27 +28,25 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		return false;
 	}
 
+	// Get the channel name
 	std::string name;
 	std::istringstream iss(args);
 
-	// Get the channel name
-	size_t pos = args.find(' ');
-	if (pos != std::string::npos) {
-		// Extract the command
-		command = args.substr(0, pos);
-
-		// Find the position of the first '#'
-		size_t hashPos = args.find('#', pos);
-		if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
-			// Extract the channel name
-			name = args.substr(hashPos + 1);
-		}
+	// Find the position of the first '#'
+	size_t hashPos = args.find('#');
+	if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+		// Extract the channel name
+		name = args.substr(hashPos + 1);
+	} else {
+		// '#' not found or it's the last character in args
+		std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
+		return false;
 	}
 
 	// Get the channel object by name
 	std::string channelName;
 	if (!name.empty()) {
-		channelName = name.substr(1);
+		channelName = name;
 	}
 	Channels *channel = server->getChannelByName(channelName);
 
