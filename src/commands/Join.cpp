@@ -1,8 +1,5 @@
 #include "../../inc/commands/Join.hpp"
 
-using std::cout;
-using std::endl;
-
 Join::Join() : command("JOIN") {}
 
 Join::~Join() {}
@@ -16,7 +13,7 @@ bool compareChannelName(const Channels& obj, const std::string& channelName) {
 }
 
 bool Join::execute(Server *server, std::string args, int clientFd) {
-	cout << "You are in JOIN execute" << endl;
+	std::cout << "You are in JOIN execute" << std::endl;
 
 	if (args.empty() || clientFd < 0){
 		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " JOIN " + " :No such channel \r\n";
@@ -27,18 +24,30 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 	// Get the Client object associated with clientFd
 	Client* client = server->getClientByFd(clientFd);
 	if (!client) {
-		cout << "Client with fd " << clientFd << " does not exist" << endl;
+		std::cout << "Client with fd " << clientFd << " does not exist" << std::endl;
 		return false;
 	}
 
+	// Get the channel name
 	std::string name;
 	std::istringstream iss(args);
 
-	// Get the channel name
-	std::getline(iss, name, ' ');
+	// Find the position of the first '#'
+	size_t hashPos = args.find('#');
+	if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+		// Extract the channel name
+		name = args.substr(hashPos + 1);
+	} else {
+		// '#' not found or it's the last character in args
+		std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
+		return false;
+	}
 
 	// Get the channel object by name
-	std::string channelName = name.substr(1);
+	std::string channelName;
+	if (!name.empty()) {
+		channelName = name;
+	}
 	Channels *channel = server->getChannelByName(channelName);
 
 	if (channel == nullptr) {
@@ -47,7 +56,9 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		newChannel.addUsers(client, 1); // Pass the Client object and role ID
 		newChannel.setChannelName(channelName); // Set the name of the channel
 		server->channel.push_back(newChannel); // Add the channel to the server's channel list
-		cout << "Channel " << channelName << " created and client " << clientFd << " added to it." << endl;
+		std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN #" + channelName + "\r\n";
+		send(clientFd, reply.c_str(), reply.size(), 0);
+		std::cout << "Channel " << channelName << " created and client " << server->clients[clientFd].getNickName() << " added to it." << std::endl;
 	} else {
 		if (channel->hasUser(client)) {
 			// User is already in the channel
@@ -81,7 +92,7 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		}
 		// Channel exists, add the client to it
 		channel->addUsers(client, 2); // Pass the Client object and role ID
-		cout << "Client " << clientFd << " added to the existing channel " << name << endl;
+		std::cout << "Client " << clientFd << " added to the existing channel " << name << std::endl;
 	}
 
 	return true;

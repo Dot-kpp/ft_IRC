@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:06 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/04 14:01:55 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/12 13:14:52 by jpilotte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,8 @@ int Socket::acceptConnection(struct sockaddr_in &client_addr, socklen_t &client_
 
 void Socket::closeSocket() {
     close(sockfd);
+}
+
+void Socket::send(const std::string& message) {
+    ::send(sockfd, message.c_str(), message.size(), 0);
 }
