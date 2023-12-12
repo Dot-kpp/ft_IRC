@@ -12,7 +12,7 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     std::cout << "You are in PART execute" << std::endl;
 
     if (args.empty() || clientFd < 0){
-        std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PART " + " :No such channel \r\n";
+        std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PART" + " :No such channel \r\n";
         send(clientFd, replyError.c_str(), replyError.size(), 0);
         return false;
     }
@@ -24,44 +24,47 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
         return false;
     }
 
-    std::string command, name;
-    std::istringstream iss(args);
+	std::string name;
 
+    // iss >> name;
 	// Get the channel name
-	size_t pos = args.find(' ');
-	if (pos != std::string::npos) {
-		// Extract the command
-		command = args.substr(0, pos);
-
-		// Find the position of the first '#'
-		size_t hashPos = args.find('#', pos);
-		if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
-			// Extract the channel name
-			name = args.substr(hashPos + 1);
-		}
+    size_t hashPos = args.find('#');
+    size_t spacePos = args.find(' ', hashPos); // Find the space after '#'
+    if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+        // Calculate the length of the channel name
+        size_t nameLength = (spacePos != std::string::npos) ? spacePos - hashPos - 1 : std::string::npos;
+        // Extract the channel name
+        name = args.substr(hashPos + 1, nameLength);
+	} else {
+		// '#' not found or it's the last character in args
+		std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
+		return false;
 	}
-
 	// Get the channel object by name
-	std::string channelName;
-	if (!name.empty()) {
-		channelName = name.substr(1);
-	}
-	Channels *channel = server->getChannelByName(channelName);
 
+
+	std::string channelName = "#" + name;
+    Channels *channel = server->getChannelByName(channelName);
     if (channel == nullptr) {
         // Channel does not exist
-        std::cout << "Channel " << name << " does not exist" << std::endl;
+        std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
+        std::cout << "Channel " << channelName << " does not exist" << std::endl;
         return false;
     }  // This closing brace was missing
 
+    std::cout << "here" << std::endl;
     if (!channel->hasUser(client)) {
+        std::string replyError = server->clients[clientFd].getNickName() + channelName + ":" + "You're not on that channel\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
         std::cout << "Client " << clientFd << " is not a member of the channel " << name << std::endl;
         return false;
     } else {
         // Client is a member of the channel, remove them
         channel->removeUser(client);
-        std::cout << "Client " << clientFd << " removed from the existing channel " << name << std::endl;
-
+        std::cout << "Client " << clientFd << " removed from channel " << name << std::endl;
+        std::string reply = ":" + server->clients[clientFd].getNickName() + " PART " + channelName + "\r\n";
+        send(clientFd, reply.c_str(), reply.size(), 0);
         // Send a message to the other members of the channel
         std::stringstream ss;
         ss << "Client " << clientFd << " has left the channel.";
