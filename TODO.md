@@ -22,6 +22,8 @@
 - TOPIC (Done)
 - MODE (Done)
 - INVITE (Done)
+- TODO : 
+  - send a msg to all users in a channel when there is an action (e.g : someone joins/leaves/invite the channel ...)
 
 ### Jé
 - JOIN (Done)
