@@ -22,6 +22,7 @@ public:
     void listenSocket(int backlog = 3);
     int acceptConnection(struct sockaddr_in &client_addr, socklen_t &client_len) const;
     void closeSocket();
+    void send(const std::string& message);
 
 private:
     int sockfd;

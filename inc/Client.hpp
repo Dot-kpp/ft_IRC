@@ -49,6 +49,7 @@ public:
     // methods
     void welcomeClient(int clientFd);
     void subscribeToChannel(Channels* channel);
+    void sendMessage(const std::string& message);  // new method
 };
 
 std::ostream &operator<<(std::ostream &o, Client const &rhs);

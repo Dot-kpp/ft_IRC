@@ -27,23 +27,51 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     std::string command, name;
     std::istringstream iss(args);
 
-    // Get the command and channel name
-    std::getline(iss, command, '#');
-    std::getline(iss, name);
+	// Get the channel name
+	size_t pos = args.find(' ');
+	if (pos != std::string::npos) {
+		// Extract the command
+		command = args.substr(0, pos);
 
-    // Get the channel object by name
-    std::string channelName = name.substr(1);
-    Channels *channel = server->getChannelByName(channelName);
+		// Find the position of the first '#'
+		size_t hashPos = args.find('#', pos);
+		if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+			// Extract the channel name
+			name = args.substr(hashPos + 1);
+		}
+	}
+
+	// Get the channel object by name
+	std::string channelName;
+	if (!name.empty()) {
+		channelName = name.substr(1);
+	}
+	Channels *channel = server->getChannelByName(channelName);
 
     if (channel == nullptr) {
         // Channel does not exist
         std::cout << "Channel " << name << " does not exist" << std::endl;
         return false;
+    }  // This closing brace was missing
+
+    if (!channel->hasUser(client)) {
+        std::cout << "Client " << clientFd << " is not a member of the channel " << name << std::endl;
+        return false;
     } else {
-        // Channel exists, remove the client from it
+        // Client is a member of the channel, remove them
         channel->removeUser(client);
         std::cout << "Client " << clientFd << " removed from the existing channel " << name << std::endl;
-    }
 
+        // Send a message to the other members of the channel
+        std::stringstream ss;
+        ss << "Client " << clientFd << " has left the channel.";
+        std::string message = ss.str();
+        std::map<Client *, int>::const_iterator it;
+        for (it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
+            if (it->first != client) {
+                it->first->sendMessage(message);
+            }
+        }
+    }
     return true;
 }

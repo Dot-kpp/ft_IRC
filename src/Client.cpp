@@ -99,3 +99,7 @@ std::ostream &operator<<(std::ostream &o, Client const &rhs)
     o << "Client Role: " << rhs.getRoleId() << std::endl;
     return (o);
 }
+
+void Client::sendMessage(const std::string& message) {
+    clientSocket.send(message);
+}
