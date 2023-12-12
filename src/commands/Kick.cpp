@@ -22,27 +22,25 @@ bool Kick::execute(Server *server, std::string args, int clientFd) {
 
     // Get the Client object associated with clientFd
     Client* client = server->getClientByFd(clientFd);
-    if (!client) {
-        cout << "Client with fd " << clientFd << " does not exist" << endl;
-        return false;
-    }
 
-    std::string command, name, target;
+    std::string name, target;
     std::istringstream iss(args);
 
-    // Get the command and channel name
-    std::getline(iss, command, '#');
-    std::getline(iss, name, ' ');
-    std::getline(iss, target);
-
+    iss >> name >> target;
     // Get the channel object by name
     Channels *channel = server->getChannelByName(name);
 
     if (channel == nullptr) {
         // Channel does not exist
-        cout << "Channel " << name << " does not exist" << endl;
+        std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + name + " :No such channel\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
         return false;
     } else {
+        if(channel->isOperator(client) == false) {
+            std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + name + " :You're not channel operator\r\n";
+            send(clientFd, replyError.c_str(), replyError.size(), 0);
+            return false;
+        }
         // Channel exists, find the target client in the channel
         const std::map<Client *, int> &usersMap = channel->getUsers();
         Client* targetClient = nullptr;
@@ -54,13 +52,19 @@ bool Kick::execute(Server *server, std::string args, int clientFd) {
             }
         }
         if (!targetClient) {
-            cout << "Target client " << target << " does not exist in the channel" << endl;
+            std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + targetClient->getNickName() + " " + name + " :They aren't on that channel\r\n";
+            send(clientFd, replyError.c_str(), replyError.size(), 0);
+            return false;
+        }
+        if(client->getNickName() == targetClient->getNickName()) {
+            std::string replyError = ":" + server->getServerName() + " 400 " + server->clients[clientFd].getNickName() + " " + name + " :You can't kick yourself, silly goose\r\n";
+            send(clientFd, replyError.c_str(), replyError.size(), 0);
             return false;
         }
         // Remove the target client from the channel
         channel->removeUser(targetClient); // Assuming Channels has a removeUser method
-        cout << "Client " << target << " removed from the existing channel " << name << " by client " << clientFd << endl;
+        std::string reply = ":" + server->clients[clientFd].getNickName() + " KICK " + name + " " + targetClient->getNickName() + "\r\n";
+        send(clientFd, reply.c_str(), reply.size(), 0);
     }
-
     return true;
 }
