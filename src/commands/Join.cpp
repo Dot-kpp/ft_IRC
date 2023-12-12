@@ -31,32 +31,34 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 	// Get the channel name
 	std::string name;
 	std::istringstream iss(args);
+	
+	iss >> name;
 
 	// Find the position of the first '#'
-	size_t hashPos = args.find('#');
-	if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
-		// Extract the channel name
-		name = args.substr(hashPos + 1);
-	} else {
-		// '#' not found or it's the last character in args
-		std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
-		return false;
-	}
+	// size_t hashPos = args.find('#');
+	// if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+	// 	// Extract the channel name
+	// 	name = args.substr(hashPos + 1);
+	// } else {
+	// 	// '#' not found or it's the last character in args
+	// 	std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
+	// 	return false;
+	// }
 
 	// Get the channel object by name
-	std::string channelName;
-	if (!name.empty()) {
-		channelName = name;
-	}
+	std::string channelName = name;
+	// if (!name.empty()) {
+	// 	channelName = name;
+	// }
 	Channels *channel = server->getChannelByName(channelName);
-
+	std::cout << "Channel name: " << channelName.size() << std::endl;
 	if (channel == nullptr) {
 		// Channel does not exist, create it
 		Channels newChannel; // Assuming Channels is a class
 		newChannel.addUsers(client, 1); // Pass the Client object and role ID
 		newChannel.setChannelName(channelName); // Set the name of the channel
 		server->channel.push_back(newChannel); // Add the channel to the server's channel list
-		std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN #" + channelName + "\r\n";
+		std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN " + channelName + "\r\n";
 		send(clientFd, reply.c_str(), reply.size(), 0);
 		std::cout << "Channel " << channelName << " created and client " << server->clients[clientFd].getNickName() << " added to it." << std::endl;
 	} else {
