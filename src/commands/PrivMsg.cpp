@@ -32,14 +32,16 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 		cout << "This is a channel" << endl;
 
 		// Find the channel by name
-		std::string channelName = target.substr(1);
-		Channels *channel = server->getChannelByName(channelName);
+		Channels *channel = server->getChannelByName(target);
 
 		if (channel == nullptr) {
-			std::cout << "Channel '" << channelName << "' not found" << std::endl;
+			std::cout << "Channel '" << target << "' not found" << std::endl;
 			return false;
 		}
 		cout << "msg_to_chan: " << message << endl;
+		//implement here the funciton that will send the message to all the users in the channel
+		// Send the message to all clients in the channel
+		// Send the message to the client
 
 	} else {
 		cout << "This is a user" << endl;
@@ -50,6 +52,8 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 			return false;
 		}
 		cout << "msg_to_user: " << message << endl;
+		//implement here the funciton that will send the message to the user
+		// Send the message to the client
 
 	}
 

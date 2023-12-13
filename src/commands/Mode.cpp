@@ -23,28 +23,22 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 	// Parse the arguments to get the channel name and mode changes
 	std::istringstream iss(args);
-	std::string name;
+	std::string channelName;
 	std::string modeChanges;
 	std::string target;
-
-	iss >> name >> modeChanges >> target;
+	cout << "args: " << args << endl;
+	iss >> channelName >> modeChanges >> target;
 
 	// Find the client by nickname in the current channel
 	Client *targetClient = server->getClientByFd(clientFd);
-
-	cout << "Channel name: " << name << endl;
-	cout << "Mode changes: " << modeChanges << endl;
-
-	// Remove '#' from the channel name
-	std::string channelName = name.substr(1);
-	cout << "CHANNEL NAME: " << channelName << endl;
 
 	// Find the channel by name
 	Channels *channel = server->getChannelByName(channelName);
 
 	// Check if the channel exists
 	if (channel == nullptr) {
-		std::cout << "Channel '" << channelName << "' not found" << std::endl;
+		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
 	}
 
@@ -63,31 +57,40 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 			continue;
 		}
 
+		std::string plus = "true";
+		std::string minus = "false";
 		if (channel->isOperator(targetClient)) {
 			switch (mode) {
 				case 'i':
 					// MODE #exampleChannel +i
-//					cout << "Toggling channel invite only" << endl;
-//					cout << "Invite only status: " << channel->getInviteOnly() << endl;
-					channel->toggleInviteOnly();
-					if (channel->getInviteOnly())
+					if (isSettingMode) {
+						channel->setInviteOnly(plus);
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +i \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel now invite only" << endl;
-					else
+					} else {
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -i \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel no longer invite only" << endl;
+					}
 					break;
 
 				case 't':
 					// MODE #exampleChannel +t
-//					cout << "Toggling channel topic restriction" << endl;
-					channel->toggleTopicRestriction();
-					if (channel->getTopicRestriction())
+					if (isSettingMode) {
+						channel->setTopicRestriction(plus);
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +t \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel now has topic restriction" << endl;
-					else
+					} else {
+						channel->setTopicRestriction(minus);
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -t \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel no longer has topic restriction" << endl;
+					}
 					break;
 
 				case 'o':
-//					cout << "Operator role (before): " << channel->getUserRole(targetClient) << endl;
 					if (targetClient != nullptr) {
 						if (isSettingMode)
 							channel->promoteUser(targetClient);
@@ -96,14 +99,10 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 					} else {
 						std::cout << "No target user provided" << std::endl;
 					}
-//					cout << "Operator after (before): " << channel->getUserRole(targetClient) << endl;
-					break;
+				break;
 
 				case 'k':
 					// MODE #secretChannel +k mySecretKey
-//					cout << "target: " << target << endl;
-//					cout << "Toggling channel key" << endl;
-//					cout << "Key status: " << channel->getHasKey() << endl;
 					channel->toggleChannelKey();
 					channel->setKey(target); //need to do it by parse args
 
@@ -117,7 +116,6 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 				case 'l':
 					// MODE #exampleChannel +l [userLimit]
-//					cout << "Toggling channel user limit" << endl;
 					channel->toggleUserLimit();
 					channel->setUserLimit(stoi(target));
 					if (channel->getHasLimit())
@@ -132,6 +130,8 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 			}
 		}
 		else {
+			std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			std::cout << "You are not an operator" << std::endl;
 		}
 	}

@@ -51,7 +51,7 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 			std::string namesList;
 
 			// Start of NAMES list numeric reply
-			std::string replyStart = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = #" + channelName + " : ";
+			std::string replyStart = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = " + channelName + " : ";
 			send(clientFd, replyStart.c_str(), replyStart.size(), 0);
 
 			// Iterate through clients in the channel and send their names
@@ -66,7 +66,7 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 			send(clientFd, namesList.c_str(), namesList.size(), 0);
 
 			// End of NAMES list numeric reply
-			std::string replyEnd = "\r\n:" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " #" + channelName + " :End of /NAMES list \r\n";
+			std::string replyEnd = "\r\n:" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list \r\n";
 			send(clientFd, replyEnd.c_str(), replyEnd.size(), 0);
 		}
 		else
