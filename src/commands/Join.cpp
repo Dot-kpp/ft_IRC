@@ -33,6 +33,11 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 	std::istringstream iss(args);
 	
 	iss >> channelName;
+	if (channelName.front() != '#') {
+		std::string replyError = ":" + server->getServerName() + " 476 " + channelName + " :Bad Channel Mask\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
+    	return false;
+	}
 	Channels *channel = server->getChannelByName(channelName);
 	if (channel == nullptr) {
 		// Channel does not exist, create it
