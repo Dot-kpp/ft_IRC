@@ -28,9 +28,17 @@
 ### Jé
 - JOIN (Done)
 - PART (Done)
-- KICK 
-- BAN 
+- KICK (Done)
+- BAN  (Not needed?)
 
+
+### testing notes:
+  - issue with this point: All the messages sent from one client to a channel have to be forwarded to
+every other client that joined the channel.
+
+  - Include the bot for bonus points
+
+  -
 
 # IRC Commands Summary
 
