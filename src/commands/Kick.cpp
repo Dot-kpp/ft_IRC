@@ -52,7 +52,7 @@ bool Kick::execute(Server *server, std::string args, int clientFd) {
             }
         }
         if (!targetClient) {
-            std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + targetClient->getNickName() + " " + name + " :They aren't on that channel\r\n";
+            std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + target + " " + name + " :They aren't on that channel\r\n";
             send(clientFd, replyError.c_str(), replyError.size(), 0);
             return false;
         }
