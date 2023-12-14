@@ -160,8 +160,7 @@ void Server::start()
 
     // Create kqueue
     int kq = kqueue();
-    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
-
+    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_EOF, 0, 0, 0);
     // Register kevent with the kqueue
     if (kevent(kq, change_event, 1, NULL, 0, NULL) == -1)
     {
@@ -182,8 +181,12 @@ void Server::start()
         for (int i = 0; i < new_events; i++)
         {
             int event_fd = event[i].ident;
-
-            if (event_fd == serverSocket.getSocketFd())
+            if (event[i].flags & EV_EOF)
+            {
+                removeClient(event_fd, "Client disconnected from the server.");
+                continue;
+            }
+            else if (event_fd == serverSocket.getSocketFd())
             {
                 // New connection
                 std::cout << "New connection" << std::endl;
@@ -193,9 +196,9 @@ void Server::start()
                     perror("Accept socket error");
                     continue;
                 }
-				// add client_fd to vector of client_fds
-				this->addClientFd(client_fd);
-                // Add new client socket to kqueue
+                // add client_fd to vector of client_fds
+                this->addClientFd(client_fd);
+                clients[client_fd].setClientFd(client_fd);
                 EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
                     perror("kevent error");
@@ -315,13 +318,16 @@ void Server::tellEveryoneButSender(std::string message, int clientFd)
     }
 }
 
-Client* Server::getClientByNickname(const std::string& nickname) {
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-		if (it->second.getNickName() == nickname) {
-			return &(it->second);
-		}
-	}
-	return nullptr;
+Client *Server::getClientByNickname(const std::string &nickname)
+{
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.getNickName() == nickname)
+        {
+            return &(it->second);
+        }
+    }
+    return nullptr;
 }
 
 void Server::addClientFd(int clientFd) {

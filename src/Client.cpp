@@ -83,6 +83,16 @@ int Client::getRoleId() const
     return (this->roleId);
 };
 
+int Client::getClientFd() const
+{
+    return (this->clientFd);
+};
+
+void Client::setClientFd(int fd)
+{
+    this->clientFd = fd;
+};
+
 /* void Client::subscribeToChannel(Channels *channel)
 {
     this->channel = channel;

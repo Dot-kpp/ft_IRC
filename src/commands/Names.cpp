@@ -66,7 +66,7 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 			send(clientFd, namesList.c_str(), namesList.size(), 0);
 
 			// End of NAMES list numeric reply
-			std::string replyEnd = "\r\n:" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list \r\n";
+			std::string replyEnd = ":" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list \r\n";
 			send(clientFd, replyEnd.c_str(), replyEnd.size(), 0);
 		}
 		else
