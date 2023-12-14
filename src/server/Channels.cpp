@@ -4,7 +4,15 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-Channels::Channels() {}
+Channels::Channels() {
+	this->topic = "[empty]";
+	this->hasKey = false;
+	this->key = "";
+	this->hasInviteOnly = false;
+	this->hasTopicRestriction = false;
+	this->hasUserLimit = false;
+	this->userLimit = 0;
+}
 
 Channels::Channels(Channels const *copy)
 {
