@@ -57,14 +57,15 @@ public:
 
 
 	void toggleChannelKey();
-	void toggleInviteOnly();
-	void toggleTopicRestriction();
+	void setInviteOnly(std::string str);
+	void setTopicRestriction(std::string str);
 	void toggleUserLimit();
 	void setUserLimit(int limit);
 	void setKey(std::string key);
 	bool isOperator(Client* user) const;
 	void promoteUser(Client *user);
 	void demoteUser(Client *user);
+	std::string getModes() const;
 
 	//Debug
 	bool getHasKey() const;

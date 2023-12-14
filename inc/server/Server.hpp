@@ -44,7 +44,7 @@ private:
     std::string password;
     bool running;
     const std::string serverName;
-    
+	std::vector<int> clientFds;
 
 public:
     static Server *instance;
@@ -65,7 +65,9 @@ public:
     void handleIncomingBuffer(int clientFd);
     void welcomeClient(int clientFd);
     std::string getServerName() const;
-
+	void addClientFd(int clientFd);
+	void removeClientFd(int clientFd);
+	int getClientFd() const;
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)
@@ -87,6 +89,9 @@ public:
         }
     }
 	Client* getClientByNickname(const std::string& nickname);
+	void broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname);
+	void sendMessageToClient(int targetClientFd, const std::string& message);
+
 
 };
 

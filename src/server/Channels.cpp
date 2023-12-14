@@ -32,13 +32,6 @@ Channels::Channels(int channelId, std::string name)
 	  this->userLimit = 0;
 }
 
-//void Channels::addClient(Client* client) {
-//	// Check if the client is not already in the channel
-//	if (std::find(clients.begin(), clients.end(), client) == clients.end()) {
-//		clients.push_back(client);
-//	}
-//}
-
 void Channels::addUsers(Client* user, int roleId) {
 	users[user] = roleId;
 }
@@ -61,9 +54,21 @@ const std::map<Client *, int> &Channels::getUsers() const {
 // Will toggle the bool status (true/false) depending on the current status
 void Channels::toggleChannelKey() { this->hasKey = !hasKey; }
 
-void Channels::toggleInviteOnly() { this->hasInviteOnly = !hasInviteOnly; }
+void Channels::setInviteOnly(std::string str) {
+	if (str == "true")
+		this->hasTopicRestriction = true;
 
-void Channels::toggleTopicRestriction() { this->hasTopicRestriction = !hasTopicRestriction; }
+	if (str == "false")
+		this->hasTopicRestriction = false;
+}
+
+void Channels::setTopicRestriction(std::string str) {
+	if (str == "true")
+		this->hasTopicRestriction = true;
+
+	if (str == "false")
+		this->hasTopicRestriction = false;
+}
 
 void Channels::toggleUserLimit() { this->hasUserLimit = !hasUserLimit; }
 
@@ -122,4 +127,13 @@ void Channels::demoteUser(Client* user) {
 bool Channels::isOperator(Client* user) const {
 	std::map<Client*, int>::const_iterator it = users.find(user);
 	return (it != users.end() && it->second == 1);
+}
+
+std::string Channels::getModes() const {
+	std::string modes = "+";
+	if (getInviteOnly()) modes += "i";
+	if (getTopicRestriction()) modes += "t";
+	if (getHasKey()) modes += "k";
+	if (getHasLimit()) modes += "l";
+	return modes;
 }
