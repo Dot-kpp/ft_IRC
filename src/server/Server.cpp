@@ -340,15 +340,16 @@ void Server::removeClientFd(int clientFd) {
 
 // Inside Server class
 void Server::broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname) {
-	// Find the channel by name
 	Channels* channel = getChannelByName(channelName);
 
 	if (channel == nullptr) {
-		std::cout << "Channel '" << channelName << "' not found" << std::endl;
+		std::string replyError = ":" + serverName + " 403 " + nickname + " " + channelName + " :No such channel \r\n";
+		send(senderFd, replyError.c_str(), replyError.size(), 0);
 		return;
 	}
     if (!channel->isUserInChannel(nickname)) {
-        std::cout << "User '" << nickname << "' not found in channel '" << channelName << "'" << std::endl;
+		std::string replyError = ":" + serverName + " 442 " + nickname + " " + channelName + " :You're not on that channel \r\n";
+		send(senderFd, replyError.c_str(), replyError.size(), 0);
         return;
     }
 
@@ -363,11 +364,12 @@ void Server::broadcastToChannel(const std::string& channelName, const std::strin
 	}
 }
 
-void Server::sendMessageToClient(int targetClientFd, const std::string& message) {
-	// Check if the target client is a valid clientFd
+void Server::sendMessageToClient(int targetClientFd, const std::string& message, std::string targetNickname, std::string nickname) {
 	if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end()) {
-		send(targetClientFd, message.c_str(), message.size(), 0);
+		std::string fullMessage = ":" + nickname + " PRIVMSG " + targetNickname + " :" + message + "\r\n";
+		send(targetClientFd, fullMessage.c_str(), fullMessage.size(), 0);
 	} else {
-		std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
+		std::string replyError = ":" + serverName + " 401 " + nickname + " " + targetNickname + " :No such nick \r\n";
+		send(targetClientFd, replyError.c_str(), replyError.size(), 0);
 	}
 }
