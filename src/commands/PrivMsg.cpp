@@ -13,8 +13,6 @@ PrivMsg::PrivMsg(PrivMsg const &src) {
 PrivMsg::~PrivMsg() { }
 
 bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
-	(void)server;
-	(void)clientFd;
 	cout << "You are in PRIVMSG execute" << endl;
 
 	// Find the target (if there is a '#', it's a channel, otherwise it's a user)
@@ -24,6 +22,7 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 
 	iss >> target;
 	cout << "target: " << target << endl;
+	Client *client = server->getClientByFd(clientFd);
 
 	// Use std::getline to get the rest of the string
 	std::getline(iss, message);
@@ -38,10 +37,11 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 			std::cout << "Channel '" << target << "' not found" << std::endl;
 			return false;
 		}
+		message = message.substr(2);
 		cout << "msg_to_chan: " << message << endl;
 		//implement here the funciton that will send the message to all the users in the channel
 		// Send the message to all clients in the channel
-		// Send the message to the client
+		server->broadcastToChannel(channel->getChannelName(), message, clientFd, client->getUserName());
 
 	} else {
 		cout << "This is a user" << endl;
@@ -54,6 +54,8 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 		cout << "msg_to_user: " << message << endl;
 		//implement here the funciton that will send the message to the user
 		// Send the message to the client
+
+//		server->sendMessageToClient(targetClientFD, message, client->getUserName());
 
 	}
 

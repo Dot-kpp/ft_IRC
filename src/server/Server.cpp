@@ -138,7 +138,6 @@ void Server::handleIncomingBuffer(int clientFd)
                 {
                     Channels &channel = this->getChannelById(0);
                     channel.addUsers(&clients[clientFd], 2); // 2 is User by Default, 1 is Moderator
-                    //                channel.addClient(&clients[clientFd]);
                 }
                 treatIncomingBuffer(*it, clientFd, &clients[clientFd], hasUserAndNick);
             }
@@ -171,7 +170,6 @@ void Server::start()
     }
 
     this->channel.push_back(Channels(0, "default"));
-    this->channel.push_back(Channels(1, "Channel1"));
     for (;;)
     {
         new_events = kevent(kq, NULL, 0, event, 1, NULL);
@@ -195,6 +193,8 @@ void Server::start()
                     perror("Accept socket error");
                     continue;
                 }
+				// add client_fd to vector of client_fds
+				this->addClientFd(client_fd);
                 // Add new client socket to kqueue
                 EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
@@ -322,4 +322,42 @@ Client* Server::getClientByNickname(const std::string& nickname) {
 		}
 	}
 	return nullptr;
+}
+
+void Server::addClientFd(int clientFd) {
+	clientFds.push_back(clientFd);
+}
+
+void Server::removeClientFd(int clientFd) {
+	clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
+}
+
+// Inside Server class
+void Server::broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname) {
+	// Find the channel by name
+	Channels* channel = getChannelByName(channelName);
+
+	if (channel == nullptr) {
+		std::cout << "Channel '" << channelName << "' not found" << std::endl;
+		return;
+	}
+
+	// Iterate through all connected clientFds and send the message
+	for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it) {
+		int clientFd = *it;
+		// Do not send the message to the sender
+		if (clientFd != senderFd) {
+			std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
+			send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
+		}
+	}
+}
+
+void Server::sendMessageToClient(int targetClientFd, const std::string& message) {
+	// Check if the target client is a valid clientFd
+	if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end()) {
+		send(targetClientFd, message.c_str(), message.size(), 0);
+	} else {
+		std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
+	}
 }
