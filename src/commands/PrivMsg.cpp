@@ -41,7 +41,7 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 		cout << "msg_to_chan: " << message << endl;
 		//implement here the funciton that will send the message to all the users in the channel
 		// Send the message to all clients in the channel
-		server->broadcastToChannel(channel->getChannelName(), message, clientFd, client->getUserName());
+		server->broadcastToChannel(channel->getChannelName(), message, clientFd, client->getNickName());
 
 	} else {
 		cout << "This is a user" << endl;
@@ -55,50 +55,7 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 		//implement here the funciton that will send the message to the user
 		// Send the message to the client
 
-//		server->sendMessageToClient(targetClientFD, message, client->getUserName());
-
 	}
 
 	return true;
 }
-
-//		// Check if the channel exists
-//		if (channel == nullptr) {
-//			std::cout << "Channel '" << target << "' not found" << std::endl;
-//			return false;
-//		}
-//
-//		// Find the client by nickname in the current channel
-//		Client *targetClient = server->getClientByFd(clientFd);
-//
-//		// Remove '#' from the channel name
-//		std::string channelName = target.substr(1);
-//
-//		// Send the message to all clients in the channel
-//		for (std::vector<Client *>::iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it) {
-//			Client *client = *it;
-//
-//			// Don't send the message to the client who sent it
-//			if (client->getNickname() == targetClient->getNickname()) {
-//				continue;
-//			}
-//
-//			// Send the message to the client
-//			client->sendMessage(targetClient->getNickname(), message);
-//		}
-//	}
-//	else
-//	{
-//		// Find the client by nickname in the current channel
-//		Client *targetClient = server->getClientByFd(clientFd);
-//
-//		// Send the message to the client
-//		targetClient->sendMessage(targetClient->getNickname(), message);
-//	}
-
-//	std::getline(iss, message);
-//
-//	if(target.empty() || message.empty()) {
-//		std::cout << "Not enough parameters for PRIVMSG command" << std::endl;
-//		return false;
-//	}
