@@ -119,7 +119,8 @@ void Server::handleIncomingBuffer(int clientFd)
                 it->erase(std::remove(it->begin(), it->end(), '\n'), it->end());
                 it->erase(std::remove(it->begin(), it->end(), '\r'), it->end());
                 std::cout << *it << std::endl;
-                if (it->compare(0, it->size(), this->password) == 0) {
+                if (it->compare(0, it->size(), this->password) == 0)
+                {
                     std::cout << "Client " << clientFd << " provided the right password." << std::endl;
                     clients[clientFd].setHasGoodPassword(true);
                 }
@@ -160,8 +161,7 @@ void Server::start()
 
     // Create kqueue
     int kq = kqueue();
-    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
-
+    EV_SET(&change_event[0], serverSocket.getSocketFd(), EVFILT_READ, EV_ADD | EV_EOF, 0, 0, 0);
     // Register kevent with the kqueue
     if (kevent(kq, change_event, 1, NULL, 0, NULL) == -1)
     {
@@ -182,8 +182,12 @@ void Server::start()
         for (int i = 0; i < new_events; i++)
         {
             int event_fd = event[i].ident;
-
-            if (event_fd == serverSocket.getSocketFd())
+            if (event[i].flags & EV_EOF)
+            {
+                removeClient(event_fd, "Client disconnected from the server.");
+                continue;
+            }
+            else if (event_fd == serverSocket.getSocketFd())
             {
                 // New connection
                 std::cout << "New connection" << std::endl;
@@ -193,9 +197,8 @@ void Server::start()
                     perror("Accept socket error");
                     continue;
                 }
-				// add client_fd to vector of client_fds
-				this->addClientFd(client_fd);
-                // Add new client socket to kqueue
+                // add client_fd to vector of client_fds
+                this->addClientFd(client_fd);
                 EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
                     perror("kevent error");
@@ -286,7 +289,9 @@ void Server::removeClient(int clientFd, std::string reason)
 {
     if (reason.empty())
         reason = "Client disconnected";
-    std::map<int, Client>::iterator it = this->clients.begin();
+    (void)clientFd;
+    (void)reason;
+    /* std::map<int, Client>::iterator it = this->clients.begin();
     while (it != this->clients.end())
     {
         if (it->first == clientFd)
@@ -297,7 +302,7 @@ void Server::removeClient(int clientFd, std::string reason)
             break;
         }
         it++;
-    }
+    } */
 };
 
 void Server::tellEveryoneButSender(std::string message, int clientFd)
@@ -315,49 +320,62 @@ void Server::tellEveryoneButSender(std::string message, int clientFd)
     }
 }
 
-Client* Server::getClientByNickname(const std::string& nickname) {
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-		if (it->second.getNickName() == nickname) {
-			return &(it->second);
-		}
-	}
-	return nullptr;
+Client *Server::getClientByNickname(const std::string &nickname)
+{
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.getNickName() == nickname)
+        {
+            return &(it->second);
+        }
+    }
+    return nullptr;
 }
 
-void Server::addClientFd(int clientFd) {
-	clientFds.push_back(clientFd);
+void Server::addClientFd(int clientFd)
+{
+    clientFds.push_back(clientFd);
 }
 
-void Server::removeClientFd(int clientFd) {
-	clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
+void Server::removeClientFd(int clientFd)
+{
+    clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
 }
 
 // Inside Server class
-void Server::broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname) {
-	// Find the channel by name
-	Channels* channel = getChannelByName(channelName);
+void Server::broadcastToChannel(const std::string &channelName, const std::string &message, int senderFd, std::string nickname)
+{
+    // Find the channel by name
+    Channels *channel = getChannelByName(channelName);
 
-	if (channel == nullptr) {
-		std::cout << "Channel '" << channelName << "' not found" << std::endl;
-		return;
-	}
+    if (channel == nullptr)
+    {
+        std::cout << "Channel '" << channelName << "' not found" << std::endl;
+        return;
+    }
 
-	// Iterate through all connected clientFds and send the message
-	for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it) {
-		int clientFd = *it;
-		// Do not send the message to the sender
-		if (clientFd != senderFd) {
-			std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
-			send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
-		}
-	}
+    // Iterate through all connected clientFds and send the message
+    for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it)
+    {
+        int clientFd = *it;
+        // Do not send the message to the sender
+        if (clientFd != senderFd)
+        {
+            std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
+            send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
+        }
+    }
 }
 
-void Server::sendMessageToClient(int targetClientFd, const std::string& message) {
-	// Check if the target client is a valid clientFd
-	if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end()) {
-		send(targetClientFd, message.c_str(), message.size(), 0);
-	} else {
-		std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
-	}
+void Server::sendMessageToClient(int targetClientFd, const std::string &message)
+{
+    // Check if the target client is a valid clientFd
+    if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end())
+    {
+        send(targetClientFd, message.c_str(), message.size(), 0);
+    }
+    else
+    {
+        std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
+    }
 }
