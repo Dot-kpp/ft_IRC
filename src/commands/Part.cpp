@@ -25,25 +25,36 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     }
 
 	std::string name;
+	std::istringstream iss(args);
+	
+	iss >> name;
+	if (name.front() != '#') {
+		std::string replyError = ":" + server->getServerName() + " 476 " + name + " :Bad Channel Mask\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
+    	return false;
+	}
+
 
     // iss >> name;
 	// Get the channel name
-    size_t hashPos = args.find('#');
-    size_t spacePos = args.find(' ', hashPos); // Find the space after '#'
-    if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
-        // Calculate the length of the channel name
-        size_t nameLength = (spacePos != std::string::npos) ? spacePos - hashPos - 1 : std::string::npos;
-        // Extract the channel name
-        name = args.substr(hashPos + 1, nameLength);
-	} else {
-		// '#' not found or it's the last character in args
-		std::cout << "Invalid command format. Expected '#' followed by channel name." << std::endl;
-		return false;
-	}
+
+    // size_t hashPos = args.find('#');
+    // size_t spacePos = args.find(' ', hashPos); // Find the space after '#'
+    // if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
+    //     // Calculate the length of the channel name
+    //     size_t nameLength = (spacePos != std::string::npos) ? spacePos - hashPos - 1 : std::string::npos;
+    //     // Extract the channel name
+    //     name = args.substr(hashPos + 1, nameLength);
+	// } else {
+	// 	// '#' not found or it's the last character in args
+	// 	std::string replyError = ":" + server->getServerName() + " 476 " + name + " :Bad Channel Mask\r\n";
+	// 	send(clientFd, replyError.c_str(), replyError.size(), 0);
+	// 	return false;
+	// }
 	// Get the channel object by name
 
 
-	std::string channelName = "#" + name;
+	std::string channelName = name;
     Channels *channel = server->getChannelByName(channelName);
     if (channel == nullptr) {
         // Channel does not exist
@@ -51,7 +62,7 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
         std::cout << "Channel " << channelName << " does not exist" << std::endl;
         return false;
-    }  // This closing brace was missing
+    }
 
     std::cout << "here" << std::endl;
     if (!channel->hasUser(client)) {
@@ -61,6 +72,8 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
         return false;
     } else {
         // Client is a member of the channel, remove them
+        std::cout << "Client " << client << " is a member of the channel " << name << std::endl;
+        channel->removeUser(server->getClientByFd(clientFd));
         channel->removeUser(client);
         std::cout << "Client " << clientFd << " removed from channel " << name << std::endl;
         std::string reply = ":" + server->clients[clientFd].getNickName() + " PART " + channelName + "\r\n";
@@ -70,11 +83,7 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
         ss << "Client " << clientFd << " has left the channel.";
         std::string message = ss.str();
         std::map<Client *, int>::const_iterator it;
-        for (it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
-            if (it->first != client) {
-                it->first->sendMessage(message);
-            }
-        }
+        server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
     }
     return true;
 }

@@ -88,6 +88,7 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN " + channelName + "\r\n";
 		send(clientFd, reply.c_str(), reply.size(), 0);
 		std::cout << "Client " << clientFd << " added to the existing channel " << channelName << std::endl;
+		server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
 	}
 
 	return true;

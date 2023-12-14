@@ -145,3 +145,14 @@ std::string Channels::getModes() const {
 	if (getHasLimit()) modes += "l";
 	return modes;
 }
+
+bool Channels::isUserInChannel(const std::string& nickname) const {
+	std::map<Client*, int>::const_iterator it;
+	for (it = users.begin(); it != users.end(); ++it) {
+		Client* user = it->first;
+		if (user->getNickName() == nickname) {
+			return true;
+		}
+	}
+	return false;
+}

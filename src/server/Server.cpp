@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/11 14:20:59 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/14 16:02:32 by jpilotte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -341,6 +341,10 @@ void Server::broadcastToChannel(const std::string& channelName, const std::strin
 		std::cout << "Channel '" << channelName << "' not found" << std::endl;
 		return;
 	}
+    if (!channel->isUserInChannel(nickname)) {
+        std::cout << "User '" << nickname << "' not found in channel '" << channelName << "'" << std::endl;
+        return;
+    }
 
 	// Iterate through all connected clientFds and send the message
 	for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it) {

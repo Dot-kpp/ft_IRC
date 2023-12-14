@@ -75,6 +75,8 @@ public:
 	size_t getUserLimitValue() const;
 	std::string getKey() const;
 	bool hasUser(Client *user) const;
+
+	bool isUserInChannel(const std::string& nickname) const;
 };
 
 std::string trim(const std::string& str) ;

@@ -62,7 +62,7 @@ bool Kick::execute(Server *server, std::string args, int clientFd) {
             return false;
         }
         // Remove the target client from the channel
-        channel->removeUser(targetClient); // Assuming Channels has a removeUser method
+        channel->removeUser(targetClient); 
         std::string reply = ":" + server->clients[clientFd].getNickName() + " KICK " + name + " " + targetClient->getNickName() + "\r\n";
         send(clientFd, reply.c_str(), reply.size(), 0);
     }
