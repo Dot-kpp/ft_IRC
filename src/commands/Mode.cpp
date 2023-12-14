@@ -92,11 +92,18 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 				case 'o':
 					if (targetClient != nullptr) {
-						if (isSettingMode)
+						if (isSettingMode) {
 							channel->promoteUser(targetClient);
-						else
+							std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +o \r\n";
+							send(clientFd, replyError.c_str(), replyError.size(), 0);
+						} else {
+							std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -o \r\n";
+							send(clientFd, replyError.c_str(), replyError.size(), 0);
 							channel->demoteUser(targetClient);
+						}
 					} else {
+						std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + target + " :They aren't on that channel \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						std::cout << "No target user provided" << std::endl;
 					}
 				break;
