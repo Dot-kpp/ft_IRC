@@ -19,6 +19,7 @@ private:
     std::string nickname;
     std::string password;
     bool hasGoodPassword;
+    int clientFd;
     bool isRegistered;
     /* std::string mode; */
     int roleId;
@@ -44,6 +45,10 @@ public:
     bool getIsRegistered() const;
     Channels* getChannel() const;
     int getRoleId() const;
+    // make getter setter for clientFd
+    // methods
+    int getClientFd() const;
+    void setClientFd(int fd);
 
 
     // methods

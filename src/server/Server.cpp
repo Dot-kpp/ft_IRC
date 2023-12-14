@@ -199,6 +199,7 @@ void Server::start()
                 }
                 // add client_fd to vector of client_fds
                 this->addClientFd(client_fd);
+                clients[client_fd].setClientFd(client_fd);
                 EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
                     perror("kevent error");
@@ -206,6 +207,7 @@ void Server::start()
             else if (event[i].filter == EVFILT_READ)
             {
                 // Incoming data on client socket
+                std::cout << "CLIETN FD" << clients[event_fd].getClientFd() << std::endl;
                 handleIncomingBuffer(event_fd);
             }
         }
