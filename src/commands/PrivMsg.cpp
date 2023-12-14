@@ -52,9 +52,9 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 			return false;
 		}
 		cout << "msg_to_user: " << message << endl;
-		//implement here the funciton that will send the message to the user
+		//implement here the function that will send the message to the user
 		// Send the message to the client
-
+		server->sendMessageToClient(targetClient->getClientFd(), message, client->getNickName());
 	}
 
 	return true;

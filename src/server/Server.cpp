@@ -119,8 +119,7 @@ void Server::handleIncomingBuffer(int clientFd)
                 it->erase(std::remove(it->begin(), it->end(), '\n'), it->end());
                 it->erase(std::remove(it->begin(), it->end(), '\r'), it->end());
                 std::cout << *it << std::endl;
-                if (it->compare(0, it->size(), this->password) == 0)
-                {
+                if (it->compare(0, it->size(), this->password) == 0) {
                     std::cout << "Client " << clientFd << " provided the right password." << std::endl;
                     clients[clientFd].setHasGoodPassword(true);
                 }
@@ -207,7 +206,6 @@ void Server::start()
             else if (event[i].filter == EVFILT_READ)
             {
                 // Incoming data on client socket
-                std::cout << "CLIETN FD" << clients[event_fd].getClientFd() << std::endl;
                 handleIncomingBuffer(event_fd);
             }
         }
@@ -291,9 +289,7 @@ void Server::removeClient(int clientFd, std::string reason)
 {
     if (reason.empty())
         reason = "Client disconnected";
-    (void)clientFd;
-    (void)reason;
-    /* std::map<int, Client>::iterator it = this->clients.begin();
+    std::map<int, Client>::iterator it = this->clients.begin();
     while (it != this->clients.end())
     {
         if (it->first == clientFd)
@@ -304,7 +300,7 @@ void Server::removeClient(int clientFd, std::string reason)
             break;
         }
         it++;
-    } */
+    }
 };
 
 void Server::tellEveryoneButSender(std::string message, int clientFd)
@@ -334,50 +330,40 @@ Client *Server::getClientByNickname(const std::string &nickname)
     return nullptr;
 }
 
-void Server::addClientFd(int clientFd)
-{
-    clientFds.push_back(clientFd);
+void Server::addClientFd(int clientFd) {
+	clientFds.push_back(clientFd);
 }
 
-void Server::removeClientFd(int clientFd)
-{
-    clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
+void Server::removeClientFd(int clientFd) {
+	clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
 }
 
 // Inside Server class
-void Server::broadcastToChannel(const std::string &channelName, const std::string &message, int senderFd, std::string nickname)
-{
-    // Find the channel by name
-    Channels *channel = getChannelByName(channelName);
+void Server::broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname) {
+	// Find the channel by name
+	Channels* channel = getChannelByName(channelName);
 
-    if (channel == nullptr)
-    {
-        std::cout << "Channel '" << channelName << "' not found" << std::endl;
-        return;
-    }
+	if (channel == nullptr) {
+		std::cout << "Channel '" << channelName << "' not found" << std::endl;
+		return;
+	}
 
-    // Iterate through all connected clientFds and send the message
-    for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it)
-    {
-        int clientFd = *it;
-        // Do not send the message to the sender
-        if (clientFd != senderFd)
-        {
-            std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
-            send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
-        }
-    }
+	// Iterate through all connected clientFds and send the message
+	for (std::vector<int>::iterator it = clientFds.begin(); it != clientFds.end(); ++it) {
+		int clientFd = *it;
+		// Do not send the message to the sender
+		if (clientFd != senderFd) {
+			std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
+			send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
+		}
+	}
 }
 
-void Server::sendMessageToClient(int targetClientFd, const std::string &message)
-{
-    // Check if the target client is a valid clientFd
-    if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end())
-    {
-        send(targetClientFd, message.c_str(), message.size(), 0);
-    }
-    else
-    {
-        std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
-    }
+void Server::sendMessageToClient(int targetClientFd, const std::string& message) {
+	// Check if the target client is a valid clientFd
+	if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end()) {
+		send(targetClientFd, message.c_str(), message.size(), 0);
+	} else {
+		std::cout << "Invalid target clientFd: " << targetClientFd << std::endl;
+	}
 }
