@@ -12,8 +12,6 @@ Kick::Kick(Kick const &src) {
 }
 
 bool Kick::execute(Server *server, std::string args, int clientFd) {
-    cout << "You are in KICK execute" << endl;
-
     if (args.empty() || clientFd < 0){
         std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " KICK" + " :No such channel \r\n";
         send(clientFd, replyError.c_str(), replyError.size(), 0);

@@ -14,7 +14,6 @@ public:
     virtual ~User();
     
     virtual bool execute(Server *server, std::string args, int clientFd);
-    bool parseUserName(std::string userName, int clientFd);
 };
 
 #endif // NICK_HPP

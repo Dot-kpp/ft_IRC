@@ -11,7 +11,7 @@
 class Command
 {
 public:
-    Command() {};
+    Command();
     virtual ~Command();
     virtual bool execute(Server *server, std::string args, int clientFd) = 0;
 };

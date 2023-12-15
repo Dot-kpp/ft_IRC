@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/15 13:48:00 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/15 14:13:34 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,5 @@ public:
 
 
 };
-
-void sendToServer(std::string message, int clientFd);
-bool parseNickname(std::string nickname, int clientFd);
-
 
 #endif

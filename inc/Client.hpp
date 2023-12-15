@@ -21,7 +21,6 @@ private:
     bool hasGoodPassword;
     int clientFd;
     bool isRegistered;
-    /* std::string mode; */
     int roleId;
 
 public:
@@ -45,16 +44,12 @@ public:
     bool getIsRegistered() const;
     Channels* getChannel() const;
     int getRoleId() const;
-    // make getter setter for clientFd
-    // methods
     int getClientFd() const;
     void setClientFd(int fd);
 
 
     // methods
-    void welcomeClient(int clientFd);
-    void subscribeToChannel(Channels* channel);
-    void sendMessage(const std::string& message);  // new method
+    void sendMessage(const std::string& message);
 };
 
 std::ostream &operator<<(std::ostream &o, Client const &rhs);
