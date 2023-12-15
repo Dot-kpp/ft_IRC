@@ -61,7 +61,7 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 				// Add the appropriate channel membership symbol here, e.g., "=" for public channel
 				namesList += it->first->getNickName() + " ";
 			}
-
+			namesList += "\r\n";
 			// Send the NAMES list
 			send(clientFd, namesList.c_str(), namesList.size(), 0);
 
