@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
+/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/06 12:09:07 by jpilotte         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:28:32 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ public:
 
     Server();
     Server(int port, std::string password);
-    ~Server();
+    virtual ~Server();
 
     std::map<int, Client> clients;
     std::vector<Channels> channel;

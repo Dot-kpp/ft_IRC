@@ -38,6 +38,12 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
     	return false;
 	}
+	if (channelName.find('#', 1) != std::string::npos) {
+		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel\r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
+		std::cout << "Channel " << channelName << " does not exist" << std::endl;
+		return false;
+	}
 	Channels *channel = server->getChannelByName(channelName);
 	if (channel == nullptr) {
 		// Channel does not exist, create it

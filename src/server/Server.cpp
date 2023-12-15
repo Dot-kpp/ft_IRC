@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpilotte <jpilotte@student.42.fr>          +#+  +:+       +#+        */
+/*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/14 16:02:32 by jpilotte         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:27:47 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,8 @@ void Server::handleIncomingBuffer(int clientFd)
                 it->erase(std::remove(it->begin(), it->end(), '\n'), it->end());
                 it->erase(std::remove(it->begin(), it->end(), '\r'), it->end());
                 std::cout << *it << std::endl;
-                if (it->compare(0, it->size(), this->password) == 0) {
+                if (it->compare(0, it->size(), this->password) == 0)
+                {
                     std::cout << "Client " << clientFd << " provided the right password." << std::endl;
                     clients[clientFd].setHasGoodPassword(true);
                 }
@@ -148,6 +149,8 @@ void Server::handleIncomingBuffer(int clientFd)
         std::cout << "Client " << clientFd << " disconnected." << std::endl;
         removeClient(clientFd, "Client disconnected from the server.");
     }
+    if (this->running == false)
+        memset(buffer, 0, sizeof(buffer));
     memset(buffer, 0, sizeof(buffer));
 }
 
@@ -330,24 +333,29 @@ Client *Server::getClientByNickname(const std::string &nickname)
     return nullptr;
 }
 
-void Server::addClientFd(int clientFd) {
-	clientFds.push_back(clientFd);
+void Server::addClientFd(int clientFd)
+{
+    clientFds.push_back(clientFd);
 }
 
-void Server::removeClientFd(int clientFd) {
-	clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
+void Server::removeClientFd(int clientFd)
+{
+    clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
 }
 
 // Inside Server class
-void Server::broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname) {
-    Channels* channel = getChannelByName(channelName);
+void Server::broadcastToChannel(const std::string &channelName, const std::string &message, int senderFd, std::string nickname)
+{
+    Channels *channel = getChannelByName(channelName);
 
-    if (channel == nullptr) {
+    if (channel == nullptr)
+    {
         std::string replyError = ":" + serverName + " 403 " + nickname + " " + channelName + " :No such channel \r\n";
         send(senderFd, replyError.c_str(), replyError.size(), 0);
         return;
     }
-    if (!channel->isUserInChannel(nickname)) {
+    if (!channel->isUserInChannel(nickname))
+    {
         std::string replyError = ":" + serverName + " 442 " + nickname + " " + channelName + " :You're not on that channel \r\n";
         send(senderFd, replyError.c_str(), replyError.size(), 0);
         return;
@@ -357,22 +365,28 @@ void Server::broadcastToChannel(const std::string& channelName, const std::strin
     const std::map<Client *, int> &channelUsers = channel->getUsers();
 
     // Iterate through all users in the channel and send the message
-    for (std::map<Client *, int>::const_iterator it = channelUsers.begin(); it != channelUsers.end(); ++it) {
+    for (std::map<Client *, int>::const_iterator it = channelUsers.begin(); it != channelUsers.end(); ++it)
+    {
         int clientFd = it->first->getClientFd();
         // Do not send the message to the sender
-        if (clientFd != senderFd) {
+        if (clientFd != senderFd)
+        {
             std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
             send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
         }
     }
 }
 
-void Server::sendMessageToClient(int targetClientFd, const std::string& message, std::string targetNickname, std::string nickname) {
-	if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end()) {
-		std::string fullMessage = ":" + nickname + " PRIVMSG " + targetNickname + " :" + message + "\r\n";
-		send(targetClientFd, fullMessage.c_str(), fullMessage.size(), 0);
-	} else {
-		std::string replyError = ":" + serverName + " 401 " + nickname + " " + targetNickname + " :No such nick \r\n";
-		send(targetClientFd, replyError.c_str(), replyError.size(), 0);
-	}
+void Server::sendMessageToClient(int targetClientFd, const std::string &message, std::string targetNickname, std::string nickname)
+{
+    if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end())
+    {
+        std::string fullMessage = ":" + nickname + " PRIVMSG " + targetNickname + " :" + message + "\r\n";
+        send(targetClientFd, fullMessage.c_str(), fullMessage.size(), 0);
+    }
+    else
+    {
+        std::string replyError = ":" + serverName + " 401 " + nickname + " " + targetNickname + " :No such nick \r\n";
+        send(targetClientFd, replyError.c_str(), replyError.size(), 0);
+    }
 }
