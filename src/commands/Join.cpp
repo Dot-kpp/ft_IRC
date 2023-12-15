@@ -13,8 +13,6 @@ bool compareChannelName(const Channels& obj, const std::string& channelName) {
 }
 
 bool Join::execute(Server *server, std::string args, int clientFd) {
-	std::cout << "You are in JOIN execute" << std::endl;
-
 	if (args.empty() || clientFd < 0){
 		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " JOIN " + " :No such channel \r\n";
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
@@ -38,12 +36,9 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
     	return false;
 	}
-	if (channelName.find('#', 1) != std::string::npos) {
-		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel\r\n";
-		send(clientFd, replyError.c_str(), replyError.size(), 0);
-		std::cout << "Channel " << channelName << " does not exist" << std::endl;
+	// check if there are # after the first position of the string
+	if (channelName.find('#', 1) != std::string::npos)
 		return false;
-	}
 	Channels *channel = server->getChannelByName(channelName);
 	if (channel == nullptr) {
 		// Channel does not exist, create it
