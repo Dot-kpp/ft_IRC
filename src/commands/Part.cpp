@@ -35,25 +35,6 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
 	}
 
 
-    // iss >> name;
-	// Get the channel name
-
-    // size_t hashPos = args.find('#');
-    // size_t spacePos = args.find(' ', hashPos); // Find the space after '#'
-    // if (hashPos != std::string::npos && hashPos + 1 < args.size()) {
-    //     // Calculate the length of the channel name
-    //     size_t nameLength = (spacePos != std::string::npos) ? spacePos - hashPos - 1 : std::string::npos;
-    //     // Extract the channel name
-    //     name = args.substr(hashPos + 1, nameLength);
-	// } else {
-	// 	// '#' not found or it's the last character in args
-	// 	std::string replyError = ":" + server->getServerName() + " 476 " + name + " :Bad Channel Mask\r\n";
-	// 	send(clientFd, replyError.c_str(), replyError.size(), 0);
-	// 	return false;
-	// }
-	// Get the channel object by name
-
-
 	std::string channelName = name;
     Channels *channel = server->getChannelByName(channelName);
     if (channel == nullptr) {
@@ -73,17 +54,17 @@ bool Part::execute(Server *server, std::string args, int clientFd) {
     } else {
         // Client is a member of the channel, remove them
         std::cout << "Client " << client << " is a member of the channel " << name << std::endl;
-        channel->removeUser(server->getClientByFd(clientFd));
-        channel->removeUser(client);
         std::cout << "Client " << clientFd << " removed from channel " << name << std::endl;
         std::string reply = ":" + server->clients[clientFd].getNickName() + " PART " + channelName + "\r\n";
-        send(clientFd, reply.c_str(), reply.size(), 0);
+//        send(clientFd, reply.c_str(), reply.size(), 0);
         // Send a message to the other members of the channel
         std::stringstream ss;
         ss << "Client " << clientFd << " has left the channel.";
         std::string message = ss.str();
+		std::cout << "message: " << message << std::endl;
         std::map<Client *, int>::const_iterator it;
         server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
+        channel->removeUser(client);
     }
     return true;
 }
