@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-# define MAX_CLIENTS 10
+# define MAX_CLIENTS 3
 # define BACKLOG 10
 
 #include <cstring>

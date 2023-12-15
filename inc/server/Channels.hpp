@@ -23,13 +23,11 @@ private:
     std::string name;
 	std::string channelName;
     std::string topic;
-//    std::vector<Client *> clients;
 	std::map<Client*, int> users;
 	bool hasInviteOnly;
 	bool hasKey;
 	std::string key;
 	bool hasTopicRestriction;
-//	bool hasOperPrivilege;
 	bool hasUserLimit;
 	size_t userLimit;
 
@@ -45,11 +43,7 @@ public:
 	void setChannelName(std::string name);
 	std::string getTopic() const;
 	const std::map<Client *, int> &getUsers() const;
-//	const std::vector<Client *> &getClients() const; // Get users in channel
 	void setTopic(std::string topic);
-
-//    void addClient(Client *client);
-//    void removeClient(Client *client) { clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end()); }
 
 	void addUsers(Client* user, int roleId);
 	void removeUser(Client* user);

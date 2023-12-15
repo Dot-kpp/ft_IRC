@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:45:50 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/15 13:28:32 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:48:00 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Server
 private:
     Socket serverSocket;
     int port;
+    int activeConnections;
     std::string password;
     bool running;
     const std::string serverName;
@@ -61,13 +62,13 @@ public:
     std::string getPassword();
     int askPassword(int clientSocket);
     int treatIncomingBuffer(std::string strBuffer, int clientFd, Client *client, bool hasUserAndNick);
-    int parseIncomingBuffer(std::string buffer);
     void handleIncomingBuffer(int clientFd);
     void welcomeClient(int clientFd);
     std::string getServerName() const;
 	void addClientFd(int clientFd);
 	void removeClientFd(int clientFd);
-	int getClientFd() const;
+    int getActiveConnections() const;
+    void setActiveConnections(int activeConnections);
     static void handleSignal(int signal)
     {
         if (signal == SIGINT || signal == SIGTERM)

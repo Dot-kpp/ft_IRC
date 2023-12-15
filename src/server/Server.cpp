@@ -6,7 +6,7 @@
 /*   By: acouture <acouture@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:43:03 by acouture          #+#    #+#             */
-/*   Updated: 2023/12/15 13:27:47 by acouture         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:54:24 by acouture         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Server *Server::instance = nullptr;
 Server::Server(int port, std::string password) : serverSocket(port), port(port), password(password), running(false), serverName("YourServerName")
 {
     instance = this;
+    this->setActiveConnections(0);
     serverSocket.bindSocket();
     serverSocket.listenSocket();
     std::cout << "Server launched" << std::endl;
@@ -39,6 +40,16 @@ std::string Server::getServerName() const
 std::string Server::getPassword()
 {
     return (this->password);
+};
+
+int Server::getActiveConnections() const
+{
+    return (this->activeConnections);
+};
+
+void Server::setActiveConnections(int activeConnections)
+{
+    this->activeConnections = activeConnections;
 };
 
 int Server::askPassword(int clientSocket)
@@ -191,20 +202,29 @@ void Server::start()
             }
             else if (event_fd == serverSocket.getSocketFd())
             {
-                // New connection
-                std::cout << "New connection" << std::endl;
-                int client_fd = serverSocket.acceptConnection(client_addr, client_len);
-                if (client_fd == -1)
+                if (activeConnections < MAX_CLIENTS)
                 {
-                    perror("Accept socket error");
-                    continue;
+                    // New connection
+                    std::cout << "New connection" << std::endl;
+                    int client_fd = serverSocket.acceptConnection(client_addr, client_len);
+                    if (client_fd == -1)
+                    {
+                        perror("Accept socket error");
+                        continue;
+                    }
+                    // add client_fd to vector of client_fds
+                    this->addClientFd(client_fd);
+                    this->setActiveConnections(this->getActiveConnections() + 1);
+                    clients[client_fd].setClientFd(client_fd);
+                    EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                    if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
+                        perror("kevent error");
                 }
-                // add client_fd to vector of client_fds
-                this->addClientFd(client_fd);
-                clients[client_fd].setClientFd(client_fd);
-                EV_SET(&change_event[0], client_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                if (kevent(kq, change_event, 1, NULL, 0, NULL) < 0)
-                    perror("kevent error");
+                else
+                {
+                    std::string maxClientsError = ":YourServerName 421 * :Max clients reached. \r\n";
+                    send(event_fd, maxClientsError.c_str(), maxClientsError.size(), 0);
+                }
             }
             else if (event[i].filter == EVFILT_READ)
             {
@@ -304,6 +324,7 @@ void Server::removeClient(int clientFd, std::string reason)
         }
         it++;
     }
+    this->setActiveConnections(this->getActiveConnections() - 1);
 };
 
 void Server::tellEveryoneButSender(std::string message, int clientFd)
