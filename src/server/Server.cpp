@@ -364,7 +364,6 @@ void Server::removeClientFd(int clientFd)
     clientFds.erase(std::remove(clientFds.begin(), clientFds.end(), clientFd), clientFds.end());
 }
 
-// Inside Server class
 void Server::broadcastToChannel(const std::string &channelName, const std::string &message, int senderFd, std::string nickname)
 {
     Channels *channel = getChannelByName(channelName);
@@ -389,12 +388,8 @@ void Server::broadcastToChannel(const std::string &channelName, const std::strin
     for (std::map<Client *, int>::const_iterator it = channelUsers.begin(); it != channelUsers.end(); ++it)
     {
         int clientFd = it->first->getClientFd();
-        // Do not send the message to the sender
         if (clientFd != senderFd)
-        {
-            std::string fullMessage = ":" + nickname + " PRIVMSG " + channelName + " :" + message + "\r\n";
-            send(clientFd, fullMessage.c_str(), fullMessage.size(), 0);
-        }
+            send(clientFd, message.c_str(), message.size(), 0);
     }
 }
 

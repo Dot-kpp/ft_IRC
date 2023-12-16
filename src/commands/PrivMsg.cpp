@@ -39,24 +39,18 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 			return false;
 		}
 		message = message.substr(2);
-		cout << "msg_to_chan: " << message << endl;
-		//implement here the funciton that will send the message to all the users in the channel
-		// Send the message to all clients in the channel
-		server->broadcastToChannel(channel->getChannelName(), message, clientFd, client->getNickName());
+
+		std::string reply = ":" + client->getNickName() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n";
+		server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
 
 	} else {
-		cout << "This is a user" << endl;
-		// Find the client by nickname in the current channel
-		cout << "target: " << target << endl;
 		Client *targetClient = server->getClientByNickname(target);
 		if (targetClient == nullptr) {
 			std::cout << "Client '" << target << "' not found" << std::endl;
 			return false;
 		}
-		cout << "msg_to_user: " << message << endl;
+
 		message = message.substr(2);
-		//implement here the function that will send the message to the user
-		// Send the message to the client
 		server->sendMessageToClient(targetClient->getClientFd(), message, targetClient->getNickName(), client->getNickName());
 		std::cout << "Message sent to client " << targetClient->getClientFd() << std::endl;
 	}

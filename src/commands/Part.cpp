@@ -56,10 +56,10 @@ bool Part::execute(Server *server, std::string args, int clientFd)
     {
         std::string reply = ":" + server->clients[clientFd].getNickName() + " PART " + channelName + "\r\n";
         send(clientFd, reply.c_str(), reply.size(), 0);
-        std::stringstream ss;
-        ss << "Client " << clientFd << " has left the channel.";
-        std::string message = ss.str();
-        std::map<Client *, int>::const_iterator it;
+//        std::stringstream ss;
+//        ss << "Client " << clientFd << " has left the channel.";
+//        std::string message = ss.str();
+//        std::map<Client *, int>::const_iterator it;
         server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
         channel->removeUser(client);
     }

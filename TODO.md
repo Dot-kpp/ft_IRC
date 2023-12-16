@@ -3,8 +3,9 @@
 # Commands TO_DO
 
 ##ISSUE
-- [ ] When using "password123" it's working but it should not
-
+- [ ] refactor broadcoast message (to fix JOIN & PART msg)
+- [ ] fix the bug in JOIN (when reconnecting, split opn the ",")
+- [ ] finish Mode refactoring (case +k and +l)
 
 ## SENDING MESSAGES
 - PRIVMSG

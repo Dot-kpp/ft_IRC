@@ -85,12 +85,17 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			return false;
 		}
 		// Channel exists, add the client to it
-		channel->addUsers(client, 2); // Pass the Client object and role ID
+		channel->addUsers(client, 2);
+
 		// Send the JOIN message to the other clients in the channel
 		std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN " + channelName + "\r\n";
 		send(clientFd, reply.c_str(), reply.size(), 0);
+
 		std::cout << "Client " << clientFd << " added to the existing channel " << channelName << std::endl;
+
+		//need to modify this
 		server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
+
 	}
 
 	return true;
