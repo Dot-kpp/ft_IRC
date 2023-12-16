@@ -30,6 +30,7 @@ private:
 	bool hasTopicRestriction;
 	bool hasUserLimit;
 	size_t userLimit;
+	std::vector<Client*> invitedUsers;
 
 public:
     Channels();
@@ -60,6 +61,8 @@ public:
 	void promoteUser(Client *user);
 	void demoteUser(Client *user);
 	std::string getModes() const;
+	void addInvitedUser(Client *user);
+	bool isUserInvited(Client* user) const;
 
 	//Debug
 	bool getHasKey() const;

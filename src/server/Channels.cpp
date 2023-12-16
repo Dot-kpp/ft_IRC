@@ -40,6 +40,8 @@ Channels::Channels(int channelId, std::string name)
 	  this->userLimit = 0;
 }
 
+Channels::~Channels(){}
+
 void Channels::addUsers(Client* user, int roleId) {
 	users[user] = roleId;
 }
@@ -64,10 +66,10 @@ void Channels::toggleChannelKey() { this->hasKey = !hasKey; }
 
 void Channels::setInviteOnly(std::string str) {
 	if (str == "true")
-		this->hasTopicRestriction = true;
+		this->hasInviteOnly = true;
 
 	if (str == "false")
-		this->hasTopicRestriction = false;
+		this->hasInviteOnly = false;
 }
 
 void Channels::setTopicRestriction(std::string str) {
@@ -106,7 +108,13 @@ bool Channels::hasUser(Client *user) const {
 
 void Channels::setTopic(std::string topic) { this->topic = topic; }
 
-Channels::~Channels(){}
+void Channels::addInvitedUser(Client *user) {
+	invitedUsers.push_back(user);
+}
+
+bool Channels::isUserInvited(Client* user) const {
+    return std::find(invitedUsers.begin(), invitedUsers.end(), user) != invitedUsers.end();
+}
 
 void Channels::promoteUser(Client* user) {
 	std::map<Client*, int>::iterator it = users.find(user);
