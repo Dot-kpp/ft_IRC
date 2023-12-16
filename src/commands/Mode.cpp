@@ -64,11 +64,12 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 				case 'i':
 					// MODE #exampleChannel +i
 					if (isSettingMode) {
-						channel->setInviteOnly(plus);
+						channel->setInviteOnly(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +i \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel now invite only" << endl;
 					} else {
+						channel->setInviteOnly(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -i \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel no longer invite only" << endl;
@@ -78,12 +79,12 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 				case 't':
 					// MODE #exampleChannel +t
 					if (isSettingMode) {
-						channel->setTopicRestriction(plus);
+						channel->setTopicRestriction(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +t \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel now has topic restriction" << endl;
 					} else {
-						channel->setTopicRestriction(minus);
+						channel->setTopicRestriction(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -t \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel no longer has topic restriction" << endl;
@@ -110,14 +111,18 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 				case 'k':
 					// MODE #secretChannel +k mySecretKey
-					channel->toggleChannelKey();
-					channel->setKey(target); //need to do it by parse args
+//					channel->toggleChannelKey();
 
 					if (channel->getHasKey()) {
+						channel->setKey(target);
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +k \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 						cout << "Channel now has a key" << endl;
 						cout << "Key: " << channel->getKey() << endl;
+					} else {
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -k \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
 					}
-					else
 						cout << "Channel no longer has a key" << endl;
 					break;
 

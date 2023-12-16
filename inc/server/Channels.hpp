@@ -42,27 +42,31 @@ public:
     int getChannelId() const { return channelId; }
 	std::string getChannelName() const;
 	void setChannelName(std::string name);
-	std::string getTopic() const;
 	const std::map<Client *, int> &getUsers() const;
-	void setTopic(std::string topic);
 
 	void addUsers(Client* user, int roleId);
 	void removeUser(Client* user);
 	int getUserRole(Client* user) const;
 
+	std::string getTopic() const;
+	void setTopic(std::string topic);
+	void setTopicRestriction(bool status);
 
-	void toggleChannelKey();
-	void setInviteOnly(std::string str);
-	void setTopicRestriction(std::string str);
-	void toggleUserLimit();
-	void setUserLimit(int limit);
+	void setInviteOnly(bool status);
+	void addInvitedUser(Client *user);
+	bool isUserInvited(Client* user) const;
+
+	void setChannelKeyRestriction(bool status);
 	void setKey(std::string key);
+
+	void toggleUserLimit();
+	void setUserRestriction(bool status);
+	void setUserLimit(int limit);
+
 	bool isOperator(Client* user) const;
 	void promoteUser(Client *user);
 	void demoteUser(Client *user);
 	std::string getModes() const;
-	void addInvitedUser(Client *user);
-	bool isUserInvited(Client* user) const;
 
 	//Debug
 	bool getHasKey() const;

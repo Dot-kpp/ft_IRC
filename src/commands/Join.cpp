@@ -54,6 +54,12 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 
 		std::cout << "Channel " << channelName << " created and client " << server->clients[clientFd].getNickName() << " added to it." << std::endl;
 	} else {
+		if(channel->getInviteOnly() && !channel->isUserInvited(client)) {
+			// Channel is invite-only and user is not invited
+			std::string replyError = ":" + server->getServerName() + " 473 " + server->clients[clientFd].getNickName() + " " + channelName + " :Cannot join channel (+i) - not invited \r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
+			return false;
+		}
 		if (channel->hasUser(client)) {
 			// User is already in the channel
 			std::string replyError = ":" + server->getServerName() + " 443 " + server->clients[clientFd].getNickName() + " " + channelName + " :is already on channel\r\n";
@@ -75,12 +81,6 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		if(channel->getUserLimitValue() == channel->getUsers().size() && channel->getHasLimit()) {
 			// Channel is full
 			std::string replyError = ":" + server->getServerName() + " 471 " + server->clients[clientFd].getNickName() + " " + channelName + " :Cannot join channel (+l) - channel is full \r\n";
-			send(clientFd, replyError.c_str(), replyError.size(), 0);
-			return false;
-		}
-		if(channel->getInviteOnly() && !channel->hasUser(client)) {
-			// Channel is invite-only and user is not invited
-			std::string replyError = ":" + server->getServerName() + " 473 " + server->clients[clientFd].getNickName() + " " + channelName + " :Cannot join channel (+i) - not invited \r\n";
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			return false;
 		}
