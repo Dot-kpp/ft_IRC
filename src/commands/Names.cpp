@@ -40,9 +40,6 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 	// Iterate through channel names separated by a comma
 	while (getline(iss, channelName, ','))
 	{
-		// Trim leading and trailing whitespaces from the channel name
-		channelName = trim(channelName);
-
 		// Get the channel object by name
 		Channels *channel = server->getChannelByName(channelName);
 

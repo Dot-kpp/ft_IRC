@@ -3,12 +3,13 @@
 # Commands TO_DO
 
 ##ISSUE
-- [ ] refactor broadcoast message (to fix JOIN & PART msg)
-- [ ] fix the bug in JOIN (when reconnecting, split opn the ",")
+- [x] refactor broadcoast message (to fix JOIN & PART msg)
+- [x] fix the bug in JOIN (when reconnecting, split opn the ",")
 - [ ] finish Mode refactoring (case +k and +l)
+- [ ] mini fuck avec NAMES
 
 ## SENDING MESSAGES
-- PRIVMSG
+- PRIVMSG (Done)
 
 ### Alex
 - OPER (Done)
