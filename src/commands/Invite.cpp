@@ -79,7 +79,7 @@ bool Invite::execute(Server *server, std::string args, int clientFd) {
 			}
 
 			// Invite the target user to the channel
-			channel->addUsers(targetClient, 0); // Assuming roleId 0 is for invited users
+			channel->addUsers(targetClient, 2);
 
 			// Send RPL_INVITING numeric to the command issuer
 			std::string replyInviting = ":" + server->getServerName() + " 341 " + invitingClient->getNickName() + " " + targetClient->getNickName() + " #" + channelName + " :Inviting " + targetClient->getNickName() + " to " + channelName + "\r\n";
