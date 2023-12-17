@@ -133,8 +133,6 @@ void Channels::setChannelKeyRestriction(bool status) {
 
 void Channels::setKey(std::string key) { this->key = key; }
 
-
-
 bool Channels::isOperator(Client* user) const {
 	std::map<Client*, int>::const_iterator it = users.find(user);
 	return (it != users.end() && it->second == 1);
@@ -166,10 +164,10 @@ void Channels::demoteUser(Client* user) {
 
 /* DEBUG */
 bool Channels::getHasKey() const {
-	if (this->key != "")
-		return true;
-	else
+	if (this->key.empty())
 		return false;
+	else
+		return true;
 }
 
 bool Channels::getInviteOnly() const { return hasInviteOnly; }

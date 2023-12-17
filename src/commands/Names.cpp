@@ -40,6 +40,10 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 	// Iterate through channel names separated by a comma
 	while (getline(iss, channelName, ','))
 	{
+		// Remove \n and \r characters from channelName
+		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\n'), channelName.end());
+		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\r'), channelName.end());
+
 		// Get the channel object by name
 		Channels *channel = server->getChannelByName(channelName);
 

@@ -105,13 +105,6 @@ build CMakeFiles/ft_IRC.dir/src/commands/Nick.cpp.o: CXX_COMPILER__ft_IRC_unscan
   OBJECT_DIR = CMakeFiles/ft_IRC.dir
   OBJECT_FILE_DIR = CMakeFiles/ft_IRC.dir/src/commands
 
-build CMakeFiles/ft_IRC.dir/src/commands/Notice.cpp.o: CXX_COMPILER__ft_IRC_unscanned_Debug /Users/loulou/Documents/ft_IRC/src/commands/Notice.cpp || cmake_object_order_depends_target_ft_IRC
-  DEP_FILE = CMakeFiles/ft_IRC.dir/src/commands/Notice.cpp.o.d
-  FLAGS = -g -std=gnu++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
-  INCLUDES = -I/Users/loulou/Documents/ft_IRC/headers -I/Users/loulou/Documents/ft_IRC/inc -I/Users/loulou/Documents/ft_IRC/inc/commands -I/Users/loulou/Documents/ft_IRC/inc/server
-  OBJECT_DIR = CMakeFiles/ft_IRC.dir
-  OBJECT_FILE_DIR = CMakeFiles/ft_IRC.dir/src/commands
-
 build CMakeFiles/ft_IRC.dir/src/commands/Oper.cpp.o: CXX_COMPILER__ft_IRC_unscanned_Debug /Users/loulou/Documents/ft_IRC/src/commands/Oper.cpp || cmake_object_order_depends_target_ft_IRC
   DEP_FILE = CMakeFiles/ft_IRC.dir/src/commands/Oper.cpp.o.d
   FLAGS = -g -std=gnu++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
@@ -121,13 +114,6 @@ build CMakeFiles/ft_IRC.dir/src/commands/Oper.cpp.o: CXX_COMPILER__ft_IRC_unscan
 
 build CMakeFiles/ft_IRC.dir/src/commands/Part.cpp.o: CXX_COMPILER__ft_IRC_unscanned_Debug /Users/loulou/Documents/ft_IRC/src/commands/Part.cpp || cmake_object_order_depends_target_ft_IRC
   DEP_FILE = CMakeFiles/ft_IRC.dir/src/commands/Part.cpp.o.d
-  FLAGS = -g -std=gnu++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
-  INCLUDES = -I/Users/loulou/Documents/ft_IRC/headers -I/Users/loulou/Documents/ft_IRC/inc -I/Users/loulou/Documents/ft_IRC/inc/commands -I/Users/loulou/Documents/ft_IRC/inc/server
-  OBJECT_DIR = CMakeFiles/ft_IRC.dir
-  OBJECT_FILE_DIR = CMakeFiles/ft_IRC.dir/src/commands
-
-build CMakeFiles/ft_IRC.dir/src/commands/Pass.cpp.o: CXX_COMPILER__ft_IRC_unscanned_Debug /Users/loulou/Documents/ft_IRC/src/commands/Pass.cpp || cmake_object_order_depends_target_ft_IRC
-  DEP_FILE = CMakeFiles/ft_IRC.dir/src/commands/Pass.cpp.o.d
   FLAGS = -g -std=gnu++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/loulou/Documents/ft_IRC/headers -I/Users/loulou/Documents/ft_IRC/inc -I/Users/loulou/Documents/ft_IRC/inc/commands -I/Users/loulou/Documents/ft_IRC/inc/server
   OBJECT_DIR = CMakeFiles/ft_IRC.dir
@@ -211,7 +197,7 @@ build CMakeFiles/ft_IRC.dir/src/main.cpp.o: CXX_COMPILER__ft_IRC_unscanned_Debug
 #############################################
 # Link the executable ft_IRC
 
-build ft_IRC: CXX_EXECUTABLE_LINKER__ft_IRC_Debug CMakeFiles/ft_IRC.dir/src/commands/Command.cpp.o CMakeFiles/ft_IRC.dir/src/commands/CommandHandler.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Invite.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Join.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Kick.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Mode.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Names.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Nick.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Notice.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Oper.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Part.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Pass.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Ping.cpp.o CMakeFiles/ft_IRC.dir/src/commands/PrivMsg.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Quit.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Topic.cpp.o CMakeFiles/ft_IRC.dir/src/commands/User.cpp.o CMakeFiles/ft_IRC.dir/src/server/Channels.cpp.o CMakeFiles/ft_IRC.dir/src/server/Server.cpp.o CMakeFiles/ft_IRC.dir/src/server/Socket.cpp.o CMakeFiles/ft_IRC.dir/src/Client.cpp.o CMakeFiles/ft_IRC.dir/src/main.cpp.o
+build ft_IRC: CXX_EXECUTABLE_LINKER__ft_IRC_Debug CMakeFiles/ft_IRC.dir/src/commands/Command.cpp.o CMakeFiles/ft_IRC.dir/src/commands/CommandHandler.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Invite.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Join.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Kick.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Mode.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Names.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Nick.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Oper.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Part.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Ping.cpp.o CMakeFiles/ft_IRC.dir/src/commands/PrivMsg.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Quit.cpp.o CMakeFiles/ft_IRC.dir/src/commands/Topic.cpp.o CMakeFiles/ft_IRC.dir/src/commands/User.cpp.o CMakeFiles/ft_IRC.dir/src/server/Channels.cpp.o CMakeFiles/ft_IRC.dir/src/server/Server.cpp.o CMakeFiles/ft_IRC.dir/src/server/Socket.cpp.o CMakeFiles/ft_IRC.dir/src/Client.cpp.o CMakeFiles/ft_IRC.dir/src/main.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
   OBJECT_DIR = CMakeFiles/ft_IRC.dir
   POST_BUILD = :

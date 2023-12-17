@@ -18,10 +18,8 @@ add_executable(ft_IRC
         inc/commands/Mode.hpp
         inc/commands/Names.hpp
         inc/commands/Nick.hpp
-        inc/commands/Notice.hpp
         inc/commands/Oper.hpp
         inc/commands/Part.hpp
-        inc/commands/Pass.hpp
         inc/commands/Ping.hpp
         inc/commands/Quit.hpp
         inc/commands/Topic.hpp
@@ -38,10 +36,8 @@ add_executable(ft_IRC
         src/commands/Mode.cpp
         src/commands/Names.cpp
         src/commands/Nick.cpp
-        src/commands/Notice.cpp
         src/commands/Oper.cpp
         src/commands/Part.cpp
-        src/commands/Pass.cpp
         src/commands/Ping.cpp
         src/commands/PrivMsg.cpp
         src/commands/Quit.cpp

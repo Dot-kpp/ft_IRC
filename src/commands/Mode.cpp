@@ -26,23 +26,27 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 	std::string channelName;
 	std::string modeChanges;
 	std::string target;
-	cout << "args: " << args << endl;
+//	cout << "args: " << args << endl;
 	iss >> channelName >> modeChanges >> target;
 
 	// Find the client by nickname in the current channel
-	Client *targetClient = server->getClientByFd(clientFd);
+	Client *client = server->getClientByFd(clientFd);
+
+	Client *targetClient = server->getClientByNickname(target);
 
 	// Find the channel by name
+	cout << "channelName: " << channelName << endl;
+	cout << "channelName size: " << channelName.size() << endl;
 	Channels *channel = server->getChannelByName(channelName);
-
 	// Check if the channel exists
 	if (channel == nullptr) {
+		cout << "here"  << endl;
 		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
 	}
 
-	bool isSettingMode = true; // Default to setting mode
+	bool settingMode = true;
 
 	// Process the mode changes
 	// SYNTAXE : MODE #exampleChannel [+itkol] [args]
@@ -50,20 +54,18 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 		char mode = *it;
 
 		if (mode == '+') {
-			isSettingMode = true;
+			settingMode = true;
 			continue;
 		} else if (mode == '-') {
-			isSettingMode = false;
+			settingMode = false;
 			continue;
 		}
 
-		std::string plus = "true";
-		std::string minus = "false";
-		if (channel->isOperator(targetClient)) {
+		if (channel->isOperator(client)) {
 			switch (mode) {
 				case 'i':
 					// MODE #exampleChannel +i
-					if (isSettingMode) {
+					if (settingMode) {
 						channel->setInviteOnly(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +i \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
@@ -78,7 +80,7 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 				case 't':
 					// MODE #exampleChannel +t
-					if (isSettingMode) {
+					if (settingMode) {
 						channel->setTopicRestriction(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +t \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
@@ -93,7 +95,8 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 				case 'o':
 					if (targetClient != nullptr) {
-						if (isSettingMode) {
+						if (settingMode) {
+							cout << "Promoting " << targetClient->getNickName() << " to operator" << endl;
 							channel->promoteUser(targetClient);
 							std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +o \r\n";
 							send(clientFd, replyError.c_str(), replyError.size(), 0);
@@ -112,18 +115,23 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 				case 'k':
 					// MODE #secretChannel +k mySecretKey
 //					channel->toggleChannelKey();
-
-					if (channel->getHasKey()) {
+					if (settingMode) {
+						channel->setChannelKeyRestriction(true);
+						if(target.empty()){
+							std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " MODE " + channelName + " +k :Not enough parameters \r\n";
+							send(clientFd, replyError.c_str(), replyError.size(), 0);
+							return false;
+						}
+						target.erase(std::remove(target.begin(), target.end(), '\n'), target.end());
+						target.erase(std::remove(target.begin(), target.end(), '\r'), target.end());
 						channel->setKey(target);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +k \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						cout << "Channel now has a key" << endl;
-						cout << "Key: " << channel->getKey() << endl;
 					} else {
+						channel->setChannelKeyRestriction(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -k \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
 					}
-						cout << "Channel no longer has a key" << endl;
 					break;
 
 				case 'l':
