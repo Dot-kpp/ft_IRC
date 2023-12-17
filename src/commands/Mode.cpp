@@ -13,7 +13,6 @@ Mode::Mode(Mode const &src) {
 }
 
 bool Mode::execute(Server *server, std::string args, int clientFd) {
-	std::cout << "You are in MODE execute" << std::endl;
 
 	// Check if enough parameters are provided
 	if (args.empty()) {
@@ -26,7 +25,7 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 	std::string channelName;
 	std::string modeChanges;
 	std::string target;
-//	cout << "args: " << args << endl;
+
 	iss >> channelName >> modeChanges >> target;
 
 	// Find the client by nickname in the current channel
@@ -35,12 +34,10 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 	Client *targetClient = server->getClientByNickname(target);
 
 	// Find the channel by name
-	cout << "channelName: " << channelName << endl;
-	cout << "channelName size: " << channelName.size() << endl;
 	Channels *channel = server->getChannelByName(channelName);
+
 	// Check if the channel exists
 	if (channel == nullptr) {
-		cout << "here"  << endl;
 		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
@@ -48,7 +45,6 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 	bool settingMode = true;
 
-	// Process the mode changes
 	// SYNTAXE : MODE #exampleChannel [+itkol] [args]
 	for (std::string::iterator it = modeChanges.begin(); it != modeChanges.end(); ++it) {
 		char mode = *it;
@@ -69,12 +65,10 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 						channel->setInviteOnly(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +i \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						cout << "Channel now invite only" << endl;
 					} else {
 						channel->setInviteOnly(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -i \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						cout << "Channel no longer invite only" << endl;
 					}
 					break;
 
@@ -84,37 +78,34 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 						channel->setTopicRestriction(true);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +t \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						cout << "Channel now has topic restriction" << endl;
 					} else {
 						channel->setTopicRestriction(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -t \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						cout << "Channel no longer has topic restriction" << endl;
 					}
 					break;
 
 				case 'o':
 					if (targetClient != nullptr) {
 						if (settingMode) {
-							cout << "Promoting " << targetClient->getNickName() << " to operator" << endl;
 							channel->promoteUser(targetClient);
 							std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +o \r\n";
 							send(clientFd, replyError.c_str(), replyError.size(), 0);
+							server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
 						} else {
+							channel->demoteUser(targetClient);
 							std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -o \r\n";
 							send(clientFd, replyError.c_str(), replyError.size(), 0);
-							channel->demoteUser(targetClient);
+							server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
 						}
 					} else {
 						std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + target + " :They aren't on that channel \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
-						std::cout << "No target user provided" << std::endl;
 					}
-				break;
+					break;
 
 				case 'k':
 					// MODE #secretChannel +k mySecretKey
-//					channel->toggleChannelKey();
 					if (settingMode) {
 						channel->setChannelKeyRestriction(true);
 						if(target.empty()){
@@ -127,36 +118,55 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 						channel->setKey(target);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +k \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
+						server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
 					} else {
 						channel->setChannelKeyRestriction(false);
 						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -k \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);
+						server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
 					}
 					break;
 
 				case 'l':
 					// MODE #exampleChannel +l [userLimit]
-					channel->toggleUserLimit();
-					channel->setUserLimit(stoi(target));
-					if (channel->getHasLimit())
-						cout << "Channel now has a user limit" << endl;
-					else
-						cout << "Channel no longer has a user limit" << endl;
+					if (settingMode){
+						if(target.empty()){
+							std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " MODE " + channelName + " +l :Not enough parameters \r\n";
+							send(clientFd, replyError.c_str(), replyError.size(), 0);
+							return false;
+						}
+						channel->setUserRestriction(true);
+						try {
+							int userLimit = std::stoi(target);
+							channel->setUserLimit(userLimit);
+						} catch (std::invalid_argument& e) {
+							std::string replyError = ":" + client->getNickName() + " MODE " + channelName + " +l :Forbidden char in userlimit \r\n";
+							send(clientFd, replyError.c_str(), replyError.size(), 0);
+							return false;
+						}
+						channel->setUserLimit(stoi(target));
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " +l \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
+						server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
+					} else {
+						channel->setUserRestriction(false);
+						std::string replyError = ":" + server->clients[clientFd].getNickName() + " MODE " + channelName + " -l \r\n";
+						send(clientFd, replyError.c_str(), replyError.size(), 0);
+						server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
+					}
 					break;
 
 				default:
-					std::cout << "Unsupported mode: " << mode << std::endl;
+					std::string replyError = ":" + server->getServerName() + " 472 " + server->clients[clientFd].getNickName() + " " + channelName + " :is unknown mode to me\r\n";
+					send(clientFd, replyError.c_str(), replyError.size(), 0);
 					break;
 			}
 		}
 		else {
 			std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
-			std::cout << "You are not an operator" << std::endl;
 		}
 	}
-
-	// Send a MODE message to notify clients about the mode changes
 
 	return true;
 }
