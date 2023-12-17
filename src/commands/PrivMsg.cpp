@@ -13,28 +13,27 @@ PrivMsg::PrivMsg(PrivMsg const &src) {
 PrivMsg::~PrivMsg() { }
 
 bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
-	cout << "You are in PRIVMSG execute" << endl;
-	cout << "	args: " << args << endl;
 
-	// Find the target (if there is a '#', it's a channel, otherwise it's a user)
+	if (args.empty() || clientFd < 0) {
+		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PRIVMSG :Not enough parameters \r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
+		return false;
+	}
+
 	std::istringstream iss(args);
 	std::string target;
 	std::string message;
 
 	iss >> target;
-	cout << "target: " << target << endl;
 	Client *client = server->getClientByFd(clientFd);
 
-	// Use std::getline to get the rest of the string
 	std::getline(iss, message);
-
 	if(target.find('#') != std::string::npos) {
-		cout << "This is a channel" << endl;
-
-		// Find the channel by name
 		Channels *channel = server->getChannelByName(target);
 
 		if (channel == nullptr) {
+			std::string replyError = ":" + server->getServerName() + " 401 " + client->getNickName() + " " + target + " :No such nick/channel \r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			std::cout << "Channel '" << target << "' not found" << std::endl;
 			return false;
 		}
@@ -46,6 +45,8 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 	} else {
 		Client *targetClient = server->getClientByNickname(target);
 		if (targetClient == nullptr) {
+			std::string replyError = ":" + server->getServerName() + " 401 " + client->getNickName() + " " + target + " :No such nick/channel \r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			std::cout << "Client '" << target << "' not found" << std::endl;
 			return false;
 		}

@@ -23,10 +23,10 @@ std::string Invite::trim(const std::string& str) {
 }
 
 bool Invite::execute(Server *server, std::string args, int clientFd) {
-	cout << "You are in INVITE execute" << endl;
 
 	if (args.empty() || clientFd < 0) {
-		std::cout << "Not enough param or client doesn't exist" << std::endl;
+		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " INVITE :Not enough parameters \r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
 	}
 

@@ -24,12 +24,8 @@ std::string Names::trim(const std::string& str) {
 
 bool Names::execute(Server *server, std::string args, int clientFd)
 {
-	// Need to remove the below
-	std::cout << "You are in NAMES execute" << std::endl;
-
-	// Need to modify the below to send the appropriate replies
-	if (args.empty() || clientFd < 0)
-	{
+	if (args.empty() || clientFd < 0) {
+		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " NAMES :Not enough parameters \r\n";
 		std::cout << "Not enough param or client doesn't exist" << std::endl;
 		return false;
 	}

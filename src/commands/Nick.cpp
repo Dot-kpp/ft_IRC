@@ -23,25 +23,31 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
     args.erase(std::remove(args.begin(), args.end(), '\r'), args.end());
     if (parseNickname(args, clientFd))
     {
+		std::cout << "args: " << args << std::endl;
         bool hasNick = server->clients[clientFd].getNickName() != "";
-        if (hasNick)
-        {
-            std::string oldNick = server->clients[clientFd].getNickName();
-            
-            std::stringstream ss;
-            ss << ":" << oldNick << " NICK " << args << "\r\n";
-            std::string nickMsg = ss.str();
-            if (send(clientFd, nickMsg.c_str(), nickMsg.size(), 0) >= 0) {
-                server->clients[clientFd].setNickName(args);
-            }
-        }
+		if (hasNick)
+		{
+			std::string oldNick = server->clients[clientFd].getNickName();
+
+			std::stringstream ss;
+			ss << ":" << oldNick << " NICK " << args << "\r\n";
+			std::string nickMsg = ss.str();
+			server->clients[clientFd].setNickName(args);
+			send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
+
+			for (std::map<int, Client>::iterator it = server->clients.begin(); it != server->clients.end(); ++it)
+				send(it->first, nickMsg.c_str(), nickMsg.size(), 0);
+		}
         else
         {
             std::stringstream ss;
             ss << ":" << args << " NICK " << args << "\r\n";
             std::string nickMsg = ss.str();
-            send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
             server->clients[clientFd].setNickName(args);
+			send(clientFd, nickMsg.c_str(), nickMsg.size(), 0);
+			// Broadcast new nickname to all clients
+			for (std::map<int, Client>::iterator it = server->clients.begin(); it != server->clients.end(); ++it)
+				send(it->first, nickMsg.c_str(), nickMsg.size(), 0);
         }
         return true;
     }

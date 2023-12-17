@@ -14,7 +14,7 @@ bool compareChannelName(const Channels& obj, const std::string& channelName) {
 
 bool Join::execute(Server *server, std::string args, int clientFd) {
 	if (args.empty() || clientFd < 0) {
-		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " JOIN " +	" :No such channel \r\n";
+		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " JOIN :Not enough parameters \r\n";
 		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
 	}
@@ -115,6 +115,18 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			send(clientFd, reply.c_str(), reply.size(), 0);
 			server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
 			std::cout << "Client " << clientFd << " added to the existing channel " << channelName << std::endl;
+
+			// send the user list to the client
+			std::string userList = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = " + channelName + " :";
+			for (std::map<Client *, int>::const_iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
+				userList += it->first->getNickName() + " ";
+			}
+			userList += "\r\n";
+			send(clientFd, userList.c_str(), userList.size(), 0);
+
+			// send the end of user list to the client
+			std::string endOfUserList = ":" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list\r\n";
+			send(clientFd, endOfUserList.c_str(), endOfUserList.size(), 0);
 		}
 	}
 	return true;

@@ -14,9 +14,9 @@ Mode::Mode(Mode const &src) {
 
 bool Mode::execute(Server *server, std::string args, int clientFd) {
 
-	// Check if enough parameters are provided
 	if (args.empty()) {
-		std::cout << "Not enough parameters for MODE command" << std::endl;
+		std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " MODE :Not enough parameters \r\n";
+		send(clientFd, replyError.c_str(), replyError.size(), 0);
 		return false;
 	}
 
@@ -28,15 +28,11 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 
 	iss >> channelName >> modeChanges >> target;
 
-	// Find the client by nickname in the current channel
 	Client *client = server->getClientByFd(clientFd);
 
 	Client *targetClient = server->getClientByNickname(target);
 
-	// Find the channel by name
 	Channels *channel = server->getChannelByName(channelName);
-
-	// Check if the channel exists
 	if (channel == nullptr) {
 		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
 		send(clientFd, replyError.c_str(), replyError.size(), 0);

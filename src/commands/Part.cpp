@@ -15,12 +15,11 @@ bool Part::execute(Server *server, std::string args, int clientFd)
 
     if (args.empty() || clientFd < 0)
     {
-        std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PART" + " :No such channel \r\n";
+        std::string replyError = ":" + server->getServerName() + " 461 " + server->clients[clientFd].getNickName() + " PART :Not enough parameters \r\n";
         send(clientFd, replyError.c_str(), replyError.size(), 0);
         return false;
     }
 
-    // Get the Client object associated with clientFd
     Client *client = server->getClientByFd(clientFd);
     if (!client)
         return false;
@@ -56,10 +55,6 @@ bool Part::execute(Server *server, std::string args, int clientFd)
     {
         std::string reply = ":" + server->clients[clientFd].getNickName() + " PART " + channelName + "\r\n";
         send(clientFd, reply.c_str(), reply.size(), 0);
-//        std::stringstream ss;
-//        ss << "Client " << clientFd << " has left the channel.";
-//        std::string message = ss.str();
-//        std::map<Client *, int>::const_iterator it;
         server->broadcastToChannel(channel->getChannelName(), reply, clientFd, client->getNickName());
         channel->removeUser(client);
     }
