@@ -58,9 +58,13 @@ bool Kick::execute(Server *server, std::string args, int clientFd) {
             send(clientFd, replyError.c_str(), replyError.size(), 0);
             return false;
         }
-        channel->removeUser(targetClient); 
+        channel->removeUser(targetClient);
+		channel->removeFromInviteList(targetClient);
         std::string reply = ":" + server->clients[clientFd].getNickName() + " KICK " + name + " " + targetClient->getNickName() + "\r\n";
         send(clientFd, reply.c_str(), reply.size(), 0);
+		for (std::map<int, Client>::iterator it = server->clients.begin(); it != server->clients.end(); ++it) {
+				send(it->first, reply.c_str(), reply.size(), 0);
+		}
     }
     return true;
 }

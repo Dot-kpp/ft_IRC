@@ -55,6 +55,7 @@ public:
 	void setInviteOnly(bool status);
 	void addInvitedUser(Client *user);
 	bool isUserInvited(Client* user) const;
+	void removeFromInviteList(Client *user);
 
 	void setChannelKeyRestriction(bool status);
 	void setKey(std::string key);

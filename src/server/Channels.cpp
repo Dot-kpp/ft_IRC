@@ -86,6 +86,10 @@ bool Channels::isUserInvited(Client* user) const {
     return std::find(invitedUsers.begin(), invitedUsers.end(), user) != invitedUsers.end();
 }
 
+void Channels::removeFromInviteList(Client *user) {
+	invitedUsers.erase(std::remove(invitedUsers.begin(), invitedUsers.end(), user), invitedUsers.end());
+}
+
 /* TOPIC */
 
 void Channels::setTopicRestriction(bool status) {
