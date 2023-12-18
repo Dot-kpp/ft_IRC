@@ -61,6 +61,16 @@ bool Nick::parseNickname(std::string nickname, int clientFd)
     std::string serverName = "YourServerName";
     std::string clientNick = "*";
 
+	if (nickname.length() > 42)
+	{
+		std::stringstream ss;
+		ss << ":" << serverName << " 432 " << clientNick << " "
+		   << " :Erroneous nickname - too long (max 42 characters)\r\n";
+		std::string erroneousNickMsg = ss.str();
+		send(clientFd, erroneousNickMsg.c_str(), erroneousNickMsg.size(), 0);
+		return false;
+	}
+
     // Check if the nickname has more than one word
     if (nickname.find(' ') != std::string::npos)
     {

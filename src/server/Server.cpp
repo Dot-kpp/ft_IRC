@@ -244,7 +244,7 @@ void Server::welcomeClient(int clientFd)
     send(clientFd, welcomeMsg.c_str(), welcomeMsg.size(), 0);
 
     // RPL_YOURHOST
-    std::string yourHostMessage = ":YourServerName 002 " + nick + " :Your host is badass ft_IRC, running version 0.0.1 \r\n";
+    std::string yourHostMessage = ":YourServerName 002 " + nick + " :Your host is Badass_ft_IRC, running version 0.0.1 \r\n";
     send(clientFd, yourHostMessage.c_str(), yourHostMessage.size(), 0);
 
     // RPL_CREATED
@@ -254,11 +254,11 @@ void Server::welcomeClient(int clientFd)
     // RPL_MYINFO
     int nbOfUsers = this->clients.size();
     int nbOfChannels = this->channel.size();
-    std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 nb of users: " + std::to_string(nbOfUsers) + ", nb of channels: " + std::to_string(nbOfChannels) + " . \r\n";
+    std::string myInfoMessage = ":YourServerName 004 :ft_IRC 0.0.1 nb of users: " + std::to_string(nbOfUsers) + ", nb of channels: " + std::to_string(nbOfChannels) + ". \r\n";
     send(clientFd, myInfoMessage.c_str(), myInfoMessage.size(), 0);
 
     // RPL_ISUPPORT
-    std::string isupportMessage = ":YourServerName 005 <client> <1-13 tokens> :are supported by this server\r\n";
+    std::string isupportMessage = ":YourServerName 005 " + this->clients[clientFd].getNickName() + " CHANNELLEN=12 NICKLEN=42 TOPICLEN=42 MODES=5 PREFIX=@ :are supported by this server\r\n";
     send(clientFd, isupportMessage.c_str(), isupportMessage.size(), 0);
 
     std::cout << "Client " << clientFd << " is now authenticated." << std::endl;

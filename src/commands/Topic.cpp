@@ -77,6 +77,14 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 				send(clientFd, replyError.c_str(), replyError.size(), 0);
 				return false;
 			}
+
+			// Add a rule to limit the topic length to 420 characters
+			if (providedTopic.length() > 42) {
+				std::string replyError = ":" + server->getServerName() + " 442 " + server->clients[clientFd].getNickName() + " " + channelName + " :Topic is too long (max 420 characters)\r\n";
+				send(clientFd, replyError.c_str(), replyError.size(), 0);
+				return false;
+			}
+
 			providedTopic = providedTopic.substr(1);
 			channel->setTopic(providedTopic);
 			std::string replyTopic = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + channel->getTopic() + "\r\n";
@@ -86,5 +94,3 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 	}
 	return true;
 }
-
-
