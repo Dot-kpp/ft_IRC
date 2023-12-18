@@ -55,14 +55,14 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 			const std::map<Client *, int> &usersMap = channel->getUsers();
 			for (std::map<Client *, int>::const_iterator it = usersMap.begin(); it != usersMap.end(); ++it)
 			{
-				// Add the appropriate channel membership symbol here, e.g., "=" for public channel
-				namesList += it->first->getNickName() + " ";
+				if (channel->isOperator(it->first))
+					namesList += "@" + it->first->getNickName() + " ";
+				else
+					namesList += it->first->getNickName() + " ";
 			}
 			namesList += "\r\n";
-			// Send the NAMES list
 			send(clientFd, namesList.c_str(), namesList.size(), 0);
 
-			// End of NAMES list numeric reply
 			std::string replyEnd = ":" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list \r\n";
 			send(clientFd, replyEnd.c_str(), replyEnd.size(), 0);
 		}
@@ -76,4 +76,5 @@ bool Names::execute(Server *server, std::string args, int clientFd)
 
 	return true;
 }
+
 

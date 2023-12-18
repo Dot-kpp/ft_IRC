@@ -53,14 +53,17 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 		// Remove \n and \r characters from channelName
 		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\n'), channelName.end());
 		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\r'), channelName.end());
-		if (channelName.front() != '#') {
+		if (channelName.front() != '#' || channelName.find('#', 1) != std::string::npos) {
 			std::string replyError = ":" + server->getServerName() + " 476 " + channelName + " :Bad Channel Mask\r\n";
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			return false;
 		}
-		// check if there are # after the first position of the string
-		if (channelName.find('#', 1) != std::string::npos)
+
+		if(channelName.size() > 12) {
+			std::string replyError = ":" + server->getServerName() + " 400 " + channelName + " :Bad Channel length (>15 characters)\r\n";
+			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			return false;
+		}
 
 		Channels *channel = server->getChannelByName(channelName);
 
@@ -76,6 +79,9 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 
 			std::string operatorMessage = ":" + server->getServerName() + " 381 " + server->clients[clientFd].getNickName() + " :You are now an IRC operator \r\n";
 			send(clientFd, operatorMessage.c_str(), operatorMessage.size(), 0);
+			// Send the MODE numeric reply indicating channel modes
+			std::string replyMode = ":" + server->getServerName() + " 324 " + client->getNickName() + " " + channelName + " +o " + client->getNickName() + "\r\n";
+			send(clientFd, replyMode.c_str(), replyMode.size(), 0);
 
 			std::cout << "Channel " << channelName << " created and client " << server->clients[clientFd].getNickName() << " added to it." << std::endl;
 		} else {
