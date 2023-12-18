@@ -1,5 +1,7 @@
 #include "../../inc/commands/Ping.hpp"
 
+Ping::Ping() : command("Ping") {};
+
 Ping::~Ping()
 {
 }

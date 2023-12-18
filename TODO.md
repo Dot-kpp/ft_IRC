@@ -5,8 +5,8 @@
 ##ISSUE
 - [x] refactor broadcoast message (to fix JOIN & PART msg)
 - [x] fix the bug in JOIN (when reconnecting, split opn the ",")
-- [ ] finish Mode refactoring (case +k and +l)
-- [ ] mini fuck avec NAMES
+- [x] finish Mode refactoring (case +k and +l)
+- [x] mini fuck avec NAMES
 
 ## SENDING MESSAGES
 - PRIVMSG (Done)

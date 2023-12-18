@@ -82,13 +82,7 @@ public:
 	Channels* getChannelByName(const std::string& name);
     void removeClient(int clientFd, std::string reason);
     void tellEveryoneButSender(std::string message, int clientFd);
-    Client* getClientByFd(int clientFd) {
-        try {
-            return &clients.at(clientFd);
-        } catch (std::out_of_range& e) {
-            return nullptr;
-        }
-    }
+    Client* getClientByFd(int clientFd);
 	Client* getClientByNickname(const std::string& nickname);
 	void broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname);
 	void sendMessageToClient(int targetClientFd, const std::string& message, std::string targetNickname, std::string nickname);

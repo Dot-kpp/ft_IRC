@@ -10,7 +10,7 @@ private:
     std::string command;
 
 public:
-    User() : command("USER") {};
+    User();
     virtual ~User();
     
     virtual bool execute(Server *server, std::string args, int clientFd);

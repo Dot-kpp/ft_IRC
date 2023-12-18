@@ -30,42 +30,60 @@ bool Topic::execute(Server *server, std::string args, int clientFd) {
 		return false;
 	}
 
-	std::string channelName;
 	std::istringstream iss(args);
+	std::string channelInfo;
 
 	Client *targetClient = server->getClientByNickname(server->clients[clientFd].getNickName());
+	while(std::getline(iss, channelInfo, ',')){
+		size_t spacePos = channelInfo.find(' ');
 
-	std::getline(iss, channelName, ' ');
+		std::string channelName;
+		std::string providedTopic;
 
-	Channels *channel = server->getChannelByName(channelName);
+		if (spacePos != std::string::npos) {
+			// Split channelInfo into channelName and providedKey
+			channelName = channelInfo.substr(0, spacePos);
+			providedTopic = channelInfo.substr(spacePos + 1);
 
-	if (channel == nullptr) {
-		std::string replyError = ":" + server->getServerName() + " 403 " + server->clients[clientFd].getNickName() + " " + channelName + " :No such channel \r\n";
-		send(clientFd, replyError.c_str(), replyError.size(), 0);
-		return false;
-	}
-	// Get the remaining argument after the channel name
-	std::string topicArg;
-	std::getline(iss, topicArg);
+			providedTopic.erase(std::remove(providedTopic.begin(), providedTopic.end(), '\n'), providedTopic.end());
+			providedTopic.erase(std::remove(providedTopic.begin(), providedTopic.end(), '\r'), providedTopic.end());
 
-	// Trim leading and trailing whitespaces from the topic argument
-	topicArg = trim(topicArg);
+		} else {
+			// No space found, use channelInfo as channelName
+			channelName = channelInfo;
+			providedTopic.clear();
+		}
 
-	if (topicArg.empty()) {
-		std::string replyTopic = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + channel->getTopic() + "\r\n";
-		send(clientFd, replyTopic.c_str(), replyTopic.size(), 0);
-	} else {
-		if(channel->getTopicRestriction() && !channel->isOperator(targetClient)) {
-			std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
+		// Remove \n and \r characters from channelName
+		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\n'), channelName.end());
+		channelName.erase(std::remove(channelName.begin(), channelName.end(), '\r'), channelName.end());
+		if (channelName.front() != '#') {
+			std::string replyError = ":" + server->getServerName() + " 476 " + channelName + " :Bad Channel Mask\r\n";
 			send(clientFd, replyError.c_str(), replyError.size(), 0);
 			return false;
 		}
-		topicArg = topicArg.substr(1);
-		channel->setTopic(topicArg);
+		// check if there are # after the first position of the string
+		if (channelName.find('#', 1) != std::string::npos)
+			return false;
+
+		Channels *channel = server->getChannelByName(channelName);
+
+		if (providedTopic.empty()) {
 		std::string replyTopic = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + channel->getTopic() + "\r\n";
 		send(clientFd, replyTopic.c_str(), replyTopic.size(), 0);
-	}
+		} else {
+			if(channel->getTopicRestriction() && !channel->isOperator(targetClient)) {
+				std::string replyError = ":" + server->getServerName() + " 482 " + server->clients[clientFd].getNickName() + " " + channelName + " :You're not channel operator\r\n";
+				send(clientFd, replyError.c_str(), replyError.size(), 0);
+				return false;
+			}
+			providedTopic = providedTopic.substr(1);
+			channel->setTopic(providedTopic);
+			std::string replyTopic = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + channel->getTopic() + "\r\n";
+			send(clientFd, replyTopic.c_str(), replyTopic.size(), 0);
+		}
 
+	}
 	return true;
 }
 

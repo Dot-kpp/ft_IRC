@@ -17,4 +17,4 @@ public:
     bool parseNickname(std::string nickname, int clientFd);
 };
 
-#endif // NICK_HPP
+#endif

@@ -5,7 +5,7 @@ using std::cout;
 using std::endl;
 
 Channels::Channels() {
-	this->topic = "[empty]";
+	this->topic = "Welcome to the channel!";
 	this->hasKey = false;
 	this->key = "";
 	this->hasInviteOnly = false;
@@ -14,24 +14,11 @@ Channels::Channels() {
 	this->userLimit = 0;
 }
 
-Channels::Channels(Channels const *copy)
-{
-      *this = copy;
-}
-
-Channels &Channels::operator=(Channels const &rhs)
-{
-      if (this != &rhs)
-      {
-      }
-      return (*this);
-}
-
 Channels::Channels(int channelId, std::string name)
 {
 	  this->channelId = channelId;
 	  this->name = name;
-	  this->topic = "[empty]";
+	  this->topic = "Welcome to the channel!";
 	  this->hasKey = false;
 	  this->key = "";
 	  this->hasInviteOnly = false;
@@ -77,6 +64,11 @@ const std::map<Client *, int> &Channels::getUsers() const {
 	return users;
 }
 
+bool Channels::hasUser(Client *user) const {
+	// Check if the user is in the channel
+	return users.find(user) != users.end();
+}
+
 /* INVITE */
 
 void Channels::setInviteOnly(bool status) {
@@ -94,7 +86,6 @@ bool Channels::isUserInvited(Client* user) const {
     return std::find(invitedUsers.begin(), invitedUsers.end(), user) != invitedUsers.end();
 }
 
-
 /* TOPIC */
 
 void Channels::setTopicRestriction(bool status) {
@@ -110,8 +101,6 @@ void Channels::setTopic(std::string topic) { this->topic = topic; }
 
 /* USER LIMIT */
 
-void Channels::toggleUserLimit() { this->hasUserLimit = !hasUserLimit; }
-
 void Channels::setUserRestriction(bool status) {
 	if (status)
 		this->hasUserLimit = true;
@@ -120,7 +109,6 @@ void Channels::setUserRestriction(bool status) {
 }
 
 void Channels::setUserLimit(int limit) { this->userLimit = limit; }
-
 
 /* KEY */
 
@@ -175,18 +163,3 @@ bool Channels::getTopicRestriction() const { return hasTopicRestriction; }
 bool Channels::getHasLimit() const { return hasUserLimit; }
 std::string Channels::getKey() const { return key; }
 size_t Channels::getUserLimitValue() const { return userLimit; }
-bool Channels::hasUser(Client *user) const {
-	// Check if the user is in the channel
-	return users.find(user) != users.end();
-}
-
-
-std::string Channels::getModes() const {
-	std::string modes = "+";
-	if (getInviteOnly()) modes += "i";
-	if (getTopicRestriction()) modes += "t";
-	if (getHasKey()) modes += "k";
-	if (getHasLimit()) modes += "l";
-	return modes;
-}
-

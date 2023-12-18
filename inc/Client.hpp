@@ -24,7 +24,7 @@ private:
     int roleId;
 
 public:
-    Client() : clientSocket(0), password(""), hasGoodPassword(false), roleId(3) {};
+    Client();
     Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered); 
     ~Client();
 

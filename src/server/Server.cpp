@@ -276,6 +276,14 @@ Channels *Server::getChannelByName(const std::string &name)
     return NULL;
 }
 
+Client* Server::getClientByFd(int clientFd) {
+	try {
+		return &clients.at(clientFd);
+	} catch (std::out_of_range& e) {
+		return nullptr;
+	}
+}
+
 void Server::stop()
 {
     std::stringstream ss;

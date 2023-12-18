@@ -10,10 +10,10 @@ private:
     std::string command;
 
 public:
-    Ping() : command("Ping") {};
+    Ping();
     virtual ~Ping();
     
     virtual bool execute(Server *server, std::string args, int clientFd);
 };
 
-#endif // PING_HPP
+#endif

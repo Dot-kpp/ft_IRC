@@ -1,6 +1,8 @@
 
 #include "../inc/Client.hpp"
 
+Client::Client() : clientSocket(0), password(""), hasGoodPassword(false), roleId(3) {};
+
 Client::Client(Socket clientSocket, bool hasGoodPassword, bool isRegistered) : clientSocket(clientSocket), hasGoodPassword(hasGoodPassword), isRegistered(isRegistered)
 {
     this->roleId = 3;

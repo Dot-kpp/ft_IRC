@@ -123,10 +123,12 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			}
 			userList += "\r\n";
 			send(clientFd, userList.c_str(), userList.size(), 0);
-
-			// send the end of user list to the client
 			std::string endOfUserList = ":" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list\r\n";
 			send(clientFd, endOfUserList.c_str(), endOfUserList.size(), 0);
+
+			// send the topic to the client
+			std::string topicMessage = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + channel->getTopic() + "\r\n";
+			send(clientFd, topicMessage.c_str(), topicMessage.size(), 0);
 		}
 	}
 	return true;

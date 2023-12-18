@@ -18,6 +18,8 @@ CommandHandler::CommandHandler()
     commands["PRIVMSG"] = std::auto_ptr<PrivMsg>(new PrivMsg());
 };
 
+CommandHandler::~CommandHandler() {};
+
 bool CommandHandler::handleCommand(const std::string &commandName, std::string buffer, int clientFd)
 {
     Server *server = Server::instance;

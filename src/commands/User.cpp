@@ -1,6 +1,8 @@
 #include "../../inc/commands/User.hpp"
 
-User::~User(){};
+User::User() : command("USER") {}
+
+User::~User(){}
 
 bool User::execute(Server *server, std::string args, int clientFd)
 {

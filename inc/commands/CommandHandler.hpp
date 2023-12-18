@@ -29,6 +29,7 @@ private:
 
 public:
     CommandHandler();
+	~CommandHandler();
 
     bool handleCommand(const std::string &commandName, std::string buffer, int clientFd);
     bool isCommandRegistered(const std::string &commandName);

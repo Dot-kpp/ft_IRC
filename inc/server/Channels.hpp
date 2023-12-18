@@ -58,6 +58,8 @@ public:
 
 	void setChannelKeyRestriction(bool status);
 	void setKey(std::string key);
+	bool getHasKey() const;
+	std::string getKey() const;
 
 	void toggleUserLimit();
 	void setUserRestriction(bool status);
@@ -68,18 +70,13 @@ public:
 	void demoteUser(Client *user);
 	std::string getModes() const;
 
-	//Debug
-	bool getHasKey() const;
 	bool getInviteOnly() const;
 	bool getTopicRestriction() const;
 	bool getHasLimit() const;
 	size_t getUserLimitValue() const;
-	std::string getKey() const;
 	bool hasUser(Client *user) const;
 
 	bool isUserInChannel(const std::string& nickname) const;
 };
-
-std::string trim(const std::string& str) ;
 
 #endif

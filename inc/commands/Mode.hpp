@@ -15,5 +15,4 @@ public:
 	virtual bool execute(Server *server, std::string args, int clientFd);
 };
 
-
 #endif
