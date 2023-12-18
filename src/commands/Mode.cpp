@@ -94,6 +94,16 @@ bool Mode::execute(Server *server, std::string args, int clientFd) {
 							send(clientFd, replyError.c_str(), replyError.size(), 0);
 							server->broadcastToChannel(channelName, replyError, clientFd, client->getNickName());
 						}
+						std::string userList = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = " + channelName + " :";
+						for (std::map<Client *, int>::const_iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
+							if (channel->isOperator(it->first))
+								userList += "@" + it->first->getNickName() + " ";
+							else
+								userList += it->first->getNickName() + " ";
+						}
+						userList += "\r\n";
+						send(clientFd, userList.c_str(), userList.size(), 0);
+						server->broadcastToChannel(channelName, userList, clientFd, client->getNickName());
 					} else {
 						std::string replyError = ":" + server->getServerName() + " 441 " + server->clients[clientFd].getNickName() + " " + target + " :They aren't on that channel \r\n";
 						send(clientFd, replyError.c_str(), replyError.size(), 0);

@@ -74,14 +74,19 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			newChannel.setChannelName(channelName);
 			server->channel.push_back(newChannel);
 
+			// Send the JOIN message to the other clients in the channel
 			std::string reply = ":" + server->clients[clientFd].getNickName() + " JOIN " + channelName + "\r\n";
 			send(clientFd, reply.c_str(), reply.size(), 0);
 
-			std::string operatorMessage = ":" + server->getServerName() + " 381 " + server->clients[clientFd].getNickName() + " :You are now an IRC operator \r\n";
-			send(clientFd, operatorMessage.c_str(), operatorMessage.size(), 0);
-			// Send the MODE numeric reply indicating channel modes
-			std::string replyMode = ":" + server->getServerName() + " 324 " + client->getNickName() + " " + channelName + " +o " + client->getNickName() + "\r\n";
-			send(clientFd, replyMode.c_str(), replyMode.size(), 0);
+			// send the user list to the client
+			std::string userList = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = " + channelName + " :@" + client->getNickName() + "\r\n";
+			send(clientFd, userList.c_str(), userList.size(), 0);
+			std::string endOfUserList = ":" + server->getServerName() + " 366 " + server->clients[clientFd].getNickName() + " " + channelName + " :End of /NAMES list\r\n";
+			send(clientFd, endOfUserList.c_str(), endOfUserList.size(), 0);
+
+			// send the topic to the client
+			std::string topicMessage = ":" + server->getServerName() + " 332 " + server->clients[clientFd].getNickName() + " " + channelName + " :" + newChannel.getTopic() + "\r\n";
+			send(clientFd, topicMessage.c_str(), topicMessage.size(), 0);
 
 			std::cout << "Channel " << channelName << " created and client " << server->clients[clientFd].getNickName() << " added to it." << std::endl;
 		} else {
@@ -106,8 +111,7 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 				std::cout << "providedKey: [" << providedKey << "]" << std::endl;
 				std::cout << "channel->getKey(): [" << channel->getKey() << "]" << std::endl;
 				if (providedKey != channel->getKey()) {
-					std::string replyError =
-							":" + server->getServerName() + " 475 " + server->clients[clientFd].getNickName() + " " + channelName + " :Cannot join channel (+k) - bad key \r\n";
+					std::string replyError = ":" + server->getServerName() + " 475 " + server->clients[clientFd].getNickName() + " " + channelName + " :Cannot join channel (+k) - bad key \r\n";
 					send(clientFd, replyError.c_str(), replyError.size(), 0);
 					return false;
 				}
@@ -125,7 +129,10 @@ bool Join::execute(Server *server, std::string args, int clientFd) {
 			// send the user list to the client
 			std::string userList = ":" + server->getServerName() + " 353 " + server->clients[clientFd].getNickName() + " = " + channelName + " :";
 			for (std::map<Client *, int>::const_iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); ++it) {
-				userList += it->first->getNickName() + " ";
+				if (channel->isOperator(it->first))
+					userList += "@" + it->first->getNickName() + " ";
+				else
+					userList += it->first->getNickName() + " ";
 			}
 			userList += "\r\n";
 			send(clientFd, userList.c_str(), userList.size(), 0);
