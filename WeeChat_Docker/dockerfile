@@ -8,8 +8,12 @@ RUN apk add --no-cache weechat
 RUN adduser -D -h $HOME -s /sbin/nologin weechat \
     && chown -R weechat:weechat $HOME
 
-USER weechat
-
 WORKDIR $HOME
 
-CMD ["weechat"]
+COPY setup_weechat.sh /setup_weechat.sh
+RUN chmod +x /setup_weechat.sh
+
+USER weechat
+
+# CMD is used for the default command when the container starts
+CMD ["/setup_weechat.sh"]

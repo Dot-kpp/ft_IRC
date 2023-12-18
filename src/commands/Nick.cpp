@@ -23,7 +23,6 @@ bool Nick::execute(Server *server, std::string args, int clientFd)
     args.erase(std::remove(args.begin(), args.end(), '\r'), args.end());
     if (parseNickname(args, clientFd))
     {
-		std::cout << "args: " << args << std::endl;
         bool hasNick = server->clients[clientFd].getNickName() != "";
 		if (hasNick)
 		{
