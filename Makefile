@@ -6,7 +6,7 @@ ARG1=6667
 ARG2=password1
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 OBJDIR = bin
 SRCDIR = src
 SRCS = $(shell find $(SRCDIR) -type f -name '*.cpp')
