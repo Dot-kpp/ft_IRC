@@ -52,7 +52,7 @@ bool PrivMsg::execute(Server *server, std::string args, int clientFd) {
 		}
 
 		message = message.substr(2);
-		server->sendMessageToClient(targetClient->getClientFd(), message, targetClient->getNickName(), client->getNickName());
+		server->sendMessageToClient(client, targetClient, message);
 		std::cout << "Message sent to client " << targetClient->getClientFd() << std::endl;
 	}
 

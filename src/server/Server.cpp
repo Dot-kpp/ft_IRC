@@ -401,16 +401,18 @@ void Server::broadcastToChannel(const std::string &channelName, const std::strin
     }
 }
 
-void Server::sendMessageToClient(int targetClientFd, const std::string &message, std::string targetNickname, std::string nickname)
+//void Server::sendMessageToClient(int targetClientFd, const std::string &message, std::string targetNickname, std::string nickname)
+void Server::sendMessageToClient(Client *client, Client *targetClient, const std::string &message)
 {
-    if (std::find(clientFds.begin(), clientFds.end(), targetClientFd) != clientFds.end())
+    if (std::find(clientFds.begin(), clientFds.end(), targetClient->getClientFd()) != clientFds.end())
     {
-        std::string fullMessage = ":" + nickname + " PRIVMSG " + targetNickname + " :" + message + "\r\n";
-        send(targetClientFd, fullMessage.c_str(), fullMessage.size(), 0);
+        std::string fullMessage = ":" + client->getNickName() + " PRIVMSG " + targetClient->getNickName() + " :" + message + "\r\n";
+        send(client->getClientFd(), fullMessage.c_str(), fullMessage.size(), 0);
+        send(targetClient->getClientFd(), fullMessage.c_str(), fullMessage.size(), 0);
     }
     else
     {
-        std::string replyError = ":" + serverName + " 401 " + nickname + " " + targetNickname + " :No such nick \r\n";
-        send(targetClientFd, replyError.c_str(), replyError.size(), 0);
+        std::string replyError = ":" + serverName + " 401 " + client->getNickName() + " " + targetClient->getNickName() + " :No such nick \r\n";
+        send(targetClient->getClientFd(), replyError.c_str(), replyError.size(), 0);
     }
 }

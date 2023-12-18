@@ -85,7 +85,8 @@ public:
     Client* getClientByFd(int clientFd);
 	Client* getClientByNickname(const std::string& nickname);
 	void broadcastToChannel(const std::string& channelName, const std::string& message, int senderFd, std::string nickname);
-	void sendMessageToClient(int targetClientFd, const std::string& message, std::string targetNickname, std::string nickname);
+//	void sendMessageToClient(int targetClientFd, const std::string& message, std::string targetNickname, std::string nickname);
+	void sendMessageToClient(Client *client, Client *targetClient, const std::string& message);
 
 };
 

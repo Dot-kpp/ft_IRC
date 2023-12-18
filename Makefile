@@ -28,11 +28,6 @@ $(NAME): $(OBJS)
 	@$(CC) $(OBJS) -o $(NAME)
 	@echo "$(G)\n ║ MAKE COMPLETE ║$(RT)"
 
-#weechat: $(NAME)
-#	@docker pull weechat/weechat  
-#wee: $(NAME)
-#	docker run -it --rm --name weechat-container weechat/weechat /bin/sh -c "weechat --run-command '/server add irc host.docker.internal/6667 -notls'"
-
 weechat:
 	@cd WeeChat_Docker && docker build -t my-weechat-image . && docker run -it --rm my-weechat-image
 
